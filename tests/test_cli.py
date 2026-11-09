@@ -119,6 +119,29 @@ class MainTest(unittest.TestCase):
             run_cli("--week-start", "tuesday", "week")
         self.assertEqual(caught.exception.code, 2)
 
+    def test_countdown_prints_only_remaining(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--countdown", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "12h 00m\n")
+
+    def test_countdown_prints_one_line_per_period(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--countdown", "day", "week")
+        self.assertEqual(code, 0)
+        self.assertEqual(out.strip().splitlines(), ["12h 00m", "6d 12h"])
+
+    def test_percent_prints_only_percentage(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--percent", "day", "year")
+        self.assertEqual(code, 0)
+        lines = out.strip().splitlines()
+        self.assertEqual(lines[0], "50.0%")
+        self.assertTrue(lines[1].endswith("%"))
+        self.assertNotIn("left", out)
+
+    def test_countdown_and_percent_are_mutually_exclusive(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--countdown", "--percent", "day")
+        self.assertEqual(caught.exception.code, 2)
+
     def test_unknown_period_fails(self):
         with self.assertRaises(SystemExit) as caught:
             run_cli("fortnight")

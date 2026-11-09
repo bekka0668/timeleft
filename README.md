@@ -36,6 +36,8 @@ $ timeleft --json          # machine readable output
 $ timeleft day --at 2026-11-09T12:00   # evaluate at a fixed moment
 $ timeleft --width 40 --plain          # wider bar, no bar
 $ timeleft week --week-start sunday    # Sunday-based weeks
+$ timeleft day --countdown             # just "6h 58m" for a status bar
+$ timeleft --percent                   # just the percentages
 ```
 
 Periods: `day`, `week`, `month`, `quarter`, `year`.

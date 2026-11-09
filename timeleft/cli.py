@@ -66,6 +66,17 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="omit the progress bar",
     )
+    value_output = parser.add_mutually_exclusive_group()
+    value_output.add_argument(
+        "--countdown",
+        action="store_true",
+        help="print only the time left, one period per line",
+    )
+    value_output.add_argument(
+        "--percent",
+        action="store_true",
+        help="print only the percentage, one period per line",
+    )
     parser.add_argument(
         "--width",
         type=int,
@@ -109,6 +120,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if args.json:
         json.dump({"now": now.isoformat(), "periods": rows}, sys.stdout, indent=2)
         sys.stdout.write("\n")
+        return 0
+
+    if args.countdown or args.percent:
+        for row in rows:
+            if args.countdown:
+                print(row["remaining"])
+            else:
+                print("%.1f%%" % row["percent"])
         return 0
 
     for row in rows:
