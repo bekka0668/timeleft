@@ -36,6 +36,7 @@ $ timeleft                 # all periods
 $ timeleft week month      # only the periods you ask for
 $ timeleft --json          # machine readable output
 $ timeleft day --at 2026-11-09T12:00   # evaluate at a fixed moment
+$ timeleft day --at +90m               # or look 90 minutes ahead of now
 $ timeleft --width 40 --plain          # wider bar, no bar
 $ timeleft --ascii                     # ASCII bar for terminals without block glyphs
 $ timeleft week --week-start sunday    # Sunday-based weeks

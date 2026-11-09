@@ -37,6 +37,31 @@ class ParseMomentTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_moment("yesterday-ish")
 
+    def test_relative_offsets(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "+90m": datetime(2026, 11, 9, 13, 30),
+            "-2h": datetime(2026, 11, 9, 10, 0),
+            "+30s": datetime(2026, 11, 9, 12, 0, 30),
+            "+1d": datetime(2026, 11, 10, 12, 0),
+            "+1w": datetime(2026, 11, 16, 12, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_relative_offset_accepts_uppercase_unit(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_moment("+2H", now=base), datetime(2026, 11, 9, 14, 0))
+
+    def test_relative_offset_needs_whole_number(self):
+        with self.assertRaises(ValueError):
+            parse_moment("+1.5h", now=datetime(2026, 11, 9, 12, 0))
+
+    def test_relative_offset_with_unknown_unit_raises(self):
+        with self.assertRaises(ValueError):
+            parse_moment("+90x", now=datetime(2026, 11, 9, 12, 0))
+
 
 class SupportsBlockGlyphsTest(unittest.TestCase):
     def test_utf8_capable_stream(self):
@@ -198,6 +223,13 @@ class MainTest(unittest.TestCase):
         with self.assertRaises(SystemExit) as caught:
             run_cli("--width", "0", "day")
         self.assertEqual(caught.exception.code, 2)
+
+    def test_relative_at_is_measured_from_now(self):
+        code, out = run_cli("--at", "+90m", "--json", "day")
+        self.assertEqual(code, 0)
+        reported = datetime.fromisoformat(json.loads(out)["now"])
+        offset = (reported - datetime.now()).total_seconds()
+        self.assertAlmostEqual(offset, 5400, delta=10)
 
     def test_bad_at_fails(self):
         with self.assertRaises(SystemExit) as caught:
