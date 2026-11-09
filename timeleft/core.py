@@ -37,12 +37,16 @@ class Span:
         return self.start <= moment < self.end
 
 
-def span_for(period: str, now: datetime) -> Span:
+def span_for(period: str, now: datetime, week_start: int = 0) -> Span:
     if period == "day":
         start = datetime(now.year, now.month, now.day)
         end = start + timedelta(days=1)
     elif period == "week":
-        start = datetime(now.year, now.month, now.day) - timedelta(days=now.weekday())
+        if not 0 <= week_start <= 6:
+            raise ValueError("week_start must be between 0 (Monday) and 6 (Sunday)")
+        start = datetime(now.year, now.month, now.day) - timedelta(
+            days=(now.weekday() - week_start) % 7
+        )
         end = start + timedelta(days=7)
     elif period == "month":
         start = _add_months(now, 0)
@@ -82,10 +86,12 @@ def render_bar(fraction: float, width: int = 25) -> str:
     return "\u2588" * filled + "\u2591" * (width - filled)
 
 
-def build_report(periods: Iterable[str], now: datetime) -> List[Dict[str, object]]:
+def build_report(
+    periods: Iterable[str], now: datetime, week_start: int = 0
+) -> List[Dict[str, object]]:
     rows: List[Dict[str, object]] = []
     for period in periods:
-        span = span_for(period, now)
+        span = span_for(period, now, week_start)
         fraction = span.fraction_elapsed(now)
         rows.append(
             {
