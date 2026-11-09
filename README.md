@@ -37,6 +37,7 @@ $ timeleft week month      # only the periods you ask for
 $ timeleft --json          # machine readable output
 $ timeleft day --at 2026-11-09T12:00   # evaluate at a fixed moment
 $ timeleft --width 40 --plain          # wider bar, no bar
+$ timeleft --ascii                     # ASCII bar for terminals without block glyphs
 $ timeleft week --week-start sunday    # Sunday-based weeks
 $ timeleft day --countdown             # just "6h 58m" for a status bar
 $ timeleft --percent                   # just the percentages
@@ -46,7 +47,8 @@ Periods: `day`, `week`, `month`, `quarter`, `year`, or just their first
 letter (`d`, `w`, `m`, `q`, `y`).
 
 Weeks start on Monday by default. Times are local time and naive (no timezone
-database is required).
+database is required). The bar switches to ASCII automatically when the output
+encoding cannot represent the block glyphs.
 
 ## Development
 

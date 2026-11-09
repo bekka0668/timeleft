@@ -4,7 +4,7 @@ import unittest
 from contextlib import redirect_stdout
 from datetime import datetime, timedelta, timezone
 
-from timeleft.cli import format_row, main, parse_moment
+from timeleft.cli import format_row, main, parse_moment, supports_block_glyphs
 
 
 def run_cli(*argv):
@@ -38,6 +38,16 @@ class ParseMomentTest(unittest.TestCase):
             parse_moment("yesterday-ish")
 
 
+class SupportsBlockGlyphsTest(unittest.TestCase):
+    def test_utf8_capable_stream(self):
+        self.assertTrue(supports_block_glyphs(io.StringIO()))
+
+    def test_ascii_only_stream(self):
+        buffer = io.BytesIO()
+        stream = io.TextIOWrapper(buffer, encoding="ascii")
+        self.assertFalse(supports_block_glyphs(stream))
+
+
 class FormatRowTest(unittest.TestCase):
     ROW = {
         "period": "day",
@@ -55,6 +65,10 @@ class FormatRowTest(unittest.TestCase):
     def test_bar_row(self):
         line = format_row(self.ROW, 10, plain=False)
         self.assertIn("[" + "\u2588" * 5 + "\u2591" * 5 + "]", line)
+
+    def test_ascii_bar_row(self):
+        line = format_row(self.ROW, 10, plain=False, bar_style="ascii")
+        self.assertIn("[#####-----]", line)
 
 
 class MainTest(unittest.TestCase):
@@ -98,6 +112,22 @@ class MainTest(unittest.TestCase):
         code, out = run_cli("--at", "2026-11-09T12:00", "--width", "3", "day")
         self.assertEqual(code, 0)
         self.assertIn("[\u2588\u2591\u2591]", out)
+
+    def test_ascii_option_replaces_block_glyphs(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--width", "3", "--ascii", "day")
+        self.assertEqual(code, 0)
+        self.assertIn("[#--]", out)
+        self.assertNotIn("\u2588", out)
+        self.assertNotIn("\u2591", out)
+
+    def test_ascii_stdout_falls_back_automatically(self):
+        buffer = io.BytesIO()
+        stream = io.TextIOWrapper(buffer, encoding="ascii")
+        with redirect_stdout(stream):
+            code = main(["--at", "2026-11-09T12:00", "--width", "3", "day"])
+        stream.flush()
+        self.assertEqual(code, 0)
+        self.assertIn("[#--]", buffer.getvalue().decode("ascii"))
 
     def test_week_start_sunday_shifts_week_span(self):
         code, out = run_cli(
