@@ -1,5 +1,7 @@
 # timeleft
 
+[![CI](https://github.com/bekka0668/timeleft/actions/workflows/ci.yml/badge.svg)](https://github.com/bekka0668/timeleft/actions/workflows/ci.yml)
+
 How much of the day, week, month, quarter or year is left? `timeleft` answers
 that in one line, with a progress bar, so you can see where you are in the
 current period at a glance.
