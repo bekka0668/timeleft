@@ -24,6 +24,22 @@ class SpanTest(unittest.TestCase):
         self.assertEqual(span.start, datetime(2026, 11, 9))
         self.assertEqual(span.end, datetime(2026, 11, 16))
 
+    def test_week_can_start_on_sunday(self):
+        span = span_for("week", datetime(2026, 11, 11, 9, 0), week_start=6)
+        self.assertEqual(span.start, datetime(2026, 11, 8))
+        self.assertEqual(span.end, datetime(2026, 11, 15))
+
+    def test_sunday_week_contains_saturday_night(self):
+        span = span_for("week", datetime(2026, 11, 14, 23, 59), week_start=6)
+        self.assertTrue(span.contains(datetime(2026, 11, 14, 23, 59)))
+        self.assertEqual(span.end, datetime(2026, 11, 15))
+
+    def test_week_start_out_of_range_is_rejected(self):
+        for bad in (-1, 7):
+            with self.subTest(week_start=bad):
+                with self.assertRaises(ValueError):
+                    span_for("week", self.now, week_start=bad)
+
     def test_month_span(self):
         span = span_for("month", self.now)
         self.assertEqual(span.start, datetime(2026, 11, 1))

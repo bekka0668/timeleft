@@ -10,6 +10,7 @@ from . import __version__
 from .core import PERIODS, build_report, render_bar
 
 DEFAULT_WIDTH = 25
+WEEK_STARTS = {"monday": 0, "sunday": 6}
 
 
 def parse_moment(text: str) -> datetime:
@@ -73,6 +74,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="bar width in characters (default: %d)" % DEFAULT_WIDTH,
     )
     parser.add_argument(
+        "--week-start",
+        choices=WEEK_STARTS,
+        default="monday",
+        metavar="DAY",
+        help="first day of the week, monday or sunday (default: monday)",
+    )
+    parser.add_argument(
         "--version",
         action="version",
         version="timeleft %s" % __version__,
@@ -96,7 +104,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     else:
         now = datetime.now().replace(microsecond=0)
 
-    rows = build_report(periods, now)
+    rows = build_report(periods, now, week_start=WEEK_STARTS[args.week_start])
 
     if args.json:
         json.dump({"now": now.isoformat(), "periods": rows}, sys.stdout, indent=2)

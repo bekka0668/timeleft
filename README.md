@@ -35,12 +35,13 @@ $ timeleft week month      # only the periods you ask for
 $ timeleft --json          # machine readable output
 $ timeleft day --at 2026-11-09T12:00   # evaluate at a fixed moment
 $ timeleft --width 40 --plain          # wider bar, no bar
+$ timeleft week --week-start sunday    # Sunday-based weeks
 ```
 
 Periods: `day`, `week`, `month`, `quarter`, `year`.
 
-Week starts on Monday. Times are local time and naive (no timezone database is
-required).
+Weeks start on Monday by default. Times are local time and naive (no timezone
+database is required).
 
 ## Development
 

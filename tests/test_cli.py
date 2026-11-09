@@ -99,6 +99,26 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("[\u2588\u2591\u2591]", out)
 
+    def test_week_start_sunday_shifts_week_span(self):
+        code, out = run_cli(
+            "--at", "2026-11-11T12:00", "--json", "--week-start", "sunday", "week"
+        )
+        self.assertEqual(code, 0)
+        week = json.loads(out)["periods"][0]
+        self.assertEqual(week["start"], "2026-11-08T00:00:00")
+        self.assertEqual(week["end"], "2026-11-15T00:00:00")
+
+    def test_week_start_defaults_to_monday(self):
+        code, out = run_cli("--at", "2026-11-11T12:00", "--json", "week")
+        self.assertEqual(code, 0)
+        week = json.loads(out)["periods"][0]
+        self.assertEqual(week["start"], "2026-11-09T00:00:00")
+
+    def test_bad_week_start_fails(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--week-start", "tuesday", "week")
+        self.assertEqual(caught.exception.code, 2)
+
     def test_unknown_period_fails(self):
         with self.assertRaises(SystemExit) as caught:
             run_cli("fortnight")
