@@ -7,7 +7,7 @@ name = "timeleft"
 version = "0.1.0"
 description = "See how much of the day, week, month, quarter or year is left."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "bekka" }]
 keywords = ["cli", "time", "progress", "productivity"]
