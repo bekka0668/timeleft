@@ -1,5 +1,3 @@
-"""Tests for the timeleft command line interface."""
-
 import io
 import json
 import unittest
@@ -10,7 +8,6 @@ from timeleft.cli import format_row, main, parse_moment
 
 
 def run_cli(*argv):
-    """Run the CLI and return (exit code, stdout)."""
     out = io.StringIO()
     with redirect_stdout(out):
         code = main(list(argv))

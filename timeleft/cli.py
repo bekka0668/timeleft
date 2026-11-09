@@ -1,5 +1,3 @@
-"""Command line interface for timeleft."""
-
 from __future__ import annotations
 
 import argparse
@@ -15,7 +13,6 @@ DEFAULT_WIDTH = 25
 
 
 def parse_moment(text: str) -> datetime:
-    """Parse an ISO 8601 timestamp into a naive local datetime."""
     value = text.strip()
     if value.endswith("Z"):
         value = value[:-1] + "+00:00"
@@ -26,7 +23,6 @@ def parse_moment(text: str) -> datetime:
 
 
 def format_row(row: dict, width: int, plain: bool) -> str:
-    """Format one report row for the terminal."""
     if plain:
         return "%-7s %5.1f%%  %s left" % (
             row["period"],
@@ -110,7 +106,3 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     for row in rows:
         print(format_row(row, args.width, args.plain))
     return 0
-
-
-if __name__ == "__main__":  # pragma: no cover
-    raise SystemExit(main())

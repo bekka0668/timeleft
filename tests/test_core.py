@@ -1,5 +1,3 @@
-"""Tests for timeleft.core."""
-
 import unittest
 from datetime import datetime
 

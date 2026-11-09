@@ -1,9 +1,3 @@
-"""Core period arithmetic for timeleft.
-
-Everything here works on naive local ``datetime`` objects on purpose: the tool
-must stay usable without a timezone database.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -13,32 +7,13 @@ from typing import Dict, Iterable, List
 PERIODS = ("day", "week", "month", "quarter", "year")
 
 
-def _month_start(reference: date) -> datetime:
-    return datetime(reference.year, reference.month, 1)
-
-
-def _add_months(reference: date, months: int) -> date:
-    """Move ``reference`` by ``months`` keeping the day of month where possible."""
-    month_index = reference.month - 1 + months
-    year = reference.year + month_index // 12
-    month = month_index % 12 + 1
-    return date(year, month, 1)
-
-
-def _next_month_start(reference: date) -> datetime:
-    first = _add_months(reference, 1)
-    return datetime(first.year, first.month, 1)
-
-
-def _quarter_start(reference: date) -> date:
-    first_month = 3 * ((reference.month - 1) // 3) + 1
-    return date(reference.year, first_month, 1)
+def _add_months(reference: date, months: int) -> datetime:
+    index = reference.month - 1 + months
+    return datetime(reference.year + index // 12, index % 12 + 1, 1)
 
 
 @dataclass(frozen=True)
 class Span:
-    """A half-open period ``[start, end)`` with a human readable name."""
-
     name: str
     start: datetime
     end: datetime
@@ -63,22 +38,18 @@ class Span:
 
 
 def span_for(period: str, now: datetime) -> Span:
-    """Return the :class:`Span` of ``period`` containing ``now``."""
     if period == "day":
         start = datetime(now.year, now.month, now.day)
         end = start + timedelta(days=1)
     elif period == "week":
-        day_start = datetime(now.year, now.month, now.day)
-        start = day_start - timedelta(days=now.weekday())
+        start = datetime(now.year, now.month, now.day) - timedelta(days=now.weekday())
         end = start + timedelta(days=7)
     elif period == "month":
-        start = _month_start(now)
-        end = _next_month_start(now)
+        start = _add_months(now, 0)
+        end = _add_months(now, 1)
     elif period == "quarter":
-        start_date = _quarter_start(now)
-        start = datetime(start_date.year, start_date.month, 1)
-        next_quarter_month = _add_months(start_date, 3)
-        end = datetime(next_quarter_month.year, next_quarter_month.month, 1)
+        start = _add_months(now, -((now.month - 1) % 3))
+        end = _add_months(start, 3)
     elif period == "year":
         start = datetime(now.year, 1, 1)
         end = datetime(now.year + 1, 1, 1)
@@ -90,10 +61,6 @@ def span_for(period: str, now: datetime) -> Span:
 
 
 def format_duration(seconds: float) -> str:
-    """Format a number of seconds as a compact two-part duration.
-
-    Examples: ``0s``, ``45s``, ``3m 05s``, ``2h 07m``, ``5d 01h``.
-    """
     total = max(0, int(round(seconds)))
     days, rest = divmod(total, 86400)
     hours, rest = divmod(rest, 3600)
@@ -108,7 +75,6 @@ def format_duration(seconds: float) -> str:
 
 
 def render_bar(fraction: float, width: int = 25) -> str:
-    """Render a fixed-width progress bar for ``fraction`` in ``[0, 1]``."""
     if width < 1:
         raise ValueError("bar width must be at least 1")
     clamped = min(max(fraction, 0.0), 1.0)
@@ -117,7 +83,6 @@ def render_bar(fraction: float, width: int = 25) -> str:
 
 
 def build_report(periods: Iterable[str], now: datetime) -> List[Dict[str, object]]:
-    """Build the data behind the text and JSON output."""
     rows: List[Dict[str, object]] = []
     for period in periods:
         span = span_for(period, now)
