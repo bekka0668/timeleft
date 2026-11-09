@@ -48,7 +48,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "periods",
         nargs="*",
-        choices=PERIODS + tuple(PERIOD_ALIASES),
         metavar="PERIOD",
         help="one of %s or its first letter (default: all)" % ", ".join(PERIODS),
     )
@@ -108,6 +107,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         parser.error("--width must be at least 1")
 
     selected = args.periods or list(PERIODS)
+    unknown = [name for name in selected if name not in PERIOD_ALIASES and name not in PERIODS]
+    if unknown:
+        parser.error(
+            "invalid period %r (choose from %s)"
+            % (unknown[0], ", ".join(PERIODS + tuple(PERIOD_ALIASES)))
+        )
     periods: List[str] = [PERIOD_ALIASES.get(name, name) for name in selected]
     if args.at:
         try:
