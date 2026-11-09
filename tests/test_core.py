@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime
 
-from timeleft.core import PERIODS, format_duration, render_bar, span_for
+from timeleft.core import PERIODS, build_report, format_duration, render_bar, span_for
 
 
 class SpanTest(unittest.TestCase):
@@ -150,6 +150,13 @@ class RenderBarTest(unittest.TestCase):
     def test_unknown_style(self):
         with self.assertRaises(ValueError):
             render_bar(0.5, 4, "braille")
+
+
+class BuildReportTest(unittest.TestCase):
+    def test_elapsed_is_formatted(self):
+        row = build_report(["day"], datetime(2026, 11, 9, 14, 30))[0]
+        self.assertEqual(row["elapsed_seconds"], 52200)
+        self.assertEqual(row["elapsed"], "14h 30m")
 
 
 if __name__ == "__main__":

@@ -192,6 +192,26 @@ class MainTest(unittest.TestCase):
         self.assertTrue(lines[1].endswith("%"))
         self.assertNotIn("left", out)
 
+    def test_elapsed_prints_only_time_spent(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--elapsed", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "12h 00m\n")
+
+    def test_elapsed_prints_one_line_per_period(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--elapsed", "day", "week")
+        self.assertEqual(code, 0)
+        self.assertEqual(out.strip().splitlines(), ["12h 00m", "12h 00m"])
+
+    def test_elapsed_is_in_json_output(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--json", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["periods"][0]["elapsed"], "12h 00m")
+
+    def test_elapsed_and_countdown_are_mutually_exclusive(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--elapsed", "--countdown", "day")
+        self.assertEqual(caught.exception.code, 2)
+
     def test_countdown_and_percent_are_mutually_exclusive(self):
         with self.assertRaises(SystemExit) as caught:
             run_cli("--countdown", "--percent", "day")

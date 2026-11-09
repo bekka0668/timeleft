@@ -99,6 +99,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="print only the percentage, one period per line",
     )
+    value_output.add_argument(
+        "--elapsed",
+        action="store_true",
+        help="print only the time already spent, one period per line",
+    )
     parser.add_argument(
         "--width",
         type=int,
@@ -151,12 +156,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         sys.stdout.write("\n")
         return 0
 
-    if args.countdown or args.percent:
+    if args.countdown or args.percent or args.elapsed:
         for row in rows:
             if args.countdown:
                 print(row["remaining"])
-            else:
+            elif args.percent:
                 print("%.1f%%" % row["percent"])
+            else:
+                print(row["elapsed"])
         return 0
 
     bar_style = "ascii" if args.ascii or not supports_block_glyphs(sys.stdout) else "unicode"

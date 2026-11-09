@@ -42,6 +42,7 @@ $ timeleft --ascii                     # ASCII bar for terminals without block g
 $ timeleft week --week-start sunday    # Sunday-based weeks
 $ timeleft day --countdown             # just "6h 58m" for a status bar
 $ timeleft --percent                   # just the percentages
+$ timeleft --elapsed                   # just the time already spent
 ```
 
 Periods: `day`, `week`, `month`, `quarter`, `year`, or just their first

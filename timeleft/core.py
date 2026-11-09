@@ -110,6 +110,7 @@ def build_report(
                 "fraction": round(fraction, 6),
                 "percent": round(fraction * 100.0, 1),
                 "elapsed_seconds": round(span.elapsed_seconds(now)),
+                "elapsed": format_duration(span.elapsed_seconds(now)),
                 "remaining_seconds": round(span.remaining_seconds(now)),
                 "remaining": format_duration(span.remaining_seconds(now)),
             }
