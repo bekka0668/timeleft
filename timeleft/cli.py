@@ -24,6 +24,15 @@ def parse_moment(text: str) -> datetime:
     return moment
 
 
+def supports_block_glyphs(stream) -> bool:
+    encoding = getattr(stream, "encoding", None) or "utf-8"
+    try:
+        "\u2588".encode(encoding)
+    except (LookupError, UnicodeEncodeError):
+        return False
+    return True
+
+
 def format_row(row: dict, width: int, plain: bool, bar_style: str = "unicode") -> str:
     if plain:
         return "%-7s %5.1f%%  %s left" % (
@@ -142,7 +151,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 print("%.1f%%" % row["percent"])
         return 0
 
-    bar_style = "ascii" if args.ascii else "unicode"
+    bar_style = "ascii" if args.ascii or not supports_block_glyphs(sys.stdout) else "unicode"
     for row in rows:
         print(format_row(row, args.width, args.plain, bar_style))
     return 0

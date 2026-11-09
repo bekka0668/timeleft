@@ -47,7 +47,8 @@ Periods: `day`, `week`, `month`, `quarter`, `year`, or just their first
 letter (`d`, `w`, `m`, `q`, `y`).
 
 Weeks start on Monday by default. Times are local time and naive (no timezone
-database is required).
+database is required). The bar switches to ASCII automatically when the output
+encoding cannot represent the block glyphs.
 
 ## Development
 
