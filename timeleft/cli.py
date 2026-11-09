@@ -11,6 +11,7 @@ from .core import PERIODS, build_report, render_bar
 
 DEFAULT_WIDTH = 25
 WEEK_STARTS = {"monday": 0, "sunday": 6}
+PERIOD_ALIASES = {period[0]: period for period in PERIODS}
 
 
 def parse_moment(text: str) -> datetime:
@@ -47,9 +48,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "periods",
         nargs="*",
-        choices=PERIODS,
+        choices=PERIODS + tuple(PERIOD_ALIASES),
         metavar="PERIOD",
-        help="one of %s (default: all)" % ", ".join(PERIODS),
+        help="one of %s or its first letter (default: all)" % ", ".join(PERIODS),
     )
     parser.add_argument(
         "--at",
@@ -106,7 +107,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if args.width < 1:
         parser.error("--width must be at least 1")
 
-    periods: List[str] = args.periods or list(PERIODS)
+    selected = args.periods or list(PERIODS)
+    periods: List[str] = [PERIOD_ALIASES.get(name, name) for name in selected]
     if args.at:
         try:
             now = parse_moment(args.at)

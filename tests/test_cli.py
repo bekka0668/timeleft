@@ -142,6 +142,23 @@ class MainTest(unittest.TestCase):
             run_cli("--countdown", "--percent", "day")
         self.assertEqual(caught.exception.code, 2)
 
+    def test_single_letter_aliases(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--plain", "d", "y")
+        self.assertEqual(code, 0)
+        lines = out.strip().splitlines()
+        self.assertTrue(lines[0].startswith("day"))
+        self.assertTrue(lines[1].startswith("year"))
+
+    def test_alias_in_json_output(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--json", "q")
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["periods"][0]["period"], "quarter")
+
+    def test_alias_with_countdown(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--countdown", "w")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "6d 12h\n")
+
     def test_unknown_period_fails(self):
         with self.assertRaises(SystemExit) as caught:
             run_cli("fortnight")

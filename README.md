@@ -40,7 +40,8 @@ $ timeleft day --countdown             # just "6h 58m" for a status bar
 $ timeleft --percent                   # just the percentages
 ```
 
-Periods: `day`, `week`, `month`, `quarter`, `year`.
+Periods: `day`, `week`, `month`, `quarter`, `year`, or just their first
+letter (`d`, `w`, `m`, `q`, `y`).
 
 Weeks start on Monday by default. Times are local time and naive (no timezone
 database is required).
