@@ -48,8 +48,6 @@ required).
 $ python3 -m unittest discover -s tests -v
 ```
 
-See [DEVLOG.md](DEVLOG.md) for the running notes on what changed and why.
-
 ## License
 
 MIT, see [LICENSE](LICENSE).
