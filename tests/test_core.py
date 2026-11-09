@@ -142,6 +142,15 @@ class RenderBarTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             render_bar(0.5, 0)
 
+    def test_ascii_style(self):
+        self.assertEqual(render_bar(0.5, 4, "ascii"), "##--")
+        self.assertEqual(render_bar(0.0, 3, "ascii"), "---")
+        self.assertEqual(render_bar(1.0, 3, "ascii"), "###")
+
+    def test_unknown_style(self):
+        with self.assertRaises(ValueError):
+            render_bar(0.5, 4, "braille")
+
 
 if __name__ == "__main__":
     unittest.main()

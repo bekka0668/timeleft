@@ -6,6 +6,11 @@ from typing import Dict, Iterable, List
 
 PERIODS = ("day", "week", "month", "quarter", "year")
 
+BAR_STYLES = {
+    "unicode": ("\u2588", "\u2591"),
+    "ascii": ("#", "-"),
+}
+
 
 def _add_months(reference: date, months: int) -> datetime:
     index = reference.month - 1 + months
@@ -78,12 +83,16 @@ def format_duration(seconds: float) -> str:
     return "%ds" % secs
 
 
-def render_bar(fraction: float, width: int = 25) -> str:
+def render_bar(fraction: float, width: int = 25, style: str = "unicode") -> str:
     if width < 1:
         raise ValueError("bar width must be at least 1")
+    try:
+        fill, empty = BAR_STYLES[style]
+    except KeyError:
+        raise ValueError("unknown bar style %r" % (style,)) from None
     clamped = min(max(fraction, 0.0), 1.0)
     filled = int(clamped * width)
-    return "\u2588" * filled + "\u2591" * (width - filled)
+    return fill * filled + empty * (width - filled)
 
 
 def build_report(

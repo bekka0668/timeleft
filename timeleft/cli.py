@@ -24,14 +24,14 @@ def parse_moment(text: str) -> datetime:
     return moment
 
 
-def format_row(row: dict, width: int, plain: bool) -> str:
+def format_row(row: dict, width: int, plain: bool, bar_style: str = "unicode") -> str:
     if plain:
         return "%-7s %5.1f%%  %s left" % (
             row["period"],
             row["percent"],
             row["remaining"],
         )
-    bar = render_bar(row["fraction"], width)
+    bar = render_bar(row["fraction"], width, bar_style)
     return "%-7s [%s] %5.1f%%  %s left" % (
         row["period"],
         bar,
@@ -65,6 +65,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--plain",
         action="store_true",
         help="omit the progress bar",
+    )
+    parser.add_argument(
+        "--ascii",
+        action="store_true",
+        help="draw the bar with ASCII characters (# and -)",
     )
     value_output = parser.add_mutually_exclusive_group()
     value_output.add_argument(
@@ -137,6 +142,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 print("%.1f%%" % row["percent"])
         return 0
 
+    bar_style = "ascii" if args.ascii else "unicode"
     for row in rows:
-        print(format_row(row, args.width, args.plain))
+        print(format_row(row, args.width, args.plain, bar_style))
     return 0

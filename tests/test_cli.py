@@ -56,6 +56,10 @@ class FormatRowTest(unittest.TestCase):
         line = format_row(self.ROW, 10, plain=False)
         self.assertIn("[" + "\u2588" * 5 + "\u2591" * 5 + "]", line)
 
+    def test_ascii_bar_row(self):
+        line = format_row(self.ROW, 10, plain=False, bar_style="ascii")
+        self.assertIn("[#####-----]", line)
+
 
 class MainTest(unittest.TestCase):
     def test_default_prints_every_period(self):
@@ -98,6 +102,13 @@ class MainTest(unittest.TestCase):
         code, out = run_cli("--at", "2026-11-09T12:00", "--width", "3", "day")
         self.assertEqual(code, 0)
         self.assertIn("[\u2588\u2591\u2591]", out)
+
+    def test_ascii_option_replaces_block_glyphs(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--width", "3", "--ascii", "day")
+        self.assertEqual(code, 0)
+        self.assertIn("[#--]", out)
+        self.assertNotIn("\u2588", out)
+        self.assertNotIn("\u2591", out)
 
     def test_week_start_sunday_shifts_week_span(self):
         code, out = run_cli(
