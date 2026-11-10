@@ -54,6 +54,18 @@ class ParseMomentTest(unittest.TestCase):
         base = datetime(2026, 11, 9, 12, 0)
         self.assertEqual(parse_moment("+2H", now=base), datetime(2026, 11, 9, 14, 0))
 
+    def test_relative_offsets_can_be_combined(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "+2h30m": datetime(2026, 11, 9, 14, 30),
+            "+1d12h": datetime(2026, 11, 11, 0, 0),
+            "-1w2d": datetime(2026, 10, 31, 12, 0),
+            "+1H30M": datetime(2026, 11, 9, 13, 30),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
     def test_relative_offset_needs_whole_number(self):
         with self.assertRaises(ValueError):
             parse_moment("+1.5h", now=datetime(2026, 11, 9, 12, 0))

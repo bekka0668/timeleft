@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from datetime import datetime, timedelta
 from typing import List, Optional, Sequence
@@ -14,17 +15,23 @@ WEEK_STARTS = {"monday": 0, "sunday": 6}
 PERIOD_ALIASES = {period[0]: period for period in PERIODS}
 RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
+RELATIVE_OFFSET = re.compile(r"^([+-])((?:\d+[smhdw])+)$", re.IGNORECASE)
+RELATIVE_TOKEN = re.compile(r"(\d+)([smhdw])", re.IGNORECASE)
 
 
 def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     value = text.strip()
     base = now or datetime.now()
+    offset = RELATIVE_OFFSET.match(value)
+    if offset:
+        seconds = sum(
+            int(amount) * RELATIVE_UNITS[unit.lower()]
+            for amount, unit in RELATIVE_TOKEN.findall(offset.group(2))
+        )
+        return base + timedelta(seconds=seconds if offset.group(1) == "+" else -seconds)
     unit = value[-1:].lower()
     if len(value) > 2 and value[0] in "+-" and unit in RELATIVE_UNITS:
-        if not value[1:-1].isdigit():
-            raise ValueError("relative offset needs a whole number, e.g. +90m")
-        seconds = int(value[1:-1]) * RELATIVE_UNITS[unit]
-        return base + timedelta(seconds=seconds if value[0] == "+" else -seconds)
+        raise ValueError("relative offset needs a whole number, e.g. +90m")
     if ":" in value:
         for pattern in CLOCK_FORMATS:
             try:
@@ -84,7 +91,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--at",
         metavar="WHEN",
-        help="ISO 8601 moment, a clock time such as 15:30, or an offset such as +90m",
+        help="ISO 8601 moment, a clock time such as 15:30, or an offset such as +90m or +2h30m",
     )
     parser.add_argument(
         "--json",
