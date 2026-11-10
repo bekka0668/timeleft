@@ -193,9 +193,23 @@ class MainTest(unittest.TestCase):
         week = json.loads(out)["periods"][0]
         self.assertEqual(week["start"], "2026-11-09T00:00:00")
 
+    def test_week_start_accepts_any_weekday(self):
+        code, out = run_cli(
+            "--at", "2026-11-11T12:00", "--json", "--week-start", "friday", "week"
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["periods"][0]["start"], "2026-11-06T00:00:00")
+
+    def test_week_start_accepts_three_letter_names(self):
+        code, out = run_cli(
+            "--at", "2026-11-11T12:00", "--json", "--week-start", "sat", "week"
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["periods"][0]["start"], "2026-11-07T00:00:00")
+
     def test_bad_week_start_fails(self):
         with self.assertRaises(SystemExit) as caught:
-            run_cli("--week-start", "tuesday", "week")
+            run_cli("--week-start", "funday", "week")
         self.assertEqual(caught.exception.code, 2)
 
     def test_countdown_prints_only_remaining(self):

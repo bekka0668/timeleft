@@ -41,7 +41,7 @@ $ timeleft day --at +2h30m             # offsets can be combined
 $ timeleft day --at 18:30              # or at a clock time today
 $ timeleft --width 40 --plain          # wider bar, no bar
 $ timeleft --ascii                     # ASCII bar for terminals without block glyphs
-$ timeleft week --week-start sunday    # Sunday-based weeks
+$ timeleft week --week-start sunday    # Sunday-based weeks (any weekday works)
 $ timeleft day --countdown             # just "6h 58m" for a status bar
 $ timeleft --percent                   # just the percentages
 $ timeleft --elapsed                   # just the time already spent
