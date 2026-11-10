@@ -13,17 +13,30 @@ DEFAULT_WIDTH = 25
 WEEK_STARTS = {"monday": 0, "sunday": 6}
 PERIOD_ALIASES = {period[0]: period for period in PERIODS}
 RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
+CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
 
 
 def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     value = text.strip()
+    base = now or datetime.now()
     unit = value[-1:].lower()
     if len(value) > 2 and value[0] in "+-" and unit in RELATIVE_UNITS:
         if not value[1:-1].isdigit():
             raise ValueError("relative offset needs a whole number, e.g. +90m")
         seconds = int(value[1:-1]) * RELATIVE_UNITS[unit]
-        base = now or datetime.now()
         return base + timedelta(seconds=seconds if value[0] == "+" else -seconds)
+    if ":" in value:
+        for pattern in CLOCK_FORMATS:
+            try:
+                clock = datetime.strptime(value, pattern)
+            except ValueError:
+                continue
+            return base.replace(
+                hour=clock.hour,
+                minute=clock.minute,
+                second=clock.second,
+                microsecond=0,
+            )
     if value.endswith("Z"):
         value = value[:-1] + "+00:00"
     moment = datetime.fromisoformat(value)
@@ -71,7 +84,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--at",
         metavar="WHEN",
-        help="ISO 8601 moment or relative offset such as +90m",
+        help="ISO 8601 moment, a clock time such as 15:30, or an offset such as +90m",
     )
     parser.add_argument(
         "--json",

@@ -62,6 +62,18 @@ class ParseMomentTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_moment("+90x", now=datetime(2026, 11, 9, 12, 0))
 
+    def test_clock_time_uses_today(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_moment("15:30", now=base), datetime(2026, 11, 9, 15, 30))
+        self.assertEqual(parse_moment("9:30", now=base), datetime(2026, 11, 9, 9, 30))
+        self.assertEqual(
+            parse_moment("15:30:45", now=base), datetime(2026, 11, 9, 15, 30, 45)
+        )
+
+    def test_clock_time_rejects_out_of_range(self):
+        with self.assertRaises(ValueError):
+            parse_moment("25:00", now=datetime(2026, 11, 9, 12, 0))
+
 
 class SupportsBlockGlyphsTest(unittest.TestCase):
     def test_utf8_capable_stream(self):
