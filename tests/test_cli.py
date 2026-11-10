@@ -86,6 +86,13 @@ class ParseMomentTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_moment("25:00", now=datetime(2026, 11, 9, 12, 0))
 
+    def test_day_keywords(self):
+        base = datetime(2026, 11, 9, 18, 25, 40, 123456)
+        self.assertEqual(parse_moment("now", now=base), datetime(2026, 11, 9, 18, 25, 40))
+        self.assertEqual(parse_moment("today", now=base), datetime(2026, 11, 9))
+        self.assertEqual(parse_moment("Tomorrow", now=base), datetime(2026, 11, 10))
+        self.assertEqual(parse_moment("yesterday", now=base), datetime(2026, 11, 8))
+
 
 class SupportsBlockGlyphsTest(unittest.TestCase):
     def test_utf8_capable_stream(self):
@@ -288,6 +295,11 @@ class MainTest(unittest.TestCase):
         reported = datetime.fromisoformat(json.loads(out)["now"])
         offset = (reported - datetime.now()).total_seconds()
         self.assertAlmostEqual(offset, 5400, delta=10)
+
+    def test_at_keyword_tomorrow_starts_the_next_day(self):
+        code, out = run_cli("--at", "tomorrow", "--json", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["periods"][0]["remaining_seconds"], 86400)
 
     def test_bad_at_fails(self):
         with self.assertRaises(SystemExit) as caught:

@@ -19,6 +19,7 @@ RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
 RELATIVE_OFFSET = re.compile(r"^([+-])((?:\d+[smhdw])+)$", re.IGNORECASE)
 RELATIVE_TOKEN = re.compile(r"(\d+)([smhdw])", re.IGNORECASE)
+DAY_KEYWORDS = {"today": 0, "tomorrow": 1, "yesterday": -1}
 
 
 def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
@@ -31,6 +32,12 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             for amount, unit in RELATIVE_TOKEN.findall(offset.group(2))
         )
         return base + timedelta(seconds=seconds if offset.group(1) == "+" else -seconds)
+    keyword = value.lower()
+    if keyword == "now":
+        return base.replace(microsecond=0)
+    if keyword in DAY_KEYWORDS:
+        midnight = base.replace(hour=0, minute=0, second=0, microsecond=0)
+        return midnight + timedelta(days=DAY_KEYWORDS[keyword])
     unit = value[-1:].lower()
     if len(value) > 2 and value[0] in "+-" and unit in RELATIVE_UNITS:
         raise ValueError("relative offset needs a whole number, e.g. +90m")
@@ -93,7 +100,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--at",
         metavar="WHEN",
-        help="ISO 8601 moment, a clock time such as 15:30, or an offset such as +90m or +2h30m",
+        help=(
+            "ISO 8601 moment, a clock time such as 15:30, an offset such as "
+            "+2h30m, or one of now, today, tomorrow, yesterday"
+        ),
     )
     parser.add_argument(
         "--json",
