@@ -84,7 +84,7 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
                 second=clock[2],
                 microsecond=0,
             )
-    if value.endswith("Z"):
+    if value.endswith(("Z", "z")):
         value = value[:-1] + "+00:00"
     moment = datetime.fromisoformat(value)
     if moment.tzinfo is not None:
