@@ -316,6 +316,22 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(out, "6d 12h\n")
 
+    def test_period_names_accept_plurals(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--json", "days", "Weeks")
+        self.assertEqual(code, 0)
+        periods = [row["period"] for row in json.loads(out)["periods"]]
+        self.assertEqual(periods, ["day", "week"])
+
+    def test_period_names_accept_uppercase_aliases(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--json", "Q")
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["periods"][0]["period"], "quarter")
+
+    def test_plural_of_unknown_period_fails(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("fortnights")
+        self.assertEqual(caught.exception.code, 2)
+
     def test_unknown_period_fails(self):
         with self.assertRaises(SystemExit) as caught:
             run_cli("fortnight")

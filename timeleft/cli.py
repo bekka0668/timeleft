@@ -101,6 +101,17 @@ def supports_block_glyphs(stream) -> bool:
     return True
 
 
+def resolve_period(name: str) -> Optional[str]:
+    lowered = name.lower()
+    if lowered in PERIODS:
+        return lowered
+    if lowered in PERIOD_ALIASES:
+        return PERIOD_ALIASES[lowered]
+    if lowered.endswith("s") and lowered[:-1] in PERIODS:
+        return lowered[:-1]
+    return None
+
+
 def format_row(row: dict, width: int, plain: bool, bar_style: str = "unicode") -> str:
     if plain:
         return "%-7s %5.1f%%  %s left" % (
@@ -126,7 +137,8 @@ def build_parser() -> argparse.ArgumentParser:
         "periods",
         nargs="*",
         metavar="PERIOD",
-        help="one of %s or its first letter (default: all)" % ", ".join(PERIODS),
+        help="one of %s, its first letter or its plural (default: all)"
+        % ", ".join(PERIODS),
     )
     parser.add_argument(
         "--at",
@@ -199,13 +211,15 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         parser.error("--width must be at least 1")
 
     selected = args.periods or list(PERIODS)
-    unknown = [name for name in selected if name not in PERIOD_ALIASES and name not in PERIODS]
-    if unknown:
-        parser.error(
-            "invalid period %r (choose from %s)"
-            % (unknown[0], ", ".join(PERIODS + tuple(PERIOD_ALIASES)))
-        )
-    periods: List[str] = [PERIOD_ALIASES.get(name, name) for name in selected]
+    periods: List[str] = []
+    for name in selected:
+        period = resolve_period(name)
+        if period is None:
+            parser.error(
+                "invalid period %r (choose from %s)"
+                % (name, ", ".join(PERIODS + tuple(PERIOD_ALIASES)))
+            )
+        periods.append(period)
     if args.at:
         try:
             now = parse_moment(args.at)

@@ -51,7 +51,8 @@ $ timeleft --elapsed                   # just the time already spent
 ```
 
 Periods: `day`, `week`, `month`, `quarter`, `year`, or just their first
-letter (`d`, `w`, `m`, `q`, `y`).
+letter (`d`, `w`, `m`, `q`, `y`). Names are case-insensitive and also accept
+plurals (`timeleft days`).
 
 Weeks start on Monday by default. Times are local time and naive (no timezone
 database is required). The bar switches to ASCII automatically when the output
