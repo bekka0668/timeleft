@@ -22,6 +22,19 @@ RELATIVE_TOKEN = re.compile(r"(\d+)([smhdw])", re.IGNORECASE)
 DAY_KEYWORDS = {"today": 0, "tomorrow": 1, "yesterday": -1}
 
 
+def midnight_of(base: datetime, days: int = 0) -> datetime:
+    return base.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=days)
+
+
+def parse_clock_time(text: str) -> Optional[datetime]:
+    for pattern in CLOCK_FORMATS:
+        try:
+            return datetime.strptime(text, pattern)
+        except ValueError:
+            continue
+    return None
+
+
 def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     value = text.strip()
     base = now or datetime.now()
@@ -36,17 +49,26 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     if keyword == "now":
         return base.replace(microsecond=0)
     if keyword in DAY_KEYWORDS:
-        midnight = base.replace(hour=0, minute=0, second=0, microsecond=0)
-        return midnight + timedelta(days=DAY_KEYWORDS[keyword])
+        return midnight_of(base, DAY_KEYWORDS[keyword])
+    words = value.split()
+    if len(words) == 2:
+        keyword_word = next(
+            (word for word in words if word.lower() in DAY_KEYWORDS), None
+        )
+        if keyword_word is not None:
+            clock = parse_clock_time(words[1] if words[0] == keyword_word else words[0])
+            if clock is None:
+                raise ValueError("expected a clock time next to %r" % keyword_word)
+            day = midnight_of(base, DAY_KEYWORDS[keyword_word.lower()])
+            return day.replace(
+                hour=clock.hour, minute=clock.minute, second=clock.second
+            )
     unit = value[-1:].lower()
     if len(value) > 2 and value[0] in "+-" and unit in RELATIVE_UNITS:
         raise ValueError("relative offset needs a whole number, e.g. +90m")
     if ":" in value:
-        for pattern in CLOCK_FORMATS:
-            try:
-                clock = datetime.strptime(value, pattern)
-            except ValueError:
-                continue
+        clock = parse_clock_time(value)
+        if clock is not None:
             return base.replace(
                 hour=clock.hour,
                 minute=clock.minute,
@@ -102,7 +124,8 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="WHEN",
         help=(
             "ISO 8601 moment, a clock time such as 15:30, an offset such as "
-            "+2h30m, or one of now, today, tomorrow, yesterday"
+            "+2h30m, one of now, today, tomorrow, yesterday, or a day "
+            "keyword followed by a clock time such as \"tomorrow 09:00\""
         ),
     )
     parser.add_argument(

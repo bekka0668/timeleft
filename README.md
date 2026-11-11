@@ -40,6 +40,7 @@ $ timeleft day --at +90m               # or look 90 minutes ahead of now
 $ timeleft day --at +2h30m             # offsets can be combined
 $ timeleft day --at 18:30              # or at a clock time today
 $ timeleft day --at tomorrow           # now, today, tomorrow, yesterday
+$ timeleft day --at "tomorrow 09:00"   # a day keyword plus a clock time
 $ timeleft --width 40 --plain          # wider bar, no bar
 $ timeleft --ascii                     # ASCII bar for terminals without block glyphs
 $ timeleft week --week-start sunday    # Sunday-based weeks (any weekday works)

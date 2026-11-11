@@ -93,6 +93,26 @@ class ParseMomentTest(unittest.TestCase):
         self.assertEqual(parse_moment("Tomorrow", now=base), datetime(2026, 11, 10))
         self.assertEqual(parse_moment("yesterday", now=base), datetime(2026, 11, 8))
 
+    def test_day_keyword_with_clock_time(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "tomorrow 09:00": datetime(2026, 11, 10, 9, 0),
+            "yesterday 18:30": datetime(2026, 11, 8, 18, 30),
+            "today 15:30:45": datetime(2026, 11, 9, 15, 30, 45),
+            "Tomorrow 9:30": datetime(2026, 11, 10, 9, 30),
+            "09:00 tomorrow": datetime(2026, 11, 10, 9, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_day_keyword_with_bad_clock_time_raises(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        for text in ("tomorrow 25:00", "tomorrow 9:00-ish"):
+            with self.subTest(text=text):
+                with self.assertRaises(ValueError):
+                    parse_moment(text, now=base)
+
 
 class SupportsBlockGlyphsTest(unittest.TestCase):
     def test_utf8_capable_stream(self):
