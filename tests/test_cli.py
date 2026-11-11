@@ -106,6 +106,17 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_named_clock_times(self):
+        base = datetime(2026, 11, 9, 18, 25, 40, 123456)
+        self.assertEqual(parse_moment("noon", now=base), datetime(2026, 11, 9, 12, 0))
+        self.assertEqual(parse_moment("Midnight", now=base), datetime(2026, 11, 9))
+        self.assertEqual(
+            parse_moment("Tomorrow noon", now=base), datetime(2026, 11, 10, 12, 0)
+        )
+        self.assertEqual(
+            parse_moment("midnight tomorrow", now=base), datetime(2026, 11, 10)
+        )
+
     def test_day_keyword_with_bad_clock_time_raises(self):
         base = datetime(2026, 11, 9, 12, 0)
         for text in ("tomorrow 25:00", "tomorrow 9:00-ish"):
@@ -320,6 +331,11 @@ class MainTest(unittest.TestCase):
         code, out = run_cli("--at", "tomorrow", "--json", "day")
         self.assertEqual(code, 0)
         self.assertEqual(json.loads(out)["periods"][0]["remaining_seconds"], 86400)
+
+    def test_at_named_clock_combines_with_day_keyword(self):
+        code, out = run_cli("--at", "tomorrow noon", "--json", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["periods"][0]["remaining_seconds"], 43200)
 
     def test_bad_at_fails(self):
         with self.assertRaises(SystemExit) as caught:
