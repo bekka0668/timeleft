@@ -123,6 +123,28 @@ class ParseMomentTest(unittest.TestCase):
             parse_moment("midnight tomorrow", now=base), datetime(2026, 11, 10)
         )
 
+    def test_weekday_means_its_next_occurrence(self):
+        base = datetime(2026, 11, 11, 12, 0)
+        cases = {
+            "friday": datetime(2026, 11, 13),
+            "Wednesday": datetime(2026, 11, 11),
+            "monday": datetime(2026, 11, 16),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_weekday_with_clock_time(self):
+        base = datetime(2026, 11, 11, 12, 0)
+        cases = {
+            "friday noon": datetime(2026, 11, 13, 12, 0),
+            "sat 18:00": datetime(2026, 11, 14, 18, 0),
+            "18:00 monday": datetime(2026, 11, 16, 18, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
     def test_day_keyword_with_bad_clock_time_raises(self):
         base = datetime(2026, 11, 9, 12, 0)
         for text in ("tomorrow 25:00", "tomorrow 9:00-ish"):
@@ -353,6 +375,14 @@ class MainTest(unittest.TestCase):
         code, out = run_cli("--at", "tomorrow", "--json", "day")
         self.assertEqual(code, 0)
         self.assertEqual(json.loads(out)["periods"][0]["remaining_seconds"], 86400)
+
+    def test_at_weekday_with_clock_time(self):
+        code, out = run_cli("--at", "friday noon", "--json", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["periods"][0]["remaining_seconds"], 43200)
+        self.assertEqual(
+            datetime.fromisoformat(json.loads(out)["now"]).weekday(), 4
+        )
 
     def test_at_named_clock_combines_with_day_keyword(self):
         code, out = run_cli("--at", "tomorrow noon", "--json", "day")

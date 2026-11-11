@@ -27,6 +27,13 @@ def midnight_of(base: datetime, days: int = 0) -> datetime:
     return base.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=days)
 
 
+def weekday_offset(base: datetime, text: str) -> Optional[int]:
+    index = WEEK_STARTS.get(text.lower())
+    if index is None:
+        return None
+    return (index - base.weekday()) % 7
+
+
 def parse_clock_time(text: str) -> Optional[Tuple[int, int, int]]:
     named = NAMED_CLOCKS.get(text.lower())
     if named is not None:
@@ -61,16 +68,29 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             minute=NAMED_CLOCKS[keyword][1],
             second=NAMED_CLOCKS[keyword][2],
         )
+    ahead = weekday_offset(base, keyword)
+    if ahead is not None:
+        return midnight_of(base, ahead)
     words = value.split()
     if len(words) == 2:
-        keyword_word = next(
-            (word for word in words if word.lower() in DAY_KEYWORDS), None
+        anchor_word = next(
+            (
+                word
+                for word in words
+                if word.lower() in DAY_KEYWORDS or word.lower() in WEEK_STARTS
+            ),
+            None,
         )
-        if keyword_word is not None:
-            clock = parse_clock_time(words[1] if words[0] == keyword_word else words[0])
+        if anchor_word is not None:
+            clock = parse_clock_time(words[1] if words[0] == anchor_word else words[0])
             if clock is None:
-                raise ValueError("expected a clock time next to %r" % keyword_word)
-            day = midnight_of(base, DAY_KEYWORDS[keyword_word.lower()])
+                raise ValueError("expected a clock time next to %r" % anchor_word)
+            lowered = anchor_word.lower()
+            if lowered in DAY_KEYWORDS:
+                days = DAY_KEYWORDS[lowered]
+            else:
+                days = weekday_offset(base, lowered)
+            day = midnight_of(base, days)
             return day.replace(hour=clock[0], minute=clock[1], second=clock[2])
     unit = value[-1:].lower()
     if len(value) > 2 and value[0] in "+-" and unit in RELATIVE_UNITS:
@@ -146,8 +166,8 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "ISO 8601 moment, a clock time such as 15:30, an offset such as "
             "+2h30m, one of now, today, tomorrow, yesterday, noon, midnight, "
-            "or a day keyword followed by a clock time such as "
-            "\"tomorrow 09:00\""
+            "a weekday name such as friday, or one of those followed by a "
+            "clock time such as \"tomorrow 09:00\""
         ),
     )
     parser.add_argument(
