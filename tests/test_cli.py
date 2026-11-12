@@ -299,6 +299,17 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(json.loads(out)["periods"][0]["start"], "2026-11-07T00:00:00")
 
+    def test_week_start_is_case_insensitive(self):
+        for name, expected in (("Sunday", "2026-11-08"), ("SAT", "2026-11-07")):
+            with self.subTest(name=name):
+                code, out = run_cli(
+                    "--at", "2026-11-11T12:00", "--json", "--week-start", name, "week"
+                )
+                self.assertEqual(code, 0)
+                self.assertEqual(
+                    json.loads(out)["periods"][0]["start"], expected + "T00:00:00"
+                )
+
     def test_bad_week_start_fails(self):
         with self.assertRaises(SystemExit) as caught:
             run_cli("--week-start", "funday", "week")

@@ -219,6 +219,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--week-start",
+        type=str.lower,
         choices=WEEK_STARTS,
         default="monday",
         metavar="DAY",
