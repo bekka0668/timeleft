@@ -30,6 +30,7 @@ NATURAL_UNITS = {
 }
 DAY_KEYWORDS = {"today": 0, "tomorrow": 1, "yesterday": -1}
 NAMED_CLOCKS = {"noon": (12, 0, 0), "midnight": (0, 0, 0)}
+WEEKDAY_MODIFIERS = {"next", "last"}
 
 
 def midnight_of(base: datetime, days: int = 0) -> datetime:
@@ -41,6 +42,15 @@ def weekday_offset(base: datetime, text: str) -> Optional[int]:
     if index is None:
         return None
     return (index - base.weekday()) % 7
+
+
+def shift_weekday(base: datetime, name: str, modifier: str) -> int:
+    index = WEEK_STARTS[name]
+    if modifier == "next":
+        ahead = (index - base.weekday()) % 7
+        return ahead or 7
+    behind = (base.weekday() - index) % 7
+    return -(behind or 7)
 
 
 def parse_clock_time(text: str) -> Optional[Tuple[int, int, int]]:
@@ -115,19 +125,27 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             None,
         )
         if anchor_word is not None:
-            clock = parse_clock_time(
-                " ".join(
-                    word for word in words if word.lower() != anchor_word.lower()
-                )
-            )
-            if clock is None:
-                raise ValueError("expected a clock time next to %r" % anchor_word)
             lowered = anchor_word.lower()
+            modifiers = [
+                word.lower() for word in words if word.lower() in WEEKDAY_MODIFIERS
+            ]
+            clock_words = [
+                word
+                for word in words
+                if word.lower() != lowered and word.lower() not in WEEKDAY_MODIFIERS
+            ]
+            clock = parse_clock_time(" ".join(clock_words)) if clock_words else None
+            if clock_words and clock is None:
+                raise ValueError("expected a clock time next to %r" % anchor_word)
             if lowered in DAY_KEYWORDS:
                 days = DAY_KEYWORDS[lowered]
             else:
                 days = weekday_offset(base, lowered)
+                if modifiers:
+                    days = shift_weekday(base, lowered, modifiers[-1])
             day = midnight_of(base, days)
+            if clock is None:
+                return day
             return day.replace(hour=clock[0], minute=clock[1], second=clock[2])
     unit = value[-1:].lower()
     if len(value) > 2 and value[0] in "+-" and unit in RELATIVE_UNITS:

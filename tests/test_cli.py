@@ -203,6 +203,30 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_next_and_last_weekday(self):
+        base = datetime(2026, 11, 11, 12, 0)
+        cases = {
+            "next friday": datetime(2026, 11, 13),
+            "last friday": datetime(2026, 11, 6),
+            "next wednesday": datetime(2026, 11, 18),
+            "last wednesday": datetime(2026, 11, 4),
+            "Next Monday": datetime(2026, 11, 16),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_next_and_last_weekday_with_clock_time(self):
+        base = datetime(2026, 11, 11, 12, 0)
+        cases = {
+            "next friday 9am": datetime(2026, 11, 13, 9, 0),
+            "last monday noon": datetime(2026, 11, 9, 12, 0),
+            "next friday 6:30 pm": datetime(2026, 11, 13, 18, 30),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
     def test_day_keyword_with_bad_clock_time_raises(self):
         base = datetime(2026, 11, 9, 12, 0)
         for text in ("tomorrow 25:00", "tomorrow 9:00-ish"):
