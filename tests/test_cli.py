@@ -309,6 +309,8 @@ class MainTest(unittest.TestCase):
         self.assertEqual(day["remaining"], "12h 00m")
         self.assertEqual(day["start"], "2026-11-09T00:00:00")
         self.assertEqual(day["end"], "2026-11-10T00:00:00")
+        self.assertEqual(day["total_seconds"], 86400)
+        self.assertEqual(day["total"], "1d 00h")
 
     def test_width_option(self):
         code, out = run_cli("--at", "2026-11-09T12:00", "--width", "3", "day")

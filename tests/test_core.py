@@ -158,6 +158,14 @@ class BuildReportTest(unittest.TestCase):
         self.assertEqual(row["elapsed_seconds"], 52200)
         self.assertEqual(row["elapsed"], "14h 30m")
 
+    def test_period_total_is_included(self):
+        day = build_report(["day"], datetime(2026, 11, 9, 14, 30))[0]
+        self.assertEqual(day["total_seconds"], 86400)
+        self.assertEqual(day["total"], "1d 00h")
+        year = build_report(["year"], datetime(2026, 11, 9, 14, 30))[0]
+        self.assertEqual(year["total_seconds"], 31536000)
+        self.assertEqual(year["total"], "365d 00h")
+
 
 if __name__ == "__main__":
     unittest.main()

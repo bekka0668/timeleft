@@ -107,6 +107,8 @@ def build_report(
                 "period": period,
                 "start": span.start.isoformat(),
                 "end": span.end.isoformat(),
+                "total_seconds": round(span.total_seconds),
+                "total": format_duration(span.total_seconds),
                 "fraction": round(fraction, 6),
                 "percent": round(fraction * 100.0, 1),
                 "elapsed_seconds": round(span.elapsed_seconds(now)),
