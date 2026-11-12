@@ -82,7 +82,7 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     if ahead is not None:
         return midnight_of(base, ahead)
     words = value.split()
-    if len(words) == 2:
+    if len(words) >= 2:
         anchor_word = next(
             (
                 word
@@ -92,7 +92,11 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             None,
         )
         if anchor_word is not None:
-            clock = parse_clock_time(words[1] if words[0] == anchor_word else words[0])
+            clock = parse_clock_time(
+                " ".join(
+                    word for word in words if word.lower() != anchor_word.lower()
+                )
+            )
             if clock is None:
                 raise ValueError("expected a clock time next to %r" % anchor_word)
             lowered = anchor_word.lower()

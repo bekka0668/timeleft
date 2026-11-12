@@ -138,6 +138,18 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_multi_word_clock_time_with_day_anchor(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "tomorrow 9:30 pm": datetime(2026, 11, 10, 21, 30),
+            "9:30 pm tomorrow": datetime(2026, 11, 10, 21, 30),
+            "friday 11:45 pm": datetime(2026, 11, 13, 23, 45),
+            "sunday 11:59:30 a.m.": datetime(2026, 11, 15, 11, 59, 30),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
     def test_named_clock_times(self):
         base = datetime(2026, 11, 9, 18, 25, 40, 123456)
         self.assertEqual(parse_moment("noon", now=base), datetime(2026, 11, 9, 12, 0))
