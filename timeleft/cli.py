@@ -30,7 +30,7 @@ NATURAL_UNITS = {
 }
 DAY_KEYWORDS = {"today": 0, "tomorrow": 1, "yesterday": -1}
 NAMED_CLOCKS = {"noon": (12, 0, 0), "midnight": (0, 0, 0)}
-WEEKDAY_MODIFIERS = {"next", "last"}
+WEEKDAY_MODIFIERS = {"next", "last", "this"}
 
 
 def midnight_of(base: datetime, days: int = 0) -> datetime:
@@ -46,6 +46,8 @@ def weekday_offset(base: datetime, text: str) -> Optional[int]:
 
 def shift_weekday(base: datetime, name: str, modifier: str) -> int:
     index = WEEK_STARTS[name]
+    if modifier == "this":
+        return index - base.weekday()
     if modifier == "next":
         ahead = (index - base.weekday()) % 7
         return ahead or 7

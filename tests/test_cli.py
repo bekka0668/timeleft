@@ -221,6 +221,17 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_this_weekday(self):
+        base = datetime(2026, 11, 11, 12, 0)
+        cases = {
+            "this friday": datetime(2026, 11, 13),
+            "this wednesday": datetime(2026, 11, 11),
+            "this monday noon": datetime(2026, 11, 9, 12, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
     def test_next_and_last_weekday_with_clock_time(self):
         base = datetime(2026, 11, 11, 12, 0)
         cases = {

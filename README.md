@@ -46,7 +46,7 @@ $ timeleft day --at tomorrow           # now, today, tomorrow, yesterday
 $ timeleft day --at "tomorrow 09:00"   # a day keyword plus a clock time
 $ timeleft day --at "tomorrow noon"    # noon and midnight work too
 $ timeleft week --at "friday 18:00"    # a weekday, optionally with a clock time
-$ timeleft day --at "next friday 9am"  # or "last" one, optionally with a clock time
+$ timeleft day --at "next friday 9am"  # "this", "next" or "last", plus a clock time
 $ timeleft --width 40 --plain          # wider bar, no bar
 $ timeleft --ascii                     # ASCII bar for terminals without block glyphs
 $ timeleft week --week-start sunday    # Sunday-based weeks (any weekday works)
