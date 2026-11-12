@@ -1,7 +1,7 @@
 import io
 import json
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime, timedelta, timezone
 
 from timeleft.cli import format_row, main, parse_moment, supports_block_glyphs
@@ -534,6 +534,18 @@ class MainTest(unittest.TestCase):
         with self.assertRaises(SystemExit) as caught:
             run_cli("--at", "not-a-date", "day")
         self.assertEqual(caught.exception.code, 2)
+
+    def test_bad_at_error_names_the_value(self):
+        stderr = io.StringIO()
+        with redirect_stderr(stderr), self.assertRaises(SystemExit):
+            run_cli("--at", "not-a-date", "day")
+        self.assertIn("not-a-date", stderr.getvalue())
+
+    def test_bad_until_error_names_the_value(self):
+        stderr = io.StringIO()
+        with redirect_stderr(stderr), self.assertRaises(SystemExit):
+            run_cli("--until", "not-a-date")
+        self.assertIn("not-a-date", stderr.getvalue())
 
     def test_version_exits_zero(self):
         with self.assertRaises(SystemExit) as caught:

@@ -305,7 +305,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         try:
             now = parse_moment(args.at)
         except ValueError:
-            parser.error("--at expects an ISO 8601 timestamp or an offset like +90m")
+            parser.error(
+                "--at could not parse %r (expected an ISO timestamp, a clock "
+                "time, a day name, or an offset like +90m)" % args.at
+            )
     else:
         now = datetime.now().replace(microsecond=0)
 
@@ -313,7 +316,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         try:
             target = parse_moment(args.until, now=now)
         except ValueError:
-            parser.error("--until expects the same formats as --at")
+            parser.error(
+                "--until could not parse %r (it accepts the same formats as --at)"
+                % args.until
+            )
         remaining = max(0.0, (target - now).total_seconds())
         if args.json:
             json.dump(
