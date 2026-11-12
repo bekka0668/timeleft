@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Sequence, Tuple
 
 from . import __version__
-from .core import PERIODS, build_report, render_bar
+from .core import PERIODS, build_report, format_duration, render_bar
 
 DEFAULT_WIDTH = 25
 WEEKDAY_NAMES = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
@@ -256,6 +256,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="print only the time already spent, one period per line",
     )
+    value_output.add_argument(
+        "--until",
+        metavar="WHEN",
+        help="print only the time left until WHEN, in the same formats as --at",
+    )
     parser.add_argument(
         "--width",
         type=int,
@@ -303,6 +308,28 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             parser.error("--at expects an ISO 8601 timestamp or an offset like +90m")
     else:
         now = datetime.now().replace(microsecond=0)
+
+    if args.until:
+        try:
+            target = parse_moment(args.until, now=now)
+        except ValueError:
+            parser.error("--until expects the same formats as --at")
+        remaining = max(0.0, (target - now).total_seconds())
+        if args.json:
+            json.dump(
+                {
+                    "now": now.isoformat(),
+                    "until": target.isoformat(),
+                    "remaining_seconds": round(remaining),
+                    "remaining": format_duration(remaining),
+                },
+                sys.stdout,
+                indent=2,
+            )
+            sys.stdout.write("\n")
+            return 0
+        print(format_duration(remaining))
+        return 0
 
     rows = build_report(periods, now, week_start=WEEK_STARTS[args.week_start])
 

@@ -53,6 +53,8 @@ $ timeleft week --week-start sunday    # Sunday-based weeks (any weekday works)
 $ timeleft day --countdown             # just "6h 58m" for a status bar
 $ timeleft --percent                   # just the percentages
 $ timeleft --elapsed                   # just the time already spent
+$ timeleft --until 2026-12-25          # time left until any moment
+$ timeleft --until "next friday 17:00" --json  # ...as JSON if you need it
 ```
 
 Periods: `day`, `week`, `month`, `quarter`, `year`, or just their first
@@ -61,7 +63,8 @@ plurals (`timeleft days`).
 
 Weeks start on Monday by default. Times are local time and naive (no timezone
 database is required). The bar switches to ASCII automatically when the output
-encoding cannot represent the block glyphs.
+encoding cannot represent the block glyphs. `--until` accepts the same formats
+as `--at`, and measures from the moment `--at` selects.
 
 ## Development
 
