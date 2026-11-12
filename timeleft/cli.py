@@ -20,6 +20,14 @@ CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
 TWELVE_HOUR = re.compile(r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*([ap])\.?m\.?$", re.IGNORECASE)
 RELATIVE_OFFSET = re.compile(r"^([+-])((?:\d+[smhdw])+)$", re.IGNORECASE)
 RELATIVE_TOKEN = re.compile(r"(\d+)([smhdw])", re.IGNORECASE)
+NATURAL_OFFSET = re.compile(r"^(?:(in)\s+)?(\d+)\s*([a-z]+?)(?:\s+(ago))?$", re.IGNORECASE)
+NATURAL_UNITS = {
+    "s": 1, "sec": 1, "second": 1,
+    "m": 60, "min": 60, "minute": 60,
+    "h": 3600, "hr": 3600, "hour": 3600,
+    "d": 86400, "day": 86400,
+    "w": 604800, "week": 604800,
+}
 DAY_KEYWORDS = {"today": 0, "tomorrow": 1, "yesterday": -1}
 NAMED_CLOCKS = {"noon": (12, 0, 0), "midnight": (0, 0, 0)}
 
@@ -57,6 +65,18 @@ def parse_clock_time(text: str) -> Optional[Tuple[int, int, int]]:
     return None
 
 
+def parse_natural_offset(text: str) -> Optional[int]:
+    match = NATURAL_OFFSET.match(text)
+    if match is None:
+        return None
+    word = match.group(3).lower()
+    unit = NATURAL_UNITS.get(word) or NATURAL_UNITS.get(word.rstrip("s"))
+    if unit is None:
+        return None
+    seconds = int(match.group(2)) * unit
+    return -seconds if match.group(4) else seconds
+
+
 def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     value = text.strip()
     base = now or datetime.now()
@@ -67,6 +87,9 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             for amount, unit in RELATIVE_TOKEN.findall(offset.group(2))
         )
         return base + timedelta(seconds=seconds if offset.group(1) == "+" else -seconds)
+    natural = parse_natural_offset(value)
+    if natural is not None:
+        return base + timedelta(seconds=natural)
     keyword = value.lower()
     if keyword == "now":
         return base.replace(microsecond=0)

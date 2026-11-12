@@ -80,6 +80,26 @@ class ParseMomentTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_moment("+90x", now=datetime(2026, 11, 9, 12, 0))
 
+    def test_natural_offsets(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "in 2 hours": datetime(2026, 11, 9, 14, 0),
+            "in 90 minutes": datetime(2026, 11, 9, 13, 30),
+            "in 1 day": datetime(2026, 11, 10, 12, 0),
+            "in 2 weeks": datetime(2026, 11, 23, 12, 0),
+            "30 sec": datetime(2026, 11, 9, 12, 0, 30),
+            "2h ago": datetime(2026, 11, 9, 10, 0),
+            "90 minutes ago": datetime(2026, 11, 9, 10, 30),
+            "In 3 Hours": datetime(2026, 11, 9, 15, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_natural_offset_with_unknown_unit_raises(self):
+        with self.assertRaises(ValueError):
+            parse_moment("in 2 fortnights", now=datetime(2026, 11, 9, 12, 0))
+
     def test_clock_time_uses_today(self):
         base = datetime(2026, 11, 9, 12, 0)
         self.assertEqual(parse_moment("15:30", now=base), datetime(2026, 11, 9, 15, 30))
