@@ -20,7 +20,10 @@ CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
 TWELVE_HOUR = re.compile(r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*([ap])\.?m\.?$", re.IGNORECASE)
 RELATIVE_OFFSET = re.compile(r"^([+-])((?:\d+[smhdw])+)$", re.IGNORECASE)
 RELATIVE_TOKEN = re.compile(r"(\d+)([smhdw])", re.IGNORECASE)
-NATURAL_OFFSET = re.compile(r"^(?:(in)\s+)?(\d+)\s*([a-z]+?)(?:\s+(ago))?$", re.IGNORECASE)
+NATURAL_OFFSET = re.compile(
+    r"^(?:(in)\s+)?(\d+)\s*([a-z]+?)(?:\s+(ago))?(?:\s+from\s+now)?$",
+    re.IGNORECASE,
+)
 NATURAL_UNITS = {
     "s": 1, "sec": 1, "second": 1,
     "m": 60, "min": 60, "minute": 60,

@@ -96,6 +96,8 @@ class ParseMomentTest(unittest.TestCase):
             "2h ago": datetime(2026, 11, 9, 10, 0),
             "90 minutes ago": datetime(2026, 11, 9, 10, 30),
             "In 3 Hours": datetime(2026, 11, 9, 15, 0),
+            "2 hours from now": datetime(2026, 11, 9, 14, 0),
+            "5 days from now": datetime(2026, 11, 14, 12, 0),
         }
         for text, expected in cases.items():
             with self.subTest(text=text):
