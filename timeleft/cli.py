@@ -4,7 +4,7 @@ import argparse
 import json
 import re
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Sequence, Tuple
 
 from . import __version__
@@ -159,7 +159,8 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             microsecond=0,
         )
     if value.endswith(("Z", "z")):
-        value = value[:-1] + "+00:00"
+        moment = datetime.fromisoformat(value[:-1]).replace(tzinfo=timezone.utc)
+        return moment.astimezone().replace(tzinfo=None)
     moment = datetime.fromisoformat(value)
     if moment.tzinfo is not None:
         moment = moment.astimezone().replace(tzinfo=None)

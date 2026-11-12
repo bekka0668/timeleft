@@ -27,6 +27,11 @@ class ParseMomentTest(unittest.TestCase):
         expected = datetime(2026, 11, 9, 12, 0, tzinfo=timezone.utc).astimezone()
         self.assertEqual(moment, expected.replace(tzinfo=None))
 
+    def test_date_only_with_z_suffix_is_utc_midnight(self):
+        expected = datetime(2026, 11, 9, tzinfo=timezone.utc).astimezone()
+        self.assertEqual(parse_moment("2026-11-09Z"), expected.replace(tzinfo=None))
+        self.assertEqual(parse_moment("2026-11-09z"), expected.replace(tzinfo=None))
+
     def test_lowercase_z_suffix_is_utc_too(self):
         self.assertEqual(
             parse_moment("2026-11-09T12:00:00z"),
