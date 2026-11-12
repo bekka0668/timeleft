@@ -92,6 +92,32 @@ class ParseMomentTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_moment("25:00", now=datetime(2026, 11, 9, 12, 0))
 
+    def test_twelve_hour_clock_times(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "9am": datetime(2026, 11, 9, 9, 0),
+            "9:30pm": datetime(2026, 11, 9, 21, 30),
+            "12am": datetime(2026, 11, 9, 0, 0),
+            "12:15PM": datetime(2026, 11, 9, 12, 15),
+            "6:30 pm": datetime(2026, 11, 9, 18, 30),
+            "11:59:30 a.m.": datetime(2026, 11, 9, 11, 59, 30),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_twelve_hour_clock_time_with_day_anchor(self):
+        base = datetime(2026, 11, 11, 12, 0)
+        self.assertEqual(parse_moment("tomorrow 9am", now=base), datetime(2026, 11, 12, 9, 0))
+        self.assertEqual(parse_moment("9pm friday", now=base), datetime(2026, 11, 13, 21, 0))
+
+    def test_twelve_hour_clock_time_rejects_bad_values(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        for text in ("0am", "13pm", "9:60am", "9xm"):
+            with self.subTest(text=text):
+                with self.assertRaises(ValueError):
+                    parse_moment(text, now=base)
+
     def test_day_keywords(self):
         base = datetime(2026, 11, 9, 18, 25, 40, 123456)
         self.assertEqual(parse_moment("now", now=base), datetime(2026, 11, 9, 18, 25, 40))
@@ -388,6 +414,11 @@ class MainTest(unittest.TestCase):
         code, out = run_cli("--at", "tomorrow noon", "--json", "day")
         self.assertEqual(code, 0)
         self.assertEqual(json.loads(out)["periods"][0]["remaining_seconds"], 43200)
+
+    def test_at_twelve_hour_clock(self):
+        code, out = run_cli("--at", "6:30pm", "--json", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["periods"][0]["remaining_seconds"], 19800)
 
     def test_bad_at_fails(self):
         with self.assertRaises(SystemExit) as caught:

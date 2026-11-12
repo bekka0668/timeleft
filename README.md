@@ -39,6 +39,7 @@ $ timeleft day --at 2026-11-09T12:00   # evaluate at a fixed moment
 $ timeleft day --at +90m               # or look 90 minutes ahead of now
 $ timeleft day --at +2h30m             # offsets can be combined
 $ timeleft day --at 18:30              # or at a clock time today
+$ timeleft day --at 6:30pm             # 12-hour clock times work too
 $ timeleft day --at tomorrow           # now, today, tomorrow, yesterday
 $ timeleft day --at "tomorrow 09:00"   # a day keyword plus a clock time
 $ timeleft day --at "tomorrow noon"    # noon and midnight work too

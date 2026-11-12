@@ -17,6 +17,7 @@ WEEK_STARTS.update({name[:3]: index for index, name in enumerate(WEEKDAY_NAMES)}
 PERIOD_ALIASES = {period[0]: period for period in PERIODS}
 RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
+TWELVE_HOUR = re.compile(r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*([ap])\.?m\.?$", re.IGNORECASE)
 RELATIVE_OFFSET = re.compile(r"^([+-])((?:\d+[smhdw])+)$", re.IGNORECASE)
 RELATIVE_TOKEN = re.compile(r"(\d+)([smhdw])", re.IGNORECASE)
 DAY_KEYWORDS = {"today": 0, "tomorrow": 1, "yesterday": -1}
@@ -38,6 +39,15 @@ def parse_clock_time(text: str) -> Optional[Tuple[int, int, int]]:
     named = NAMED_CLOCKS.get(text.lower())
     if named is not None:
         return named
+    twelve = TWELVE_HOUR.match(text)
+    if twelve is not None:
+        hour = int(twelve.group(1))
+        minute = int(twelve.group(2) or 0)
+        second = int(twelve.group(3) or 0)
+        if not 1 <= hour <= 12 or minute > 59 or second > 59:
+            return None
+        hour = hour % 12 + (12 if twelve.group(4).lower() == "p" else 0)
+        return (hour, minute, second)
     for pattern in CLOCK_FORMATS:
         try:
             clock = datetime.strptime(text, pattern)
@@ -95,15 +105,14 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     unit = value[-1:].lower()
     if len(value) > 2 and value[0] in "+-" and unit in RELATIVE_UNITS:
         raise ValueError("relative offset needs a whole number, e.g. +90m")
-    if ":" in value:
-        clock = parse_clock_time(value)
-        if clock is not None:
-            return base.replace(
-                hour=clock[0],
-                minute=clock[1],
-                second=clock[2],
-                microsecond=0,
-            )
+    clock = parse_clock_time(value)
+    if clock is not None:
+        return base.replace(
+            hour=clock[0],
+            minute=clock[1],
+            second=clock[2],
+            microsecond=0,
+        )
     if value.endswith(("Z", "z")):
         value = value[:-1] + "+00:00"
     moment = datetime.fromisoformat(value)
