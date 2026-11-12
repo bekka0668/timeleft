@@ -409,6 +409,42 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(json.loads(out)["periods"][0]["elapsed"], "12h 00m")
 
+    def test_until_prints_remaining(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--until", "2026-11-10T12:00")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "1d 00h\n")
+
+    def test_until_accepts_the_same_forms_as_at(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--until", "in 2 hours")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "2h 00m\n")
+
+    def test_until_in_the_past_prints_zero(self):
+        code, out = run_cli("--at", "2026-11-10T12:00", "--until", "2026-11-09T12:00")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "0s\n")
+
+    def test_until_json_output(self):
+        code, out = run_cli(
+            "--at", "2026-11-09T12:00", "--json", "--until", "2026-11-11T18:30"
+        )
+        self.assertEqual(code, 0)
+        payload = json.loads(out)
+        self.assertEqual(payload["now"], "2026-11-09T12:00:00")
+        self.assertEqual(payload["until"], "2026-11-11T18:30:00")
+        self.assertEqual(payload["remaining_seconds"], 196200)
+        self.assertEqual(payload["remaining"], "2d 06h")
+
+    def test_bad_until_fails(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--until", "not-a-date")
+        self.assertEqual(caught.exception.code, 2)
+
+    def test_until_and_countdown_are_mutually_exclusive(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--until", "tomorrow", "--countdown")
+        self.assertEqual(caught.exception.code, 2)
+
     def test_elapsed_and_countdown_are_mutually_exclusive(self):
         with self.assertRaises(SystemExit) as caught:
             run_cli("--elapsed", "--countdown", "day")
