@@ -48,7 +48,7 @@ $ timeleft day --at tomorrow           # now, today, tomorrow, yesterday
 $ timeleft day --at "tomorrow 09:00"   # a day keyword plus a clock time
 $ timeleft day --at "day after tomorrow"  # ...or a two-day phrase
 $ timeleft day --at "tomorrow at 9am"  # the word "at" is optional
-$ timeleft day --at "tomorrow noon"    # noon and midnight work too
+$ timeleft day --at "tomorrow noon"    # noon, midday and midnight work too
 $ timeleft week --at "friday 18:00"    # a weekday, optionally with a clock time
 $ timeleft day --at "next friday 9am"  # "this", "next" or "last", plus a clock time
 $ timeleft --width 40 --plain          # wider bar, no bar

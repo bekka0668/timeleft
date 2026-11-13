@@ -275,6 +275,10 @@ class ParseMomentTest(unittest.TestCase):
         base = datetime(2026, 11, 9, 18, 25, 40, 123456)
         self.assertEqual(parse_moment("noon", now=base), datetime(2026, 11, 9, 12, 0))
         self.assertEqual(parse_moment("Midnight", now=base), datetime(2026, 11, 9))
+        self.assertEqual(parse_moment("midday", now=base), datetime(2026, 11, 9, 12, 0))
+        self.assertEqual(
+            parse_moment("tomorrow midday", now=base), datetime(2026, 11, 10, 12, 0)
+        )
         self.assertEqual(
             parse_moment("Tomorrow noon", now=base), datetime(2026, 11, 10, 12, 0)
         )

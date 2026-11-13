@@ -38,7 +38,7 @@ DAY_PHRASES = {
     "day before yesterday": -2,
     "the day before yesterday": -2,
 }
-NAMED_CLOCKS = {"noon": (12, 0, 0), "midnight": (0, 0, 0)}
+NAMED_CLOCKS = {"noon": (12, 0, 0), "midday": (12, 0, 0), "midnight": (0, 0, 0)}
 WEEKDAY_MODIFIERS = {"next", "last", "this"}
 END_KEYWORDS = {
     "end of day": "day", "eod": "day",
