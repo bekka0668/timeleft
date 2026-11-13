@@ -21,7 +21,7 @@ TWELVE_HOUR = re.compile(r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*([ap])\.?m\.?$
 RELATIVE_OFFSET = re.compile(r"^([+-])((?:\d+[smhdw])+)$", re.IGNORECASE)
 RELATIVE_TOKEN = re.compile(r"(\d+)([smhdw])", re.IGNORECASE)
 NATURAL_OFFSET = re.compile(
-    r"^(?:(in)\s+)?(\d+)\s*([a-z]+?)(?:\s+(ago))?(?:\s+from\s+now)?$",
+    r"^(?:(in)\s+)?(\d+|an?)\s*([a-z]+?)(?:\s+(ago))?(?:\s+from\s+now)?$",
     re.IGNORECASE,
 )
 NATURAL_UNITS = {
@@ -94,7 +94,8 @@ def parse_natural_offset(text: str) -> Optional[int]:
     unit = NATURAL_UNITS.get(word) or NATURAL_UNITS.get(word.rstrip("s"))
     if unit is None:
         return None
-    seconds = int(match.group(2)) * unit
+    amount = match.group(2).lower()
+    seconds = (1 if amount in ("a", "an") else int(amount)) * unit
     return -seconds if match.group(4) else seconds
 
 
