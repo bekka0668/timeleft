@@ -94,6 +94,8 @@ def parse_natural_offset(text: str) -> Optional[int]:
 
 def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     value = text.strip()
+    if value.lower().startswith("at "):
+        value = value[3:].strip()
     base = now or datetime.now()
     offset = RELATIVE_OFFSET.match(value)
     if offset:
@@ -137,7 +139,8 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             clock_words = [
                 word
                 for word in words
-                if word.lower() != lowered and word.lower() not in WEEKDAY_MODIFIERS
+                if word.lower() not in (lowered, "at")
+                and word.lower() not in WEEKDAY_MODIFIERS
             ]
             clock = parse_clock_time(" ".join(clock_words)) if clock_words else None
             if clock_words and clock is None:
