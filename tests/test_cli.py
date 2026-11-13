@@ -213,6 +213,11 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_target(text, base), expected)
 
+    def test_end_of_week_honours_week_start(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_target("end of week", base, week_start=6), datetime(2026, 11, 15))
+        self.assertEqual(parse_target("eow", base, week_start=0), datetime(2026, 11, 16))
+
     def test_end_of_period_falls_back_to_a_moment(self):
         base = datetime(2026, 11, 9, 12, 0)
         self.assertEqual(parse_target("tomorrow", base), datetime(2026, 11, 10))
@@ -505,6 +510,13 @@ class MainTest(unittest.TestCase):
         code, out = run_cli("--at", "2026-11-09T12:00", "--until", "end of week")
         self.assertEqual(code, 0)
         self.assertEqual(out, "6d 12h\n")
+
+    def test_until_end_of_week_honours_week_start(self):
+        code, out = run_cli(
+            "--at", "2026-11-09T12:00", "--week-start", "sunday", "--until", "eow"
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "5d 12h\n")
 
     def test_until_accepts_end_of_month_alias(self):
         code, out = run_cli("--at", "2026-11-09T12:00", "--until", "eom")

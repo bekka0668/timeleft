@@ -204,7 +204,7 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
 def parse_target(text: str, now: datetime, week_start: int = 0) -> datetime:
     period = END_KEYWORDS.get(text.strip().lower())
     if period is not None:
-        return span_for(period, now).end
+        return span_for(period, now, week_start).end
     return parse_moment(text, now=now)
 
 
