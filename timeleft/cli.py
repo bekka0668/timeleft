@@ -346,7 +346,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 "invalid period %r (choose from %s)"
                 % (name, ", ".join(PERIODS + tuple(PERIOD_ALIASES)))
             )
-        periods.append(period)
+        if period not in periods:
+            periods.append(period)
     if args.at:
         try:
             now = parse_target(args.at, datetime.now())

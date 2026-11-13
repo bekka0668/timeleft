@@ -592,6 +592,24 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(json.loads(out)["periods"][0]["period"], "quarter")
 
+    def test_repeated_periods_are_deduplicated(self):
+        code, out = run_cli("day", "d", "--plain", "--at", "2026-11-09T12:00")
+        self.assertEqual(code, 0)
+        self.assertEqual(len(out.splitlines()), 1)
+        self.assertTrue(out.startswith("day"))
+
+    def test_repeated_periods_are_deduplicated_in_json(self):
+        code, out = run_cli("--json", "--at", "2026-11-09T12:00", "week", "w")
+        self.assertEqual(code, 0)
+        self.assertEqual(len(json.loads(out)["periods"]), 1)
+
+    def test_deduplicated_periods_keep_their_order(self):
+        code, out = run_cli("--json", "--at", "2026-11-09T12:00", "week", "day", "week")
+        self.assertEqual(code, 0)
+        self.assertEqual(
+            [row["period"] for row in json.loads(out)["periods"]], ["week", "day"]
+        )
+
     def test_plural_of_unknown_period_fails(self):
         with self.assertRaises(SystemExit) as caught:
             run_cli("fortnights")

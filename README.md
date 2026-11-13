@@ -63,7 +63,8 @@ $ timeleft --until "next friday 17:00" --json  # ...as JSON if you need it
 
 Periods: `day`, `week`, `month`, `quarter`, `year`, or just their first
 letter (`d`, `w`, `m`, `q`, `y`). Names are case-insensitive and also accept
-plurals (`timeleft days`).
+plurals (`timeleft days`). Repeating a period prints it once, in the order you
+first asked for it.
 
 Weeks start on Monday by default. Times are local time and naive (no timezone
 database is required). The bar switches to ASCII automatically when the output
