@@ -4,7 +4,13 @@ import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime, timedelta, timezone
 
-from timeleft.cli import format_row, main, parse_moment, supports_block_glyphs
+from timeleft.cli import (
+    format_row,
+    main,
+    parse_moment,
+    parse_target,
+    supports_block_glyphs,
+)
 
 
 def run_cli(*argv):
@@ -188,6 +194,29 @@ class ParseMomentTest(unittest.TestCase):
         for text, expected in cases.items():
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_end_of_period_targets(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "end of day": datetime(2026, 11, 10),
+            "eod": datetime(2026, 11, 10),
+            "end of week": datetime(2026, 11, 16),
+            "eow": datetime(2026, 11, 16),
+            "end of month": datetime(2026, 12, 1),
+            "eom": datetime(2026, 12, 1),
+            "end of quarter": datetime(2027, 1, 1),
+            "eoq": datetime(2027, 1, 1),
+            "end of year": datetime(2027, 1, 1),
+            "eoy": datetime(2027, 1, 1),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_target(text, base), expected)
+
+    def test_end_of_period_falls_back_to_a_moment(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_target("tomorrow", base), datetime(2026, 11, 10))
+        self.assertEqual(parse_target("+2h", base), datetime(2026, 11, 9, 14, 0))
 
     def test_at_connector_before_a_clock_time(self):
         base = datetime(2026, 11, 9, 12, 0)
@@ -471,6 +500,21 @@ class MainTest(unittest.TestCase):
         code, out = run_cli("--at", "2026-11-09T12:00", "--until", "in 2 hours")
         self.assertEqual(code, 0)
         self.assertEqual(out, "2h 00m\n")
+
+    def test_until_accepts_end_of_period(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--until", "end of week")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "6d 12h\n")
+
+    def test_until_accepts_end_of_month_alias(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--until", "eom")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "21d 12h\n")
+
+    def test_at_accepts_end_of_year(self):
+        code, out = run_cli("--at", "eoy", "day", "--plain")
+        self.assertEqual(code, 0)
+        self.assertIn("0.0%", out)
 
     def test_until_in_the_past_prints_zero(self):
         code, out = run_cli("--at", "2026-11-10T12:00", "--until", "2026-11-09T12:00")
