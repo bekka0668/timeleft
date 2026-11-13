@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Sequence, Tuple
 
 from . import __version__
-from .core import PERIODS, build_report, format_duration, render_bar
+from .core import PERIODS, build_report, format_duration, render_bar, span_for
 
 DEFAULT_WIDTH = 25
 WEEKDAY_NAMES = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
@@ -40,6 +40,13 @@ DAY_PHRASES = {
 }
 NAMED_CLOCKS = {"noon": (12, 0, 0), "midnight": (0, 0, 0)}
 WEEKDAY_MODIFIERS = {"next", "last", "this"}
+END_KEYWORDS = {
+    "end of day": "day", "eod": "day",
+    "end of week": "week", "eow": "week",
+    "end of month": "month", "eom": "month",
+    "end of quarter": "quarter", "eoq": "quarter",
+    "end of year": "year", "eoy": "year",
+}
 
 
 def midnight_of(base: datetime, days: int = 0) -> datetime:
@@ -194,6 +201,13 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     return moment
 
 
+def parse_target(text: str, now: datetime, week_start: int = 0) -> datetime:
+    period = END_KEYWORDS.get(text.strip().lower())
+    if period is not None:
+        return span_for(period, now, week_start).end
+    return parse_moment(text, now=now)
+
+
 def supports_block_glyphs(stream) -> bool:
     encoding = getattr(stream, "encoding", None) or "utf-8"
     try:
@@ -248,8 +262,9 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "ISO 8601 moment, a clock time such as 15:30, an offset such as "
             "+2h30m, one of now, today, tomorrow, yesterday, noon, midnight, "
-            "a weekday name such as friday, or one of those followed by a "
-            "clock time such as \"tomorrow 09:00\""
+            "a weekday name such as friday, a period end such as \"end of "
+            "week\", or one of those followed by a clock time such as "
+            "\"tomorrow 09:00\""
         ),
     )
     parser.add_argument(
@@ -286,7 +301,10 @@ def build_parser() -> argparse.ArgumentParser:
     value_output.add_argument(
         "--until",
         metavar="WHEN",
-        help="print only the time left until WHEN, in the same formats as --at",
+        help=(
+            "print only the time left until WHEN, in the same formats as --at "
+            "plus end of day/week/month/quarter/year (eod, eow, ...)"
+        ),
     )
     parser.add_argument(
         "--width",
@@ -318,6 +336,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if args.width < 1:
         parser.error("--width must be at least 1")
 
+    week_start = WEEK_STARTS[args.week_start]
     selected = args.periods or list(PERIODS)
     periods: List[str] = []
     for name in selected:
@@ -330,7 +349,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         periods.append(period)
     if args.at:
         try:
-            now = parse_moment(args.at)
+            now = parse_target(args.at, datetime.now())
         except ValueError:
             parser.error(
                 "--at could not parse %r (expected an ISO timestamp, a clock "
@@ -341,7 +360,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     if args.until:
         try:
-            target = parse_moment(args.until, now=now)
+            target = parse_target(args.until, now, week_start)
         except ValueError:
             parser.error(
                 "--until could not parse %r (it accepts the same formats as --at)"
@@ -364,7 +383,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(format_duration(remaining))
         return 0
 
-    rows = build_report(periods, now, week_start=WEEK_STARTS[args.week_start])
+    rows = build_report(periods, now, week_start=week_start)
 
     if args.json:
         json.dump({"now": now.isoformat(), "periods": rows}, sys.stdout, indent=2)

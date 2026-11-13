@@ -57,6 +57,7 @@ $ timeleft day --countdown             # just "6h 58m" for a status bar
 $ timeleft --percent                   # just the percentages
 $ timeleft --elapsed                   # just the time already spent
 $ timeleft --until 2026-12-25          # time left until any moment
+$ timeleft --until "end of week"       # ...or until eod, eow, eom, eoq, eoy
 $ timeleft --until "next friday 17:00" --json  # ...as JSON if you need it
 ```
 
