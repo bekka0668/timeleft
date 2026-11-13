@@ -38,6 +38,7 @@ $ timeleft --json          # machine readable output
 $ timeleft day --at 2026-11-09T12:00   # evaluate at a fixed moment
 $ timeleft day --at +90m               # or look 90 minutes ahead of now
 $ timeleft day --at +2h30m             # offsets can be combined
+$ timeleft day --at "in 1.5 hours"     # fractions are fine too
 $ timeleft day --at "in 2 hours"       # a natural offset also works
 $ timeleft day --at "in an hour"       # "a" and "an" mean one
 $ timeleft day --at "2 weeks ago"      # ...in either direction

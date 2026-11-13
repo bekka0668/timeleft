@@ -83,9 +83,20 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
-    def test_relative_offset_needs_whole_number(self):
+    def test_relative_offsets_accept_fractions(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "+1.5h": datetime(2026, 11, 9, 13, 30),
+            "-0.5h": datetime(2026, 11, 9, 11, 30),
+            "+1.5h15m": datetime(2026, 11, 9, 13, 45),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_relative_offset_needs_number_and_unit(self):
         with self.assertRaises(ValueError):
-            parse_moment("+1.5h", now=datetime(2026, 11, 9, 12, 0))
+            parse_moment("+1.5 h", now=datetime(2026, 11, 9, 12, 0))
 
     def test_relative_offset_with_unknown_unit_raises(self):
         with self.assertRaises(ValueError):
@@ -104,6 +115,17 @@ class ParseMomentTest(unittest.TestCase):
             "In 3 Hours": datetime(2026, 11, 9, 15, 0),
             "2 hours from now": datetime(2026, 11, 9, 14, 0),
             "5 days from now": datetime(2026, 11, 14, 12, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_natural_offsets_accept_fractions(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "in 1.5 hours": datetime(2026, 11, 9, 13, 30),
+            "in 0.5h": datetime(2026, 11, 9, 12, 30),
+            "2.5 days ago": datetime(2026, 11, 7),
         }
         for text, expected in cases.items():
             with self.subTest(text=text):

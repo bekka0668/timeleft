@@ -18,10 +18,10 @@ PERIOD_ALIASES = {period[0]: period for period in PERIODS}
 RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
 TWELVE_HOUR = re.compile(r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*([ap])\.?m\.?$", re.IGNORECASE)
-RELATIVE_OFFSET = re.compile(r"^([+-])((?:\d+[smhdw])+)$", re.IGNORECASE)
-RELATIVE_TOKEN = re.compile(r"(\d+)([smhdw])", re.IGNORECASE)
+RELATIVE_OFFSET = re.compile(r"^([+-])((?:\d+(?:\.\d+)?[smhdw])+)$", re.IGNORECASE)
+RELATIVE_TOKEN = re.compile(r"(\d+(?:\.\d+)?)([smhdw])", re.IGNORECASE)
 NATURAL_OFFSET = re.compile(
-    r"^(?:(in)\s+)?(\d+|an?)\s*([a-z]+?)(?:\s+(ago))?(?:\s+from\s+now)?$",
+    r"^(?:(in)\s+)?(\d+(?:\.\d+)?|an?)\s*([a-z]+?)(?:\s+(ago))?(?:\s+from\s+now)?$",
     re.IGNORECASE,
 )
 NATURAL_UNITS = {
@@ -102,7 +102,8 @@ def parse_natural_offset(text: str) -> Optional[int]:
     if unit is None:
         return None
     amount = match.group(2).lower()
-    seconds = (1 if amount in ("a", "an") else int(amount)) * unit
+    count = 1.0 if amount in ("a", "an") else float(amount)
+    seconds = round(count * unit)
     return -seconds if match.group(4) else seconds
 
 
@@ -114,7 +115,7 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     offset = RELATIVE_OFFSET.match(value)
     if offset:
         seconds = sum(
-            int(amount) * RELATIVE_UNITS[unit.lower()]
+            float(amount) * RELATIVE_UNITS[unit.lower()]
             for amount, unit in RELATIVE_TOKEN.findall(offset.group(2))
         )
         return base + timedelta(seconds=seconds if offset.group(1) == "+" else -seconds)
@@ -183,7 +184,7 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             return day.replace(hour=clock[0], minute=clock[1], second=clock[2])
     unit = value[-1:].lower()
     if len(value) > 2 and value[0] in "+-" and unit in RELATIVE_UNITS:
-        raise ValueError("relative offset needs a whole number, e.g. +90m")
+        raise ValueError("relative offset needs a number directly followed by a unit, e.g. +90m")
     clock = parse_clock_time(value)
     if clock is not None:
         return base.replace(
