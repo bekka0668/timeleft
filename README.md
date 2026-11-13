@@ -44,6 +44,7 @@ $ timeleft day --at 18:30              # or at a clock time today
 $ timeleft day --at 6:30pm             # 12-hour clock times work too
 $ timeleft day --at tomorrow           # now, today, tomorrow, yesterday
 $ timeleft day --at "tomorrow 09:00"   # a day keyword plus a clock time
+$ timeleft day --at "day after tomorrow"  # ...or a two-day phrase
 $ timeleft day --at "tomorrow at 9am"  # the word "at" is optional
 $ timeleft day --at "tomorrow noon"    # noon and midnight work too
 $ timeleft week --at "friday 18:00"    # a weekday, optionally with a clock time

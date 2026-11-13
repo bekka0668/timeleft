@@ -32,6 +32,12 @@ NATURAL_UNITS = {
     "w": 604800, "week": 604800,
 }
 DAY_KEYWORDS = {"today": 0, "tomorrow": 1, "yesterday": -1}
+DAY_PHRASES = {
+    "day after tomorrow": 2,
+    "the day after tomorrow": 2,
+    "day before yesterday": -2,
+    "the day before yesterday": -2,
+}
 NAMED_CLOCKS = {"noon": (12, 0, 0), "midnight": (0, 0, 0)}
 WEEKDAY_MODIFIERS = {"next", "last", "this"}
 
@@ -112,6 +118,18 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
         return base.replace(microsecond=0)
     if keyword in DAY_KEYWORDS:
         return midnight_of(base, DAY_KEYWORDS[keyword])
+    for phrase, days in DAY_PHRASES.items():
+        if keyword == phrase:
+            return midnight_of(base, days)
+        if keyword.startswith(phrase + " "):
+            rest = value[len(phrase) :].strip()
+            if rest.lower().startswith("at "):
+                rest = rest[3:].strip()
+            clock = parse_clock_time(rest)
+            if clock is None:
+                raise ValueError("expected a clock time after %r" % phrase)
+            day = midnight_of(base, days)
+            return day.replace(hour=clock[0], minute=clock[1], second=clock[2])
     if keyword in NAMED_CLOCKS:
         return midnight_of(base).replace(
             hour=NAMED_CLOCKS[keyword][0],

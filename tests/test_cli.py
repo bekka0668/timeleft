@@ -189,6 +189,20 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_day_phrases(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "day after tomorrow": datetime(2026, 11, 11),
+            "the day after tomorrow": datetime(2026, 11, 11),
+            "day before yesterday": datetime(2026, 11, 7),
+            "the day before yesterday": datetime(2026, 11, 7),
+            "day after tomorrow 9am": datetime(2026, 11, 11, 9, 0),
+            "the day before yesterday at 18:30": datetime(2026, 11, 7, 18, 30),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
     def test_named_clock_times(self):
         base = datetime(2026, 11, 9, 18, 25, 40, 123456)
         self.assertEqual(parse_moment("noon", now=base), datetime(2026, 11, 9, 12, 0))
