@@ -261,6 +261,34 @@ class ParseMomentTest(unittest.TestCase):
         self.assertEqual(parse_target("end of week", base, week_start=6), datetime(2026, 11, 15))
         self.assertEqual(parse_target("eow", base, week_start=0), datetime(2026, 11, 16))
 
+    def test_start_of_period_targets(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "start of day": datetime(2026, 11, 9),
+            "sod": datetime(2026, 11, 9),
+            "start of week": datetime(2026, 11, 9),
+            "sow": datetime(2026, 11, 9),
+            "start of month": datetime(2026, 11, 1),
+            "som": datetime(2026, 11, 1),
+            "start of quarter": datetime(2026, 10, 1),
+            "soq": datetime(2026, 10, 1),
+            "start of year": datetime(2026, 1, 1),
+            "soy": datetime(2026, 1, 1),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_target(text, base), expected)
+
+    def test_start_of_week_honours_week_start(self):
+        base = datetime(2026, 11, 11, 12, 0)
+        self.assertEqual(parse_target("start of week", base, week_start=6), datetime(2026, 11, 8))
+        self.assertEqual(parse_target("sow", base, week_start=3), datetime(2026, 11, 5))
+
+    def test_target_phrases_ignore_articles(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_target("the end of the week", base), datetime(2026, 11, 16))
+        self.assertEqual(parse_target("start of the month", base), datetime(2026, 11, 1))
+
     def test_end_of_period_falls_back_to_a_moment(self):
         base = datetime(2026, 11, 9, 12, 0)
         self.assertEqual(parse_target("tomorrow", base), datetime(2026, 11, 10))

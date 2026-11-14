@@ -60,6 +60,7 @@ $ timeleft --percent                   # just the percentages
 $ timeleft --elapsed                   # just the time already spent
 $ timeleft --until 2026-12-25          # time left until any moment
 $ timeleft --until "end of week"       # ...or until eod, eow, eom, eoq, eoy
+$ timeleft --until "start of month"    # ...or from sod, sow, som, soq, soy
 $ timeleft --until "next friday 17:00" --json  # ...as JSON if you need it
 $ timeleft -j -p                  # short options: -j, -p, -a, -c, -e, -w, -V
 ```

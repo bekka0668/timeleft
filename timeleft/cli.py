@@ -48,6 +48,8 @@ END_KEYWORDS = {
     "end of quarter": "quarter", "eoq": "quarter",
     "end of year": "year", "eoy": "year",
 }
+START_KEYWORDS = {"start of %s" % period: period for period in PERIODS}
+START_KEYWORDS.update({"so%s" % period[0]: period for period in PERIODS})
 
 
 def midnight_of(base: datetime, days: int = 0) -> datetime:
@@ -218,10 +220,21 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     return moment
 
 
+def target_phrase(text: str) -> str:
+    phrase = text.strip().lower()
+    if phrase.startswith("the "):
+        phrase = phrase[4:]
+    return re.sub(r"\bof the\b", "of", phrase)
+
+
 def parse_target(text: str, now: datetime, week_start: int = 0) -> datetime:
-    period = END_KEYWORDS.get(text.strip().lower())
+    phrase = target_phrase(text)
+    period = END_KEYWORDS.get(phrase)
     if period is not None:
         return span_for(period, now, week_start).end
+    period = START_KEYWORDS.get(phrase)
+    if period is not None:
+        return span_for(period, now, week_start).start
     return parse_moment(text, now=now)
 
 
