@@ -10,8 +10,8 @@ see [the README](../README.md) for what the tool is and how to install it.
 timeleft [OPTIONS] [PERIOD ...]
 ```
 
-With no options it prints one line per default period — `day`, `week`, `month`,
-`quarter`, `year` — with a progress bar, the percentage elapsed, and the time
+With no options it prints one line per default period - `day`, `week`, `month`,
+`quarter`, `year` - with a progress bar, the percentage elapsed, and the time
 remaining.
 
 ```console
@@ -30,7 +30,7 @@ the flag to evaluate the real current moment.
 
 | Period    | Short | Plural     | In the default report |
 | --------- | ----- | ---------- | --------------------- |
-| `hour`    | `h`   | `hours`    | no — opt in           |
+| `hour`    | `h`   | `hours`    | no - opt in           |
 | `day`     | `d`   | `days`     | yes                   |
 | `week`    | `w`   | `weeks`    | yes                   |
 | `month`   | `m`   | `months`   | yes                   |
