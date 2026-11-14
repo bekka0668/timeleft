@@ -158,6 +158,20 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_natural_offsets_accept_half_and_quarter_phrases(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "in half an hour": datetime(2026, 11, 9, 12, 30),
+            "half an hour ago": datetime(2026, 11, 9, 11, 30),
+            "in a quarter of an hour": datetime(2026, 11, 9, 12, 15),
+            "in three quarters of an hour": datetime(2026, 11, 9, 12, 45),
+            "in an hour and a half": datetime(2026, 11, 9, 13, 30),
+            "in half a day": datetime(2026, 11, 10, 0, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
     def test_natural_offsets_reject_trailing_junk(self):
         base = datetime(2026, 11, 9, 12, 0)
         for text in ("in 2 hours later", "in 2 hours and", "2 hours ago ago"):

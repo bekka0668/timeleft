@@ -24,6 +24,13 @@ RELATIVE_TOKEN = re.compile(r"(\d+(?:\.\d+)?)([smhdw])", re.IGNORECASE)
 NATURAL_PART = re.compile(
     r"(?:(\d+(?:\.\d+)?)\s*([a-z]+)|(an?)\s+([a-z]+))", re.IGNORECASE
 )
+NATURAL_PHRASES = (
+    (re.compile(r"\ban hour and a half\b", re.IGNORECASE), "90 minutes"),
+    (re.compile(r"\bthree quarters of an hour\b", re.IGNORECASE), "45 minutes"),
+    (re.compile(r"\b(?:a )?quarter of an hour\b", re.IGNORECASE), "15 minutes"),
+    (re.compile(r"\bhalf an hour\b", re.IGNORECASE), "30 minutes"),
+    (re.compile(r"\bhalf a day\b", re.IGNORECASE), "12 hours"),
+)
 NATURAL_FILLER = re.compile(r"^(?:\s*(?:,|and)?\s*)*$", re.IGNORECASE)
 NATURAL_TAIL = re.compile(r"^[\s,]*$")
 NATURAL_UNITS = {
@@ -108,6 +115,8 @@ def parse_natural_offset(text: str) -> Optional[int]:
     if value.endswith(" ago"):
         value = value[: -len(" ago")].strip()
         sign = -1
+    for pattern, replacement in NATURAL_PHRASES:
+        value = pattern.sub(replacement, value)
     total = 0.0
     parts = 0
     end = 0
