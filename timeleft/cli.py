@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 import time
@@ -12,6 +13,7 @@ from . import __version__
 from .core import ALL_PERIODS, PERIODS, build_report, format_duration, render_bar, span_for
 
 DEFAULT_WIDTH = 25
+MAX_WATCH_SECONDS = 86400
 WEEKDAY_NAMES = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
 WEEK_STARTS = {name: index for index, name in enumerate(WEEKDAY_NAMES)}
 WEEK_STARTS.update({name[:3]: index for index, name in enumerate(WEEKDAY_NAMES)})
@@ -450,8 +452,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     if args.width < 1:
         parser.error("--width must be at least 1")
-    if args.watch is not None and args.watch <= 0:
-        parser.error("--watch must be a positive number of seconds")
+    if args.watch is not None:
+        if not math.isfinite(args.watch) or args.watch <= 0:
+            parser.error("--watch must be a positive number of seconds")
+        if args.watch > MAX_WATCH_SECONDS:
+            parser.error("--watch must be at most %d seconds" % MAX_WATCH_SECONDS)
     if args.watch is not None and args.json:
         parser.error("--watch cannot be combined with --json")
 

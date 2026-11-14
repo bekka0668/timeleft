@@ -884,6 +884,12 @@ class WatchTest(unittest.TestCase):
                     run_cli("--watch", seconds, "day")
                 self.assertEqual(caught.exception.code, 2)
 
+    def test_watch_rejects_non_finite_intervals(self):
+        for value in ("nan", "inf", "1e309", "1e308", "0", "-5"):
+            with self.subTest(value=value):
+                with self.assertRaises(SystemExit):
+                    run_cli("--watch", value, "day")
+
     def test_watch_rejects_json(self):
         with self.assertRaises(SystemExit) as caught:
             run_cli("--watch", "1", "--json", "day")

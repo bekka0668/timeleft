@@ -64,7 +64,7 @@ $ timeleft --until 2026-12-25          # time left until any moment
 $ timeleft --until "end of week"       # ...or until eod, eow, eom, eoq, eoy
 $ timeleft --until "start of month"    # ...or from sod, sow, som, soq, soy
 $ timeleft --until "next friday 17:00" --json  # ...as JSON if you need it
-$ timeleft --until eod --countdown --watch 1   # live countdown until Ctrl-C
+$ timeleft --until eod --watch 1               # live countdown until Ctrl-C
 $ timeleft -j -p                  # short options: -j, -p, -a, -c, -e, -w, -V
 ```
 
