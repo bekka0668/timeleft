@@ -144,6 +144,22 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_natural_offsets_accept_one_and_a_half(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "in one hour": datetime(2026, 11, 9, 13, 0),
+            "in one minute": datetime(2026, 11, 9, 12, 1),
+            "one week ago": datetime(2026, 11, 2, 12, 0),
+            "in a half hour": datetime(2026, 11, 9, 12, 30),
+            "in 1 hour and a half": datetime(2026, 11, 9, 13, 30),
+            "in one hour and a half": datetime(2026, 11, 9, 13, 30),
+            "in one and a half hours": datetime(2026, 11, 9, 13, 30),
+            "in half an hour": datetime(2026, 11, 9, 12, 30),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
     def test_natural_offsets_accept_multiple_parts(self):
         base = datetime(2026, 11, 9, 12, 0)
         cases = {

@@ -22,13 +22,16 @@ TWELVE_HOUR = re.compile(r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*([ap])\.?m\.?$
 RELATIVE_OFFSET = re.compile(r"^([+-])((?:\d+(?:\.\d+)?[smhdw])+)$", re.IGNORECASE)
 RELATIVE_TOKEN = re.compile(r"(\d+(?:\.\d+)?)([smhdw])", re.IGNORECASE)
 NATURAL_PART = re.compile(
-    r"(?:(\d+(?:\.\d+)?)\s*([a-z]+)|(an?)\s+([a-z]+))", re.IGNORECASE
+    r"(?:(\d+(?:\.\d+)?)\s*([a-z]+)|(an?|one)\s+([a-z]+))", re.IGNORECASE
 )
 NATURAL_PHRASES = (
     (re.compile(r"\ban hour and a half\b", re.IGNORECASE), "90 minutes"),
+    (re.compile(r"\b(?:one|1)\s+hours?\s+and\s+a\s+half\b", re.IGNORECASE), "90 minutes"),
+    (re.compile(r"\b(?:one|1)\s+and\s+a\s+half\s+hours?\b", re.IGNORECASE), "90 minutes"),
     (re.compile(r"\bthree quarters of an hour\b", re.IGNORECASE), "45 minutes"),
     (re.compile(r"\b(?:a )?quarter of an hour\b", re.IGNORECASE), "15 minutes"),
     (re.compile(r"\bhalf an hour\b", re.IGNORECASE), "30 minutes"),
+    (re.compile(r"\ba half hour\b", re.IGNORECASE), "30 minutes"),
     (re.compile(r"\bhalf a day\b", re.IGNORECASE), "12 hours"),
 )
 NATURAL_FILLER = re.compile(r"^(?:\s*(?:,|and)?\s*)*$", re.IGNORECASE)
