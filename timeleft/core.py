@@ -106,6 +106,9 @@ def build_report(
     for period in periods:
         span = span_for(period, now, week_start)
         fraction = span.fraction_elapsed(now)
+        percent = round(fraction * 100.0, 1)
+        if fraction < 1.0:
+            percent = min(percent, 99.9)
         rows.append(
             {
                 "period": period,
@@ -114,7 +117,7 @@ def build_report(
                 "total_seconds": round(span.total_seconds),
                 "total": format_duration(span.total_seconds),
                 "fraction": round(fraction, 6),
-                "percent": round(fraction * 100.0, 1),
+                "percent": percent,
                 "elapsed_seconds": round(span.elapsed_seconds(now)),
                 "elapsed": format_duration(span.elapsed_seconds(now)),
                 "remaining_seconds": round(span.remaining_seconds(now)),

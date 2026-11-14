@@ -184,6 +184,11 @@ class BuildReportTest(unittest.TestCase):
         self.assertEqual(row["elapsed_seconds"], 52200)
         self.assertEqual(row["elapsed"], "14h 30m")
 
+    def test_percent_stays_below_full_while_time_remains(self):
+        row = build_report(["day"], datetime(2026, 11, 9, 23, 59, 30))[0]
+        self.assertLess(row["fraction"], 1.0)
+        self.assertEqual(row["percent"], 99.9)
+
     def test_period_total_is_included(self):
         day = build_report(["day"], datetime(2026, 11, 9, 14, 30))[0]
         self.assertEqual(day["total_seconds"], 86400)
