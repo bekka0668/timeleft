@@ -63,6 +63,7 @@ $ timeleft --until 2026-12-25          # time left until any moment
 $ timeleft --until "end of week"       # ...or until eod, eow, eom, eoq, eoy
 $ timeleft --until "start of month"    # ...or from sod, sow, som, soq, soy
 $ timeleft --until "next friday 17:00" --json  # ...as JSON if you need it
+$ timeleft --until eod --countdown --watch 1   # live countdown until Ctrl-C
 $ timeleft -j -p                  # short options: -j, -p, -a, -c, -e, -w, -V
 ```
 
@@ -73,8 +74,10 @@ also accept plurals (`timeleft days`). Repeating a period prints it once, in
 the order you first asked for it.
 
 Weeks start on Monday by default. Times are local time and naive (no timezone
-database is required). The bar switches to ASCII automatically when the output
-encoding cannot represent the block glyphs. `--until` accepts the same formats
+database is required). `--watch SECONDS` redraws the report in place every
+`SECONDS` until you interrupt it; it cannot be combined with `--json`. The bar
+switches to ASCII automatically when the output encoding cannot represent the
+block glyphs. `--until` accepts the same formats
 as `--at`, and measures from the moment `--at` selects.
 
 ## Development
