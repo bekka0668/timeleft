@@ -56,6 +56,7 @@ $ timeleft --width 40 --plain          # wider bar, no bar
 $ timeleft --ascii                     # ASCII bar for terminals without block glyphs
 $ timeleft week --week-start sunday    # Sunday-based weeks (any weekday works)
 $ timeleft day --countdown             # just "6h 58m" for a status bar
+$ timeleft hour --countdown            # the current hour is an opt-in period
 $ timeleft --percent                   # just the percentages
 $ timeleft --elapsed                   # just the time already spent
 $ timeleft --until 2026-12-25          # time left until any moment
@@ -66,9 +67,10 @@ $ timeleft -j -p                  # short options: -j, -p, -a, -c, -e, -w, -V
 ```
 
 Periods: `day`, `week`, `month`, `quarter`, `year`, or just their first
-letter (`d`, `w`, `m`, `q`, `y`). Names are case-insensitive and also accept
-plurals (`timeleft days`). Repeating a period prints it once, in the order you
-first asked for it.
+letter (`d`, `w`, `m`, `q`, `y`). `hour` (and `h`) is available when you ask
+for it, but the default report leaves it out. Names are case-insensitive and
+also accept plurals (`timeleft days`). Repeating a period prints it once, in
+the order you first asked for it.
 
 Weeks start on Monday by default. Times are local time and naive (no timezone
 database is required). The bar switches to ASCII automatically when the output

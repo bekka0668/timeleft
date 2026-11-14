@@ -8,13 +8,13 @@ from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Sequence, Tuple
 
 from . import __version__
-from .core import PERIODS, build_report, format_duration, render_bar, span_for
+from .core import ALL_PERIODS, PERIODS, build_report, format_duration, render_bar, span_for
 
 DEFAULT_WIDTH = 25
 WEEKDAY_NAMES = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
 WEEK_STARTS = {name: index for index, name in enumerate(WEEKDAY_NAMES)}
 WEEK_STARTS.update({name[:3]: index for index, name in enumerate(WEEKDAY_NAMES)})
-PERIOD_ALIASES = {period[0]: period for period in PERIODS}
+PERIOD_ALIASES = {period[0]: period for period in ALL_PERIODS}
 RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
 TWELVE_HOUR = re.compile(r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*([ap])\.?m\.?$", re.IGNORECASE)
@@ -47,9 +47,10 @@ END_KEYWORDS = {
     "end of month": "month", "eom": "month",
     "end of quarter": "quarter", "eoq": "quarter",
     "end of year": "year", "eoy": "year",
+    "end of hour": "hour", "eoh": "hour",
 }
-START_KEYWORDS = {"start of %s" % period: period for period in PERIODS}
-START_KEYWORDS.update({"so%s" % period[0]: period for period in PERIODS})
+START_KEYWORDS = {"start of %s" % period: period for period in ALL_PERIODS}
+START_KEYWORDS.update({"so%s" % period[0]: period for period in ALL_PERIODS})
 
 
 def midnight_of(base: datetime, days: int = 0) -> datetime:
@@ -249,11 +250,11 @@ def supports_block_glyphs(stream) -> bool:
 
 def resolve_period(name: str) -> Optional[str]:
     lowered = name.lower()
-    if lowered in PERIODS:
+    if lowered in ALL_PERIODS:
         return lowered
     if lowered in PERIOD_ALIASES:
         return PERIOD_ALIASES[lowered]
-    if lowered.endswith("s") and lowered[:-1] in PERIODS:
+    if lowered.endswith("s") and lowered[:-1] in ALL_PERIODS:
         return lowered[:-1]
     return None
 
@@ -283,8 +284,8 @@ def build_parser() -> argparse.ArgumentParser:
         "periods",
         nargs="*",
         metavar="PERIOD",
-        help="one of %s, its first letter or its plural (default: all)"
-        % ", ".join(PERIODS),
+        help="one of %s, its first letter or its plural (default: %s)"
+        % (", ".join(ALL_PERIODS), ", ".join(PERIODS)),
     )
     parser.add_argument(
         "--at",
@@ -381,7 +382,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if period is None:
             parser.error(
                 "invalid period %r (choose from %s)"
-                % (name, ", ".join(PERIODS + tuple(PERIOD_ALIASES)))
+                % (name, ", ".join(ALL_PERIODS + tuple(PERIOD_ALIASES)))
             )
         if period not in periods:
             periods.append(period)

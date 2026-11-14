@@ -5,6 +5,7 @@ from datetime import date, datetime, timedelta
 from typing import Dict, Iterable, List
 
 PERIODS = ("day", "week", "month", "quarter", "year")
+ALL_PERIODS = ("hour",) + PERIODS
 
 BAR_STYLES = {
     "unicode": ("\u2588", "\u2591"),
@@ -43,7 +44,10 @@ class Span:
 
 
 def span_for(period: str, now: datetime, week_start: int = 0) -> Span:
-    if period == "day":
+    if period == "hour":
+        start = now.replace(minute=0, second=0, microsecond=0)
+        end = start + timedelta(hours=1)
+    elif period == "day":
         start = datetime(now.year, now.month, now.day)
         end = start + timedelta(days=1)
     elif period == "week":
@@ -64,7 +68,7 @@ def span_for(period: str, now: datetime, week_start: int = 0) -> Span:
         end = datetime(now.year + 1, 1, 1)
     else:
         raise ValueError(
-            "unknown period %r (choose from %s)" % (period, ", ".join(PERIODS))
+            "unknown period %r (choose from %s)" % (period, ", ".join(ALL_PERIODS))
         )
     return Span(period, start, end)
 

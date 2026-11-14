@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime
 
-from timeleft.core import PERIODS, build_report, format_duration, render_bar, span_for
+from timeleft.core import ALL_PERIODS, PERIODS, build_report, format_duration, render_bar, span_for
 
 
 class SpanTest(unittest.TestCase):
@@ -94,6 +94,32 @@ class SpanTest(unittest.TestCase):
     def test_remaining_seconds(self):
         span = span_for("day", datetime(2026, 11, 9, 23, 0))
         self.assertEqual(span.remaining_seconds(datetime(2026, 11, 9, 23, 0)), 3600)
+
+
+class HourSpanTest(unittest.TestCase):
+    def test_hour_span_covers_the_current_hour(self):
+        now = datetime(2026, 11, 9, 14, 30, 45, 500)
+        span = span_for("hour", now)
+        self.assertEqual(span.start, datetime(2026, 11, 9, 14, 0))
+        self.assertEqual(span.end, datetime(2026, 11, 9, 15, 0))
+        self.assertEqual(span.total_seconds, 3600)
+
+    def test_half_of_the_hour_is_elapsed_at_half_past(self):
+        now = datetime(2026, 11, 9, 14, 30)
+        span = span_for("hour", now)
+        self.assertAlmostEqual(span.fraction_elapsed(now), 0.5)
+        self.assertEqual(span.remaining_seconds(now), 1800)
+
+    def test_hour_is_extra_not_a_default_period(self):
+        self.assertEqual(PERIODS, ("day", "week", "month", "quarter", "year"))
+        self.assertEqual(ALL_PERIODS[0], "hour")
+        self.assertNotIn("hour", PERIODS)
+
+    def test_report_for_hour(self):
+        row = build_report(["hour"], datetime(2026, 11, 9, 14, 30))[0]
+        self.assertEqual(row["period"], "hour")
+        self.assertEqual(row["total_seconds"], 3600)
+        self.assertEqual(row["remaining"], "30m 00s")
 
 
 class FormatDurationTest(unittest.TestCase):

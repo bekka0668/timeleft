@@ -639,6 +639,37 @@ class MainTest(unittest.TestCase):
             run_cli("--countdown", "--percent", "day")
         self.assertEqual(caught.exception.code, 2)
 
+    def test_hour_period_is_selectable(self):
+        code, out = run_cli("--at", "2026-11-09T12:30", "--json", "hour")
+        self.assertEqual(code, 0)
+        hour = json.loads(out)["periods"][0]
+        self.assertEqual(hour["period"], "hour")
+        self.assertEqual(hour["remaining_seconds"], 1800)
+
+    def test_hour_accepts_alias_and_plural(self):
+        for name in ("h", "hours", "H"):
+            with self.subTest(name=name):
+                code, out = run_cli("--at", "2026-11-09T12:30", "--json", name)
+                self.assertEqual(code, 0)
+                self.assertEqual(json.loads(out)["periods"][0]["period"], "hour")
+
+    def test_hour_is_not_in_the_default_report(self):
+        code, out = run_cli("--at", "2026-11-09T12:30", "--json")
+        self.assertEqual(code, 0)
+        periods = [row["period"] for row in json.loads(out)["periods"]]
+        self.assertEqual(periods, ["day", "week", "month", "quarter", "year"])
+
+    def test_end_of_hour_target(self):
+        code, out = run_cli("--at", "2026-11-09T12:30", "--until", "eoh")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "30m 00s\n")
+
+    def test_start_of_hour_target(self):
+        code, out = run_cli("--at", "soh", "--json", "day")
+        self.assertEqual(code, 0)
+        now = datetime.fromisoformat(json.loads(out)["now"])
+        self.assertEqual((now.minute, now.second), (0, 0))
+
     def test_single_letter_aliases(self):
         code, out = run_cli("--at", "2026-11-09T12:00", "--plain", "d", "y")
         self.assertEqual(code, 0)
