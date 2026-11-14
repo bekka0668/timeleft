@@ -42,6 +42,7 @@ $ timeleft day --at "in 1.5 hours"     # fractions are fine too
 $ timeleft day --at "in 2 hours"       # a natural offset also works
 $ timeleft day --at "in an hour"       # "a" and "an" mean one
 $ timeleft day --at "2 weeks ago"      # ...in either direction
+$ timeleft day --at "in 1 hour 30 minutes"  # parts add up
 $ timeleft day --at 18:30              # or at a clock time today
 $ timeleft day --at 6:30pm             # 12-hour clock times work too
 $ timeleft day --at tomorrow           # now, today, tomorrow, yesterday

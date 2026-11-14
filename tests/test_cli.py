@@ -143,6 +143,27 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_natural_offsets_accept_multiple_parts(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "in 1 hour 30 minutes": datetime(2026, 11, 9, 13, 30),
+            "in 2 days and 3 hours": datetime(2026, 11, 11, 15, 0),
+            "in 90 minutes 30 seconds": datetime(2026, 11, 9, 13, 30, 30),
+            "in 1.5 hours 15 minutes": datetime(2026, 11, 9, 13, 45),
+            "1 day 2 hours ago": datetime(2026, 11, 8, 10, 0),
+            "2 hours from now": datetime(2026, 11, 9, 14, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_natural_offsets_reject_trailing_junk(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        for text in ("in 2 hours later", "in 2 hours and", "2 hours ago ago"):
+            with self.subTest(text=text):
+                with self.assertRaises(ValueError):
+                    parse_moment(text, now=base)
+
     def test_natural_offset_with_unknown_unit_raises(self):
         with self.assertRaises(ValueError):
             parse_moment("in 2 fortnights", now=datetime(2026, 11, 9, 12, 0))

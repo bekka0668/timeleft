@@ -20,10 +20,11 @@ CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
 TWELVE_HOUR = re.compile(r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*([ap])\.?m\.?$", re.IGNORECASE)
 RELATIVE_OFFSET = re.compile(r"^([+-])((?:\d+(?:\.\d+)?[smhdw])+)$", re.IGNORECASE)
 RELATIVE_TOKEN = re.compile(r"(\d+(?:\.\d+)?)([smhdw])", re.IGNORECASE)
-NATURAL_OFFSET = re.compile(
-    r"^(?:(in)\s+)?(\d+(?:\.\d+)?|an?)\s*([a-z]+?)(?:\s+(ago))?(?:\s+from\s+now)?$",
-    re.IGNORECASE,
+NATURAL_PART = re.compile(
+    r"(?:(\d+(?:\.\d+)?)\s*([a-z]+)|(an?)\s+([a-z]+))", re.IGNORECASE
 )
+NATURAL_FILLER = re.compile(r"^(?:\s*(?:,|and)?\s*)*$", re.IGNORECASE)
+NATURAL_TAIL = re.compile(r"^[\s,]*$")
 NATURAL_UNITS = {
     "s": 1, "sec": 1, "second": 1,
     "m": 60, "min": 60, "minute": 60,
@@ -94,17 +95,32 @@ def parse_clock_time(text: str) -> Optional[Tuple[int, int, int]]:
 
 
 def parse_natural_offset(text: str) -> Optional[int]:
-    match = NATURAL_OFFSET.match(text)
-    if match is None:
+    value = text.strip().lower()
+    sign = 1
+    if value.startswith("in "):
+        value = value[3:].strip()
+    if value.endswith(" from now"):
+        value = value[: -len(" from now")].strip()
+    if value.endswith(" ago"):
+        value = value[: -len(" ago")].strip()
+        sign = -1
+    total = 0.0
+    parts = 0
+    end = 0
+    for match in NATURAL_PART.finditer(value):
+        if not NATURAL_FILLER.match(value[end : match.start()]):
+            return None
+        word = (match.group(2) or match.group(4)).lower()
+        unit = NATURAL_UNITS.get(word) or NATURAL_UNITS.get(word.rstrip("s"))
+        if unit is None:
+            return None
+        amount = match.group(1)
+        total += (1.0 if amount is None else float(amount)) * unit
+        parts += 1
+        end = match.end()
+    if not parts or not NATURAL_TAIL.match(value[end:]):
         return None
-    word = match.group(3).lower()
-    unit = NATURAL_UNITS.get(word) or NATURAL_UNITS.get(word.rstrip("s"))
-    if unit is None:
-        return None
-    amount = match.group(2).lower()
-    count = 1.0 if amount in ("a", "an") else float(amount)
-    seconds = round(count * unit)
-    return -seconds if match.group(4) else seconds
+    return sign * round(total)
 
 
 def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
