@@ -1,0 +1,310 @@
+# Using `timeleft`
+
+`timeleft` shows how much of the current period has already passed, how much is
+left, and a bar to see it at a glance. This page is the full command reference;
+see [the README](../README.md) for what the tool is and how to install it.
+
+## Synopsis
+
+```console
+timeleft [OPTIONS] [PERIOD ...]
+```
+
+With no options it prints one line per default period — `day`, `week`, `month`,
+`quarter`, `year` — with a progress bar, the percentage elapsed, and the time
+remaining.
+
+```console
+$ timeleft --at 2026-11-09T12:00
+day     [████████████░░░░░░░░░░░░░]  50.0%  12h 00m left
+week    [█░░░░░░░░░░░░░░░░░░░░░░░░]   7.1%  6d 12h left
+month   [███████░░░░░░░░░░░░░░░░░░]  28.3%  21d 12h left
+quarter [██████████░░░░░░░░░░░░░░░]  42.9%  52d 12h left
+year    [█████████████████████░░░░]  85.6%  52d 12h left
+```
+
+The examples below pin `--at 2026-11-09T12:00` so their output is stable. Drop
+the flag to evaluate the real current moment.
+
+## Periods
+
+| Period    | Short | Plural     | In the default report |
+| --------- | ----- | ---------- | --------------------- |
+| `hour`    | `h`   | `hours`    | no — opt in           |
+| `day`     | `d`   | `days`     | yes                   |
+| `week`    | `w`   | `weeks`    | yes                   |
+| `month`   | `m`   | `months`   | yes                   |
+| `quarter` | `q`   | `quarters` | yes                   |
+| `year`    | `y`   | `years`    | yes                   |
+
+- Case does not matter: `Week`, `WEEK` and `w` are the same period.
+- Repeats are printed once, in the order you first named them.
+
+## Choosing periods
+
+```console
+$ timeleft week month               # only these two
+$ timeleft d w y                    # short forms
+$ timeleft days hours               # plurals work too
+$ timeleft hour                     # the current clock hour, opt-in
+```
+
+## Output modes
+
+| Mode           | Flag              | Output                                     |
+| -------------- | ----------------- | ------------------------------------------ |
+| Table          | *(default)*       | bar, elapsed %, remaining time             |
+| Plain table    | `-p`, `--plain`   | elapsed % and remaining time, no bar       |
+| ASCII bar      | `-a`, `--ascii`   | bar drawn with `#` and `-`                 |
+| Countdown      | `-c`, `--countdown` | remaining time only, one line per period |
+| Percentage     | `--percent`       | elapsed percentage only                    |
+| Elapsed        | `-e`, `--elapsed` | time already spent only                    |
+| Until          | `--until WHEN`    | one line: time left until `WHEN`           |
+| JSON           | `-j`, `--json`    | structured output                          |
+
+`--countdown`, `--percent`, `--elapsed` and `--until` are mutually exclusive.
+`--json` takes over the formatting whenever it is present.
+
+```console
+$ timeleft --at 2026-11-09T12:00 --plain day
+day      50.0%  12h 00m left
+
+$ timeleft --at 2026-11-09T12:00 --ascii day
+day     [############-------------]  50.0%  12h 00m left
+
+$ timeleft --at 2026-11-09T12:00 --countdown day week
+12h 00m
+6d 12h
+
+$ timeleft --at 2026-11-09T12:00 --percent day week
+50.0%
+7.1%
+
+$ timeleft --at 2026-11-09T12:00 --elapsed day week
+12h 00m
+12h 00m
+```
+
+The value-only modes are meant to be pasted into status bars, scripts or shell
+prompts, e.g. `$(timeleft --countdown day)`.
+
+## Progress bar
+
+`-w`, `--width N` sets the bar width in characters (default `25`, minimum `1`).
+
+```console
+$ timeleft --at 2026-11-09T12:00 --width 10 day
+day     [█████░░░░░]  50.0%  12h 00m left
+```
+
+Bars use `█`/`░` by default. `--ascii` switches to `#`/`-`, and the bar falls
+back to ASCII automatically when the output encoding cannot represent the block
+characters.
+
+## Weeks
+
+Weeks start on Monday by default. `--week-start DAY` accepts any weekday name
+(or its first three letters) and applies to the current week and to week targets
+used by `--at` and `--until`.
+
+```console
+$ timeleft --at 2026-11-09T12:00 week
+week    [█░░░░░░░░░░░░░░░░░░░░░░░░]   7.1%  6d 12h left
+
+$ timeleft --at 2026-11-09T12:00 --week-start sunday week
+week    [█████░░░░░░░░░░░░░░░░░░░░]  21.4%  5d 12h left
+```
+
+## Picking the moment: `--at WHEN`
+
+By default every report is evaluated at "now". `--at` evaluates at a different
+moment; the formats below are all understood.
+
+### ISO 8601 timestamps
+
+```console
+$ timeleft --at 2026-11-09T12:00 day
+$ timeleft --at 2026-11-09T12:00:00 day
+$ timeleft --at 2026-11-09T11:00Z day      # UTC, converted to local time
+$ timeleft --at 2026-11-09T12:00+02:00 day # explicit offset, converted to local
+```
+
+### A clock time today
+
+```console
+$ timeleft --at 15:30 day
+$ timeleft --at 6:30pm day
+$ timeleft --at noon day
+$ timeleft --at midnight day
+```
+
+### Offsets from now
+
+A sign followed by one or more number+unit pairs. Units are `s`, `m`, `h`,
+`d` and `w`; decimals are allowed.
+
+```console
+$ timeleft --at +90m day
+$ timeleft --at -45m day
+$ timeleft --at +2h30m day
+$ timeleft --at +1.5h day
+```
+
+### Natural language offsets
+
+```console
+$ timeleft --at "in 2 hours" day
+$ timeleft --at "2 weeks ago" day
+$ timeleft --at "45 minutes from now" day
+$ timeleft --at "in half an hour" day
+$ timeleft --at "a quarter of an hour" day
+$ timeleft --at "three quarters of an hour" day
+$ timeleft --at "in an hour and a half" day
+$ timeleft --at "in 1 hour 30 minutes" day
+```
+
+Parts add up, and `a`/`an`/`one` mean one. A phrase must be a valid offset:
+contradictions such as `in 2 hours ago` and unknown units such as
+`in 2 fortnights` are rejected.
+
+### Day keywords
+
+```console
+$ timeleft --at now day
+$ timeleft --at today day
+$ timeleft --at tomorrow day
+$ timeleft --at yesterday day
+$ timeleft --at "day after tomorrow" day
+$ timeleft --at "day before yesterday" day
+```
+
+### Weekdays
+
+A weekday name means the next occurrence of that day, counting today. Add
+`this`, `next` or `last` to move it, and a clock time to pick a moment on that
+day (`at` is optional):
+
+```console
+$ timeleft --at friday day
+$ timeleft --at "next friday 9am" day
+$ timeleft --at "last tuesday 15:00" day
+$ timeleft --at "tomorrow 09:00" day
+$ timeleft --at "tomorrow at 9am" day
+```
+
+### Period ends and starts
+
+`--at` and `--until` also accept period boundaries:
+
+| Phrase                                   | Shorthand            |
+| ---------------------------------------- | -------------------- |
+| end of hour / day / week / month / quarter / year | `eoh`, `eod`, `eow`, `eom`, `eoq`, `eoy` |
+| start of hour / day / week / month / quarter / year | `soh`, `sod`, `sow`, `som`, `soq`, `soy` |
+
+```console
+$ timeleft --at eow day        # evaluate at the end of the current week
+$ timeleft --at "start of month" day
+```
+
+## Countdown to a moment: `--until WHEN`
+
+`--until` prints only how long is left until `WHEN`. It accepts every format
+`--at` accepts, plus the period-boundary phrases above, and measures from the
+moment `--at` selects (or from now).
+
+```console
+$ timeleft --at 2026-11-09T12:00 --until eod
+12h 00m
+
+$ timeleft --at 2026-11-09T12:00 --until eow
+6d 12h
+
+$ timeleft --at 2026-11-09T12:00 --until 2026-12-25T00:00
+45d 12h
+```
+
+A target in the past reports `0s`. With `--json` the result is an object:
+
+```json
+{
+  "now": "2026-11-09T12:00:00",
+  "until": "2026-12-01T00:00:00",
+  "remaining_seconds": 1857600,
+  "remaining": "21d 12h"
+}
+```
+
+## Live redraw: `--watch SECONDS`
+
+Redraws the report every `SECONDS` until interrupted with `Ctrl-C`. When stdout
+is a terminal the screen is cleared between frames, so it behaves like a clock;
+combined with `--countdown`, `--percent`, `--elapsed` or `--until` it becomes a
+minimal live display.
+
+```console
+$ timeleft day --countdown --watch 1
+$ timeleft --until eow --watch 60
+```
+
+`--watch` needs a positive number of seconds, at most 86400, and cannot be
+combined with `--json`. Combining it with `--at` keeps that anchor fixed, so the
+output will not change between frames.
+
+## JSON output
+
+Without `--until`, the report is:
+
+```json
+{
+  "now": "2026-11-09T12:00:00",
+  "periods": [
+    {
+      "period": "day",
+      "start": "2026-11-09T00:00:00",
+      "end": "2026-11-10T00:00:00",
+      "total_seconds": 86400,
+      "total": "1d 00h",
+      "fraction": 0.5,
+      "percent": 50.0,
+      "elapsed_seconds": 43200,
+      "elapsed": "12h 00m",
+      "remaining_seconds": 43200,
+      "remaining": "12h 00m"
+    }
+  ]
+}
+```
+
+Durations are formatted for humans as up to two parts (`1d 00h`, `12h 00m`,
+`3m 05s`, `45s`); the `*_seconds` fields are exact and best for machines.
+
+## Short options
+
+| Short | Long          |
+| ----- | ------------- |
+| `-j`  | `--json`      |
+| `-p`  | `--plain`     |
+| `-a`  | `--ascii`     |
+| `-c`  | `--countdown` |
+| `-e`  | `--elapsed`   |
+| `-w`  | `--width`     |
+| `-V`  | `--version`   |
+| `-h`  | `--help`      |
+
+`--at`, `--until`, `--percent`, `--week-start` and `--watch` have no short form.
+
+## Errors and exit codes
+
+- `0` on success, including `Ctrl-C` during `--watch`.
+- `2` on usage errors: an unknown period, an unparseable `--at`/`--until`, a
+  non-positive `--width`, an invalid `--watch` interval, or `--watch` with
+  `--json`. The message goes to stderr, prefixed with `timeleft: error:`.
+
+## Time handling
+
+- Times are local and naive; no timezone database is needed. ISO timestamps
+  with `Z` or an explicit offset are converted to local time.
+- A period is treated as fully elapsed only when it is over, so its percentage
+  stays at `99.9%` until the exact end (e.g. `23:59:59` of a day).
+- `--countdown`, `--percent`, `--elapsed` and `--until` print one line per
+  requested period, in the order requested.

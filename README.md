@@ -33,54 +33,17 @@ $ python3 -m timeleft
 ## Usage
 
 ```console
-$ timeleft                 # all periods
-$ timeleft week month      # only the periods you ask for
-$ timeleft --json          # machine readable output
-$ timeleft day --at 2026-11-09T12:00   # evaluate at a fixed moment
-$ timeleft day --at +90m               # or look 90 minutes ahead of now
-$ timeleft day --at +2h30m             # offsets can be combined
-$ timeleft day --at "in 1.5 hours"     # fractions are fine too
-$ timeleft day --at "in 2 hours"       # a natural offset also works
-$ timeleft day --at "in an hour"       # "a" and "an" mean one
-$ timeleft day --at "2 weeks ago"      # ...in either direction
-$ timeleft day --at "in 1 hour 30 minutes"  # parts add up
-$ timeleft day --at "in half an hour"  # half and quarter phrases too
-$ timeleft day --at 18:30              # or at a clock time today
-$ timeleft day --at 6:30pm             # 12-hour clock times work too
-$ timeleft day --at tomorrow           # now, today, tomorrow, yesterday
-$ timeleft day --at "tomorrow 09:00"   # a day keyword plus a clock time
-$ timeleft day --at "day after tomorrow"  # ...or a two-day phrase
-$ timeleft day --at "tomorrow at 9am"  # the word "at" is optional
-$ timeleft day --at "tomorrow noon"    # noon, midday and midnight work too
-$ timeleft week --at "friday 18:00"    # a weekday, optionally with a clock time
-$ timeleft day --at "next friday 9am"  # "this", "next" or "last", plus a clock time
-$ timeleft --width 40 --plain          # wider bar, no bar
-$ timeleft --ascii                     # ASCII bar for terminals without block glyphs
-$ timeleft week --week-start sunday    # Sunday-based weeks (any weekday works)
-$ timeleft day --countdown             # just "6h 58m" for a status bar
-$ timeleft hour --countdown            # the current hour is an opt-in period
-$ timeleft --percent                   # just the percentages
-$ timeleft --elapsed                   # just the time already spent
-$ timeleft --until 2026-12-25          # time left until any moment
-$ timeleft --until "end of week"       # ...or until eod, eow, eom, eoq, eoy
-$ timeleft --until "start of month"    # ...or from sod, sow, som, soq, soy
-$ timeleft --until "next friday 17:00" --json  # ...as JSON if you need it
-$ timeleft --until eod --watch 1               # live countdown until Ctrl-C
-$ timeleft -j -p                  # short options: -j, -p, -a, -c, -e, -w, -V
+$ timeleft                       # day, week, month, quarter, year, right now
+$ timeleft week month            # only the periods you care about
+$ timeleft --countdown day       # just "6h 58m", for a status bar
+$ timeleft --until eow           # time left until the end of the week
+$ timeleft --json day            # JSON instead of a table
+$ timeleft --at "tomorrow 9am"   # evaluate another moment
 ```
 
-Periods: `day`, `week`, `month`, `quarter`, `year`, or just their first
-letter (`d`, `w`, `m`, `q`, `y`). `hour` (and `h`) is available when you ask
-for it, but the default report leaves it out. Names are case-insensitive and
-also accept plurals (`timeleft days`). Repeating a period prints it once, in
-the order you first asked for it.
-
-Weeks start on Monday by default. Times are local time and naive (no timezone
-database is required). `--watch SECONDS` redraws the report in place every
-`SECONDS` until you interrupt it; it cannot be combined with `--json`. The bar
-switches to ASCII automatically when the output encoding cannot represent the
-block glyphs. `--until` accepts the same formats
-as `--at`, and measures from the moment `--at` selects.
+Everything else — output modes, `--at`/`--until` formats, `--watch`,
+`--week-start`, JSON fields and exit codes — is documented in
+**[docs/USAGE.md](docs/USAGE.md)**.
 
 ## Development
 
