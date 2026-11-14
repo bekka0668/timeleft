@@ -32,17 +32,6 @@ $ python3 -m timeleft
 
 ## Usage
 
-```console
-$ timeleft                       # day, week, month, quarter, year, right now
-$ timeleft week month            # only the periods you care about
-$ timeleft --countdown day       # just "6h 58m", for a status bar
-$ timeleft --until eow           # time left until the end of the week
-$ timeleft --json day            # JSON instead of a table
-$ timeleft --at "tomorrow 9am"   # evaluate another moment
-```
-
-Everything else — output modes, `--at`/`--until` formats, `--watch`,
-`--week-start`, JSON fields and exit codes — is documented in
 **[docs/USAGE.md](docs/USAGE.md)**.
 
 ## Development
