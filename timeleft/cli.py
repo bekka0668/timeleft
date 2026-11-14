@@ -269,22 +269,26 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "-j",
         "--json",
         action="store_true",
         help="print JSON instead of a table",
     )
     parser.add_argument(
+        "-p",
         "--plain",
         action="store_true",
         help="omit the progress bar",
     )
     parser.add_argument(
+        "-a",
         "--ascii",
         action="store_true",
         help="draw the bar with ASCII characters (# and -)",
     )
     value_output = parser.add_mutually_exclusive_group()
     value_output.add_argument(
+        "-c",
         "--countdown",
         action="store_true",
         help="print only the time left, one period per line",
@@ -295,6 +299,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="print only the percentage, one period per line",
     )
     value_output.add_argument(
+        "-e",
         "--elapsed",
         action="store_true",
         help="print only the time already spent, one period per line",
@@ -308,6 +313,7 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "-w",
         "--width",
         type=int,
         default=DEFAULT_WIDTH,
@@ -323,6 +329,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="first day of the week, any weekday name or its first three letters (default: monday)",
     )
     parser.add_argument(
+        "-V",
         "--version",
         action="version",
         version="timeleft %s" % __version__,

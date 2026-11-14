@@ -704,5 +704,37 @@ class MainTest(unittest.TestCase):
         self.assertEqual(caught.exception.code, 0)
 
 
+class ShortOptionsTest(unittest.TestCase):
+    def test_json_short_flag(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "-j", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["periods"][0]["period"], "day")
+
+    def test_plain_short_flag(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "-p", "day")
+        self.assertEqual(code, 0)
+        self.assertNotIn("[", out)
+
+    def test_ascii_and_width_short_flags(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "-a", "-w", "3", "day")
+        self.assertEqual(code, 0)
+        self.assertIn("[#--]", out)
+
+    def test_countdown_short_flag(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "-c", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "12h 00m\n")
+
+    def test_elapsed_short_flag(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "-e", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "12h 00m\n")
+
+    def test_version_short_flag(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("-V")
+        self.assertEqual(caught.exception.code, 0)
+
+
 if __name__ == "__main__":
     unittest.main()
