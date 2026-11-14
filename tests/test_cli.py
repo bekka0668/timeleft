@@ -776,6 +776,29 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(json.loads(out)["periods"][0]["remaining_seconds"], 19800)
 
+    def test_at_week_targets_honour_week_start(self):
+        fixed = datetime(2026, 11, 11, 12, 0)
+
+        class FixedDatetime(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return fixed
+
+        cases = {
+            "sow": "2026-11-08T00:00:00",
+            "start of week": "2026-11-08T00:00:00",
+            "eow": "2026-11-15T00:00:00",
+            "end of week": "2026-11-15T00:00:00",
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                with mock.patch("timeleft.cli.datetime", FixedDatetime):
+                    code, out = run_cli(
+                        "--at", text, "--week-start", "sunday", "--json", "day"
+                    )
+                self.assertEqual(code, 0)
+                self.assertEqual(json.loads(out)["now"], expected)
+
     def test_bad_at_fails(self):
         with self.assertRaises(SystemExit) as caught:
             run_cli("--at", "not-a-date", "day")

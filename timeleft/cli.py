@@ -465,7 +465,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     anchor = None
     if args.at:
         try:
-            anchor = parse_target(args.at, datetime.now())
+            anchor = parse_target(args.at, datetime.now(), week_start)
         except ValueError:
             parser.error(
                 "--at could not parse %r (expected an ISO timestamp, a clock "
