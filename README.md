@@ -32,7 +32,7 @@ $ python3 -m timeleft
 
 ## Usage
 
-**[USAGE.md](docs/USAGE.md)**.
+### **[USAGE.md](docs/USAGE.md)**.
 
 ## Development
 
