@@ -4,6 +4,7 @@ import argparse
 import json
 import re
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Sequence, Tuple
 
@@ -359,6 +360,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="first day of the week, any weekday name or its first three letters (default: monday)",
     )
     parser.add_argument(
+        "--watch",
+        type=float,
+        metavar="SECONDS",
+        help="redraw every SECONDS until interrupted",
+    )
+    parser.add_argument(
         "-V",
         "--version",
         action="version",
@@ -367,36 +374,13 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
-    parser = build_parser()
-    args = parser.parse_args(argv)
-
-    if args.width < 1:
-        parser.error("--width must be at least 1")
-
-    week_start = WEEK_STARTS[args.week_start]
-    selected = args.periods or list(PERIODS)
-    periods: List[str] = []
-    for name in selected:
-        period = resolve_period(name)
-        if period is None:
-            parser.error(
-                "invalid period %r (choose from %s)"
-                % (name, ", ".join(ALL_PERIODS + tuple(PERIOD_ALIASES)))
-            )
-        if period not in periods:
-            periods.append(period)
-    if args.at:
-        try:
-            now = parse_target(args.at, datetime.now())
-        except ValueError:
-            parser.error(
-                "--at could not parse %r (expected an ISO timestamp, a clock "
-                "time, a day name, or an offset like +90m)" % args.at
-            )
-    else:
-        now = datetime.now().replace(microsecond=0)
-
+def emit_report(
+    args: argparse.Namespace,
+    periods: List[str],
+    week_start: int,
+    now: datetime,
+    parser: argparse.ArgumentParser,
+) -> int:
     if args.until:
         try:
             target = parse_target(args.until, now, week_start)
@@ -443,3 +427,54 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     for row in rows:
         print(format_row(row, args.width, args.plain, bar_style))
     return 0
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+
+    if args.width < 1:
+        parser.error("--width must be at least 1")
+    if args.watch is not None and args.watch <= 0:
+        parser.error("--watch must be a positive number of seconds")
+    if args.watch is not None and args.json:
+        parser.error("--watch cannot be combined with --json")
+
+    week_start = WEEK_STARTS[args.week_start]
+    selected = args.periods or list(PERIODS)
+    periods: List[str] = []
+    for name in selected:
+        period = resolve_period(name)
+        if period is None:
+            parser.error(
+                "invalid period %r (choose from %s)"
+                % (name, ", ".join(ALL_PERIODS + tuple(PERIOD_ALIASES)))
+            )
+        if period not in periods:
+            periods.append(period)
+
+    anchor = None
+    if args.at:
+        try:
+            anchor = parse_target(args.at, datetime.now())
+        except ValueError:
+            parser.error(
+                "--at could not parse %r (expected an ISO timestamp, a clock "
+                "time, a day name, or an offset like +90m)" % args.at
+            )
+
+    def current_moment() -> datetime:
+        return anchor if anchor is not None else datetime.now().replace(microsecond=0)
+
+    if args.watch is not None:
+        try:
+            while True:
+                if not args.json and sys.stdout.isatty():
+                    sys.stdout.write("\033[H\033[J")
+                emit_report(args, periods, week_start, current_moment(), parser)
+                sys.stdout.flush()
+                time.sleep(args.watch)
+        except KeyboardInterrupt:
+            return 0
+
+    return emit_report(args, periods, week_start, current_moment(), parser)

@@ -3,6 +3,7 @@ import json
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime, timedelta, timezone
+from unittest import mock
 
 from timeleft.cli import (
     format_row,
@@ -782,6 +783,50 @@ class MainTest(unittest.TestCase):
         with self.assertRaises(SystemExit) as caught:
             run_cli("--version")
         self.assertEqual(caught.exception.code, 0)
+
+
+class WatchTest(unittest.TestCase):
+    def test_watch_redraws_until_interrupted(self):
+        out = io.StringIO()
+        with redirect_stdout(out), mock.patch(
+            "timeleft.cli.time.sleep", side_effect=KeyboardInterrupt
+        ):
+            code = main(["--at", "2026-11-09T12:00", "--plain", "--watch", "5", "day"])
+        self.assertEqual(code, 0)
+        self.assertIn("12h 00m left", out.getvalue())
+
+    def test_watch_sleeps_between_frames(self):
+        out = io.StringIO()
+        with redirect_stdout(out), mock.patch(
+            "timeleft.cli.time.sleep", side_effect=[None, None, KeyboardInterrupt]
+        ) as sleep:
+            code = main(["--at", "2026-11-09T12:00", "--plain", "--watch", "2.5", "day"])
+        self.assertEqual(code, 0)
+        self.assertEqual(out.getvalue().count("left"), 3)
+        self.assertEqual(sleep.call_args_list, [mock.call(2.5)] * 3)
+
+    def test_watch_interval_must_be_positive(self):
+        for seconds in ("0", "-1"):
+            with self.subTest(seconds=seconds):
+                with self.assertRaises(SystemExit) as caught:
+                    run_cli("--watch", seconds, "day")
+                self.assertEqual(caught.exception.code, 2)
+
+    def test_watch_rejects_json(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--watch", "1", "--json", "day")
+        self.assertEqual(caught.exception.code, 2)
+
+    def test_watch_redraws_the_until_countdown(self):
+        out = io.StringIO()
+        with redirect_stdout(out), mock.patch(
+            "timeleft.cli.time.sleep", side_effect=KeyboardInterrupt
+        ):
+            code = main(
+                ["--at", "2026-11-09T12:00", "--until", "2026-11-09T13:00", "--watch", "1"]
+            )
+        self.assertEqual(code, 0)
+        self.assertEqual(out.getvalue(), "1h 00m\n")
 
 
 class ShortOptionsTest(unittest.TestCase):
