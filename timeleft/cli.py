@@ -37,11 +37,11 @@ NATURAL_PHRASES = (
 NATURAL_FILLER = re.compile(r"^(?:\s*(?:,|and)?\s*)*$", re.IGNORECASE)
 NATURAL_TAIL = re.compile(r"^[\s,]*$")
 NATURAL_UNITS = {
-    "s": 1, "sec": 1, "second": 1,
-    "m": 60, "min": 60, "minute": 60,
-    "h": 3600, "hr": 3600, "hour": 3600,
-    "d": 86400, "day": 86400,
-    "w": 604800, "week": 604800,
+    "s": 1, "sec": 1, "secs": 1, "second": 1, "seconds": 1,
+    "m": 60, "min": 60, "mins": 60, "minute": 60, "minutes": 60,
+    "h": 3600, "hr": 3600, "hrs": 3600, "hour": 3600, "hours": 3600,
+    "d": 86400, "day": 86400, "days": 86400,
+    "w": 604800, "week": 604800, "weeks": 604800,
 }
 DAY_KEYWORDS = {"today": 0, "tomorrow": 1, "yesterday": -1}
 DAY_PHRASES = {
@@ -111,6 +111,7 @@ def parse_clock_time(text: str) -> Optional[Tuple[int, int, int]]:
 def parse_natural_offset(text: str) -> Optional[int]:
     value = text.strip().lower()
     sign = 1
+    starts_ahead = value.startswith("in ") or value.endswith(" from now")
     if value.startswith("in "):
         value = value[3:].strip()
     if value.endswith(" from now"):
@@ -118,6 +119,8 @@ def parse_natural_offset(text: str) -> Optional[int]:
     if value.endswith(" ago"):
         value = value[: -len(" ago")].strip()
         sign = -1
+    if starts_ahead and sign < 0:
+        return None
     for pattern, replacement in NATURAL_PHRASES:
         value = pattern.sub(replacement, value)
     total = 0.0
@@ -127,7 +130,7 @@ def parse_natural_offset(text: str) -> Optional[int]:
         if not NATURAL_FILLER.match(value[end : match.start()]):
             return None
         word = (match.group(2) or match.group(4)).lower()
-        unit = NATURAL_UNITS.get(word) or NATURAL_UNITS.get(word.rstrip("s"))
+        unit = NATURAL_UNITS.get(word)
         if unit is None:
             return None
         amount = match.group(1)
