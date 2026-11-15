@@ -19,7 +19,7 @@ year    [█████████████████████░░�
 
 Deadlines, goals and habits are easier to reason about when you can see the
 share of the period that is already gone. `timeleft` is a zero-dependency
-Python CLI for exactly that, suitable for a shell prompt, a status bar or a
+Python CLI for exactly that, suitable for a shell prompt, a status bar or a 
 `cron` job.
 
 ## Install
