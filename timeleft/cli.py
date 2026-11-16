@@ -235,6 +235,13 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             second=clock[2],
             microsecond=0,
         )
+    partial = re.match(r"^(\d{4})(?:-(\d{1,2}))?$", value)
+    if partial is not None:
+        year = int(partial.group(1))
+        month = int(partial.group(2) or 1)
+        if not 1 <= month <= 12:
+            raise ValueError("month must be between 1 and 12")
+        return datetime(year, month, 1)
     if value.endswith(("Z", "z")):
         moment = datetime.fromisoformat(value[:-1]).replace(tzinfo=timezone.utc)
         return moment.astimezone().replace(tzinfo=None)

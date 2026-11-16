@@ -28,6 +28,17 @@ class ParseMomentTest(unittest.TestCase):
     def test_date_only(self):
         self.assertEqual(parse_moment("2026-11-09"), datetime(2026, 11, 9))
 
+    def test_month_precision_iso_is_the_first_of_the_month(self):
+        self.assertEqual(parse_moment("2026-11"), datetime(2026, 11, 1))
+        self.assertEqual(parse_moment("2026-3"), datetime(2026, 3, 1))
+
+    def test_year_precision_iso_is_the_first_of_the_year(self):
+        self.assertEqual(parse_moment("2026"), datetime(2026, 1, 1))
+
+    def test_month_precision_iso_rejects_bad_months(self):
+        with self.assertRaises(ValueError):
+            parse_moment("2026-13")
+
     def test_z_suffix_becomes_local_naive(self):
         moment = parse_moment("2026-11-09T12:00:00Z")
         self.assertIsNone(moment.tzinfo)
