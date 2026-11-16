@@ -189,6 +189,15 @@ Parts add up, and `a`/`an`/`one` mean one. A phrase must be a valid offset:
 contradictions such as `in 2 hours ago` and unknown units such as
 `in 2 fortnights` are rejected.
 
+Months and years are calendar-aware, so month lengths and leap years do not
+drift:
+
+```console
+$ timeleft --at "in 2 months" day
+$ timeleft --at "1 year 2 months ago" day
+$ timeleft --at "in 1 month" day      # 31 Jan becomes 29 Feb in a leap year
+```
+
 ### Day keywords
 
 ```console

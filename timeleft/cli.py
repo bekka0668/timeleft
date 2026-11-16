@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import calendar
 import json
 import math
 import os
@@ -148,6 +149,45 @@ def parse_natural_offset(text: str) -> Optional[int]:
     return sign * round(total)
 
 
+CALENDAR_TOKEN = re.compile(r"(\d+)\s*(months?|years?)", re.IGNORECASE)
+
+
+def parse_calendar_offset(text: str) -> Optional[int]:
+    value = text.strip().lower()
+    sign = 1
+    starts_ahead = value.startswith("in ") or value.endswith(" from now")
+    if value.startswith("in "):
+        value = value[3:].strip()
+    if value.endswith(" from now"):
+        value = value[: -len(" from now")].strip()
+    if value.endswith(" ago"):
+        value = value[: -len(" ago")].strip()
+        sign = -1
+    if starts_ahead and sign < 0:
+        return None
+    months = 0
+    found = 0
+    end = 0
+    for match in CALENDAR_TOKEN.finditer(value):
+        if not NATURAL_FILLER.match(value[end : match.start()]):
+            return None
+        amount = int(match.group(1))
+        months += amount * (1 if match.group(2).lower().startswith("month") else 12)
+        found += 1
+        end = match.end()
+    if not found or not NATURAL_TAIL.match(value[end:]):
+        return None
+    return sign * months
+
+
+def shift_months(moment: datetime, months: int) -> datetime:
+    index = moment.month - 1 + months
+    year = moment.year + index // 12
+    month = index % 12 + 1
+    day = min(moment.day, calendar.monthrange(year, month)[1])
+    return moment.replace(year=year, month=month, day=day)
+
+
 def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     value = text.strip()
     if value.lower().startswith("at "):
@@ -164,6 +204,9 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     natural = parse_natural_offset(value)
     if natural is not None:
         return (base + timedelta(seconds=natural)).replace(microsecond=0)
+    calendar_offset = parse_calendar_offset(value)
+    if calendar_offset is not None:
+        return shift_months(base, calendar_offset).replace(microsecond=0)
     keyword = value.lower()
     if keyword == "now":
         return base.replace(microsecond=0)

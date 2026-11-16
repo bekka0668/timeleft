@@ -137,6 +137,28 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_calendar_offsets(self):
+        base = datetime(2026, 11, 9, 12, 0, 0, 500000)
+        cases = {
+            "in 2 months": datetime(2027, 1, 9, 12, 0),
+            "in 1 year": datetime(2027, 11, 9, 12, 0),
+            "3 years ago": datetime(2023, 11, 9, 12, 0),
+            "1 year 2 months from now": datetime(2028, 1, 9, 12, 0),
+            "in 18 months": datetime(2028, 5, 9, 12, 0),
+            "2 months": datetime(2027, 1, 9, 12, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_calendar_offsets_clamp_the_day(self):
+        base = datetime(2024, 1, 31, 9, 0)
+        self.assertEqual(parse_moment("in 1 month", now=base), datetime(2024, 2, 29, 9, 0))
+
+    def test_calendar_offsets_reject_contradictions(self):
+        with self.assertRaises(ValueError):
+            parse_moment("in 2 months ago", now=datetime(2026, 11, 9, 12, 0))
+
     def test_natural_offsets_accept_fractions(self):
         base = datetime(2026, 11, 9, 12, 0)
         cases = {
