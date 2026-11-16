@@ -100,15 +100,15 @@ def render_bar(fraction: float, width: int = 25, style: str = "unicode") -> str:
 
 
 def build_report(
-    periods: Iterable[str], now: datetime, week_start: int = 0
+    periods: Iterable[str], now: datetime, week_start: int = 0, precision: int = 1
 ) -> List[Dict[str, object]]:
     rows: List[Dict[str, object]] = []
     for period in periods:
         span = span_for(period, now, week_start)
         fraction = span.fraction_elapsed(now)
-        percent = round(fraction * 100.0, 1)
+        percent = round(fraction * 100.0, precision)
         if fraction < 1.0:
-            percent = min(percent, 99.9)
+            percent = min(percent, round(100.0 - 10 ** -precision, precision))
         rows.append(
             {
                 "period": period,

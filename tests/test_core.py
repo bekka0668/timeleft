@@ -189,6 +189,14 @@ class BuildReportTest(unittest.TestCase):
         self.assertLess(row["fraction"], 1.0)
         self.assertEqual(row["percent"], 99.9)
 
+    def test_percent_precision_controls_decimals(self):
+        row = build_report(["day"], datetime(2026, 11, 9, 14, 30), precision=2)[0]
+        self.assertEqual(row["percent"], 60.42)
+
+    def test_percent_precision_stays_below_full(self):
+        row = build_report(["day"], datetime(2026, 11, 9, 23, 59, 30), precision=0)[0]
+        self.assertEqual(row["percent"], 99)
+
     def test_period_total_is_included(self):
         day = build_report(["day"], datetime(2026, 11, 9, 14, 30))[0]
         self.assertEqual(day["total_seconds"], 86400)

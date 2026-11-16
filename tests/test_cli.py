@@ -633,6 +633,34 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(out.strip().splitlines(), ["12h 00m", "6d 12h"])
 
+    def test_precision_option_controls_table_decimals(self):
+        code, out = run_cli(
+            "--at", "2026-11-09T14:30", "--precision", "2", "--plain", "day"
+        )
+        self.assertEqual(code, 0)
+        self.assertIn("60.42%", out)
+
+    def test_precision_option_controls_percent_mode(self):
+        code, out = run_cli(
+            "--at", "2026-11-09T14:30", "--precision", "0", "--percent", "day"
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "60%\n")
+
+    def test_precision_option_controls_json_percent(self):
+        code, out = run_cli(
+            "--at", "2026-11-09T14:30", "--json", "--precision", "2", "day"
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["periods"][0]["percent"], 60.42)
+
+    def test_bad_precision_fails(self):
+        for value in ("-1", "7"):
+            with self.subTest(value=value):
+                with self.assertRaises(SystemExit) as caught:
+                    run_cli("--precision", value, "day")
+                self.assertEqual(caught.exception.code, 2)
+
     def test_percent_prints_only_percentage(self):
         code, out = run_cli("--at", "2026-11-09T12:00", "--percent", "day", "year")
         self.assertEqual(code, 0)

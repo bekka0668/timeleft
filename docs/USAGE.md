@@ -90,6 +90,17 @@ $ timeleft --at 2026-11-09T12:00 --elapsed day week
 The value-only modes are meant to be pasted into status bars, scripts or shell
 prompts, e.g. `$(timeleft --countdown day)`.
 
+Percentages show one decimal place by default. `--precision N` sets the number
+of decimals (0 to 6) for the table, `--percent` and the `percent` field in JSON.
+
+```console
+$ timeleft --at 2026-11-09T14:30 --precision 2 --plain day
+day      60.42%  9h 30m left
+
+$ timeleft --at 2026-11-09T14:30 --precision 0 --percent day
+60%
+```
+
 ## Progress bar
 
 `-w`, `--width N` sets the bar width in characters (default `25`, minimum `1`).
@@ -328,8 +339,8 @@ Durations are formatted for humans as up to two parts (`1d 00h`, `12h 00m`,
 | `-V`  | `--version`   |
 | `-h`  | `--help`      |
 
-`--at`, `--until`, `--since`, `--percent`, `--week-start` and `--watch` have
-no short form.
+`--at`, `--until`, `--since`, `--percent`, `--precision`, `--week-start` and
+`--watch` have no short form.
 
 ## Errors and exit codes
 

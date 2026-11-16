@@ -300,18 +300,23 @@ def resolve_period(name: str) -> Optional[str]:
     return None
 
 
-def format_row(row: dict, width: int, plain: bool, bar_style: str = "unicode") -> str:
+def format_row(
+    row: dict, width: int, plain: bool, bar_style: str = "unicode", precision: int = 1
+) -> str:
+    percent = "%.*f%%" % (precision, row["percent"])
     if plain:
-        return "%-7s %5.1f%%  %s left" % (
+        return "%-7s %*s  %s left" % (
             row["period"],
-            row["percent"],
+            precision + 5,
+            percent,
             row["remaining"],
         )
     bar = render_bar(row["fraction"], width, bar_style)
-    return "%-7s [%s] %5.1f%%  %s left" % (
+    return "%-7s [%s] %*s  %s left" % (
         row["period"],
         bar,
-        row["percent"],
+        precision + 5,
+        percent,
         row["remaining"],
     )
 
@@ -390,6 +395,13 @@ def build_parser() -> argparse.ArgumentParser:
             "print only the time elapsed since WHEN, in the same formats as "
             "--until"
         ),
+    )
+    parser.add_argument(
+        "--precision",
+        type=int,
+        default=1,
+        metavar="N",
+        help="decimal places in percentages, 0 to 6 (default: 1)",
     )
     parser.add_argument(
         "-w",
@@ -479,7 +491,9 @@ def emit_report(
         print(format_duration(remaining))
         return 0
 
-    rows = build_report(periods, now, week_start=week_start)
+    rows = build_report(
+        periods, now, week_start=week_start, precision=args.precision
+    )
 
     if args.json:
         json.dump({"now": now.isoformat(), "periods": rows}, sys.stdout, indent=2)
@@ -491,14 +505,18 @@ def emit_report(
             if args.countdown:
                 print(row["remaining"])
             elif args.percent:
-                print("%.1f%%" % row["percent"])
+                print("%.*f%%" % (args.precision, row["percent"]))
             else:
                 print(row["elapsed"])
         return 0
 
     bar_style = "ascii" if args.ascii or not supports_block_glyphs(sys.stdout) else "unicode"
     for row in rows:
-        print(format_row(row, args.width, args.plain, bar_style))
+        print(
+            format_row(
+                row, args.width, args.plain, bar_style, precision=args.precision
+            )
+        )
     return 0
 
 
@@ -508,6 +526,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     if args.width < 1:
         parser.error("--width must be at least 1")
+    if not 0 <= args.precision <= 6:
+        parser.error("--precision must be between 0 and 6")
     if args.watch is not None:
         if not math.isfinite(args.watch) or args.watch <= 0:
             parser.error("--watch must be a positive number of seconds")
