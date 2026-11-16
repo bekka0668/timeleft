@@ -383,6 +383,14 @@ def build_parser() -> argparse.ArgumentParser:
             "plus end of day/week/month/quarter/year (eod, eow, ...)"
         ),
     )
+    value_output.add_argument(
+        "--since",
+        metavar="WHEN",
+        help=(
+            "print only the time elapsed since WHEN, in the same formats as "
+            "--until"
+        ),
+    )
     parser.add_argument(
         "-w",
         "--width",
@@ -421,6 +429,31 @@ def emit_report(
     now: datetime,
     parser: argparse.ArgumentParser,
 ) -> int:
+    if args.since:
+        try:
+            target = parse_target(args.since, now, week_start)
+        except ValueError:
+            parser.error(
+                "--since could not parse %r (it accepts the same formats as --at)"
+                % args.since
+            )
+        elapsed = max(0.0, (now - target).total_seconds())
+        if args.json:
+            json.dump(
+                {
+                    "now": now.isoformat(),
+                    "since": target.isoformat(),
+                    "elapsed_seconds": round(elapsed),
+                    "elapsed": format_duration(elapsed),
+                },
+                sys.stdout,
+                indent=2,
+            )
+            sys.stdout.write("\n")
+            return 0
+        print(format_duration(elapsed))
+        return 0
+
     if args.until:
         try:
             target = parse_target(args.until, now, week_start)

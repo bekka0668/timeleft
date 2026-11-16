@@ -704,6 +704,44 @@ class MainTest(unittest.TestCase):
         self.assertEqual(payload["remaining_seconds"], 196200)
         self.assertEqual(payload["remaining"], "2d 06h")
 
+    def test_since_prints_elapsed(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--since", "2026-11-09T10:30")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "1h 30m\n")
+
+    def test_since_accepts_period_boundaries(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--since", "sod")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "12h 00m\n")
+
+    def test_since_in_the_future_prints_zero(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--since", "2026-11-10T12:00")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "0s\n")
+
+    def test_since_json_output(self):
+        code, out = run_cli(
+            "--at", "2026-11-09T12:00", "--json", "--since", "2026-11-01T00:00"
+        )
+        self.assertEqual(code, 0)
+        payload = json.loads(out)
+        self.assertEqual(payload["now"], "2026-11-09T12:00:00")
+        self.assertEqual(payload["since"], "2026-11-01T00:00:00")
+        self.assertEqual(payload["elapsed_seconds"], 734400)
+        self.assertEqual(payload["elapsed"], "8d 12h")
+
+    def test_since_and_until_are_mutually_exclusive(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--since", "sod", "--until", "eod")
+        self.assertEqual(caught.exception.code, 2)
+
+    def test_bad_since_fails(self):
+        stderr = io.StringIO()
+        with redirect_stderr(stderr), self.assertRaises(SystemExit) as caught:
+            run_cli("--since", "not-a-date")
+        self.assertEqual(caught.exception.code, 2)
+        self.assertIn("not-a-date", stderr.getvalue())
+
     def test_bad_until_fails(self):
         with self.assertRaises(SystemExit) as caught:
             run_cli("--until", "not-a-date")

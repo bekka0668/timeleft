@@ -60,9 +60,11 @@ $ timeleft hour                     # the current clock hour, opt-in
 | Percentage     | `--percent`       | elapsed percentage only                    |
 | Elapsed        | `-e`, `--elapsed` | time already spent only                    |
 | Until          | `--until WHEN`    | one line: time left until `WHEN`           |
+| Since          | `--since WHEN`    | one line: time elapsed since `WHEN`        |
 | JSON           | `-j`, `--json`    | structured output                          |
 
-`--countdown`, `--percent`, `--elapsed` and `--until` are mutually exclusive.
+`--countdown`, `--percent`, `--elapsed`, `--until` and `--since` are mutually
+exclusive.
 `--json` takes over the formatting whenever it is present.
 
 ```console
@@ -246,6 +248,29 @@ A target in the past reports `0s`. With `--json` the result is an object:
 }
 ```
 
+## Time since a moment: `--since WHEN`
+
+`--since` is the mirror image of `--until`: it prints only how long has passed
+since `WHEN`. It accepts the same formats, including the period boundaries, and
+measures from the moment `--at` selects (or from now). A moment in the future
+reports `0s`.
+
+```console
+$ timeleft --at 2026-11-09T12:00 --since sod
+12h 00m
+
+$ timeleft --at 2026-11-09T12:00 --since "start of month"
+8d 12h
+
+$ timeleft --at 2026-11-09T12:00 --json --since 2026-11-01T00:00
+{
+  "now": "2026-11-09T12:00:00",
+  "since": "2026-11-01T00:00:00",
+  "elapsed_seconds": 734400,
+  "elapsed": "8d 12h"
+}
+```
+
 ## Live redraw: `--watch SECONDS`
 
 Redraws the report every `SECONDS` until interrupted with `Ctrl-C`. When stdout
@@ -303,13 +328,15 @@ Durations are formatted for humans as up to two parts (`1d 00h`, `12h 00m`,
 | `-V`  | `--version`   |
 | `-h`  | `--help`      |
 
-`--at`, `--until`, `--percent`, `--week-start` and `--watch` have no short form.
+`--at`, `--until`, `--since`, `--percent`, `--week-start` and `--watch` have
+no short form.
 
 ## Errors and exit codes
 
 - `0` on success, including `Ctrl-C` during `--watch` and a closed pipe
   such as `timeleft --countdown day | head -1`.
-- `2` on usage errors: an unknown period, an unparseable `--at`/`--until`, a
+- `2` on usage errors: an unknown period, an unparseable `--at`/`--until`/
+  `--since`, a
   non-positive `--width`, an invalid `--watch` interval, or `--watch` with
   `--json`. The message goes to stderr, prefixed with `timeleft: error:`.
 
