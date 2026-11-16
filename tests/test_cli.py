@@ -68,6 +68,11 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_relative_offset_drops_sub_second_precision(self):
+        base = datetime(2026, 11, 9, 12, 0, 0, 123456)
+        self.assertEqual(parse_moment("+90m", now=base), datetime(2026, 11, 9, 13, 30))
+        self.assertEqual(parse_moment("in 2 hours", now=base), datetime(2026, 11, 9, 14, 0))
+
     def test_relative_offset_accepts_uppercase_unit(self):
         base = datetime(2026, 11, 9, 12, 0)
         self.assertEqual(parse_moment("+2H", now=base), datetime(2026, 11, 9, 14, 0))

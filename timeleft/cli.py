@@ -156,10 +156,11 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             float(amount) * RELATIVE_UNITS[unit.lower()]
             for amount, unit in RELATIVE_TOKEN.findall(offset.group(2))
         )
-        return base + timedelta(seconds=seconds if offset.group(1) == "+" else -seconds)
+        moment = base + timedelta(seconds=seconds if offset.group(1) == "+" else -seconds)
+        return moment.replace(microsecond=0)
     natural = parse_natural_offset(value)
     if natural is not None:
-        return base + timedelta(seconds=natural)
+        return (base + timedelta(seconds=natural)).replace(microsecond=0)
     keyword = value.lower()
     if keyword == "now":
         return base.replace(microsecond=0)
