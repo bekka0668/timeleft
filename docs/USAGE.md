@@ -63,10 +63,11 @@ $ timeleft day,week                 # commas work as separators too
 | Elapsed        | `-e`, `--elapsed` | time already spent only                    |
 | Until          | `--until WHEN`    | one line: time left until `WHEN`           |
 | Since          | `--since WHEN`    | one line: time elapsed since `WHEN`        |
+| Total          | `--total`         | total length of each period, one per line  |
 | JSON           | `-j`, `--json`    | structured output                          |
 
-`--countdown`, `--percent`, `--elapsed`, `--until` and `--since` are mutually
-exclusive.
+`--countdown`, `--percent`, `--elapsed`, `--total`, `--until` and `--since`
+are mutually exclusive.
 `--json` takes over the formatting whenever it is present.
 
 ```console
@@ -87,6 +88,10 @@ $ timeleft --at 2026-11-09T12:00 --percent day week
 $ timeleft --at 2026-11-09T12:00 --elapsed day week
 12h 00m
 12h 00m
+
+$ timeleft --at 2026-11-09T12:00 --total day year
+1d 00h
+365d 00h
 ```
 
 The value-only modes are meant to be pasted into status bars, scripts or shell
@@ -341,8 +346,8 @@ Durations are formatted for humans as up to two parts (`1d 00h`, `12h 00m`,
 | `-V`  | `--version`   |
 | `-h`  | `--help`      |
 
-`--at`, `--until`, `--since`, `--percent`, `--precision`, `--week-start` and
-`--watch` have no short form.
+`--at`, `--until`, `--since`, `--percent`, `--total`, `--precision`,
+`--week-start` and `--watch` have no short form.
 
 ## Errors and exit codes
 

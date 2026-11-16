@@ -381,6 +381,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="print only the time already spent, one period per line",
     )
     value_output.add_argument(
+        "--total",
+        action="store_true",
+        help="print only the total length of each period, one period per line",
+    )
+    value_output.add_argument(
         "--until",
         metavar="WHEN",
         help=(
@@ -500,12 +505,14 @@ def emit_report(
         sys.stdout.write("\n")
         return 0
 
-    if args.countdown or args.percent or args.elapsed:
+    if args.countdown or args.percent or args.elapsed or args.total:
         for row in rows:
             if args.countdown:
                 print(row["remaining"])
             elif args.percent:
                 print("%.*f%%" % (args.precision, row["percent"]))
+            elif args.total:
+                print(row["total"])
             else:
                 print(row["elapsed"])
         return 0

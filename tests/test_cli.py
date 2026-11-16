@@ -679,6 +679,23 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(out.strip().splitlines(), ["12h 00m", "12h 00m"])
 
+    def test_total_prints_period_lengths(self):
+        code, out = run_cli(
+            "--at", "2026-11-09T12:00", "--total", "day", "week", "year"
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(out.strip().splitlines(), ["1d 00h", "7d 00h", "365d 00h"])
+
+    def test_total_includes_the_opt_in_hour(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--total", "hour")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "1h 00m\n")
+
+    def test_total_and_countdown_are_mutually_exclusive(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--total", "--countdown", "day")
+        self.assertEqual(caught.exception.code, 2)
+
     def test_elapsed_is_in_json_output(self):
         code, out = run_cli("--at", "2026-11-09T12:00", "--json", "day")
         self.assertEqual(code, 0)
