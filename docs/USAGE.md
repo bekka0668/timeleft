@@ -295,7 +295,8 @@ Durations are formatted for humans as up to two parts (`1d 00h`, `12h 00m`,
 
 ## Errors and exit codes
 
-- `0` on success, including `Ctrl-C` during `--watch`.
+- `0` on success, including `Ctrl-C` during `--watch` and a closed pipe
+  such as `timeleft --countdown day | head -1`.
 - `2` on usage errors: an unknown period, an unparseable `--at`/`--until`, a
   non-positive `--width`, an invalid `--watch` interval, or `--watch` with
   `--json`. The message goes to stderr, prefixed with `timeleft: error:`.

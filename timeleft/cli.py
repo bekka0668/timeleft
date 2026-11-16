@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
 import sys
 import time
@@ -486,15 +487,28 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     def current_moment() -> datetime:
         return anchor if anchor is not None else datetime.now().replace(microsecond=0)
 
-    if args.watch is not None:
-        try:
-            while True:
-                if not args.json and sys.stdout.isatty():
-                    sys.stdout.write("\033[H\033[J")
-                emit_report(args, periods, week_start, current_moment(), parser)
-                sys.stdout.flush()
-                time.sleep(args.watch)
-        except KeyboardInterrupt:
-            return 0
+    try:
+        if args.watch is not None:
+            try:
+                while True:
+                    if not args.json and sys.stdout.isatty():
+                        sys.stdout.write("\033[H\033[J")
+                    emit_report(args, periods, week_start, current_moment(), parser)
+                    sys.stdout.flush()
+                    time.sleep(args.watch)
+            except KeyboardInterrupt:
+                return 0
 
-    return emit_report(args, periods, week_start, current_moment(), parser)
+        return emit_report(args, periods, week_start, current_moment(), parser)
+    except BrokenPipeError:
+        silence_broken_pipe()
+        return 0
+
+
+def silence_broken_pipe() -> None:
+    try:
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(devnull, sys.stdout.fileno())
+        os.close(devnull)
+    except (OSError, ValueError):
+        pass

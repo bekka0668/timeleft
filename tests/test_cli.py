@@ -939,5 +939,25 @@ class ShortOptionsTest(unittest.TestCase):
         self.assertEqual(caught.exception.code, 0)
 
 
+class BrokenPipeTest(unittest.TestCase):
+    def test_main_returns_zero_when_stdout_closes(self):
+        with mock.patch("timeleft.cli.emit_report", side_effect=BrokenPipeError):
+            code, out = run_cli("--at", "2026-11-09T12:00", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "")
+
+    def test_watch_returns_zero_when_stdout_closes(self):
+        with mock.patch("timeleft.cli.emit_report", side_effect=BrokenPipeError):
+            with mock.patch("timeleft.cli.time.sleep"):
+                code, out = run_cli("--watch", "1", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "")
+
+    def test_silence_broken_pipe_tolerates_streams_without_fileno(self):
+        from timeleft.cli import silence_broken_pipe
+
+        silence_broken_pipe()
+
+
 if __name__ == "__main__":
     unittest.main()
