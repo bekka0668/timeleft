@@ -206,6 +206,18 @@ $ timeleft --at eow day        # evaluate at the end of the current week
 $ timeleft --at "start of month" day
 ```
 
+### Next, last and this periods
+
+`next`, `last` and `this` combine with any period name to pick a boundary one
+period away from the current one; `start of` and `end of` narrow it further.
+
+```console
+$ timeleft --at "last week" day
+$ timeleft --until "start of next month"
+$ timeleft --at "end of next quarter" day
+$ timeleft --at "this year" day
+```
+
 ## Countdown to a moment: `--until WHEN`
 
 `--until` prints only how long is left until `WHEN`. It accepts every format

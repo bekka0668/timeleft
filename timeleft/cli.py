@@ -65,6 +65,9 @@ END_KEYWORDS = {
 }
 START_KEYWORDS = {"start of %s" % period: period for period in ALL_PERIODS}
 START_KEYWORDS.update({"so%s" % period[0]: period for period in ALL_PERIODS})
+SHIFTED_PERIOD = re.compile(
+    r"^(?:(start|end) of )?(next|last|this) (hour|day|week|month|quarter|year)$"
+)
 
 
 def midnight_of(base: datetime, days: int = 0) -> datetime:
@@ -248,8 +251,26 @@ def target_phrase(text: str) -> str:
     return re.sub(r"\bof the\b", "of", phrase)
 
 
+def shifted_period_target(
+    phrase: str, now: datetime, week_start: int
+) -> Optional[datetime]:
+    match = SHIFTED_PERIOD.match(phrase)
+    if match is None:
+        return None
+    boundary, modifier, period = match.groups()
+    span = span_for(period, now, week_start)
+    if modifier == "next":
+        span = span_for(period, span.end, week_start)
+    elif modifier == "last":
+        span = span_for(period, span.start - timedelta(seconds=1), week_start)
+    return span.end if boundary == "end" else span.start
+
+
 def parse_target(text: str, now: datetime, week_start: int = 0) -> datetime:
     phrase = target_phrase(text)
+    shifted = shifted_period_target(phrase, now, week_start)
+    if shifted is not None:
+        return shifted
     period = END_KEYWORDS.get(phrase)
     if period is not None:
         return span_for(period, now, week_start).end

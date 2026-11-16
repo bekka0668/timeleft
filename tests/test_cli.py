@@ -339,6 +339,36 @@ class ParseMomentTest(unittest.TestCase):
         self.assertEqual(parse_target("start of week", base, week_start=6), datetime(2026, 11, 8))
         self.assertEqual(parse_target("sow", base, week_start=3), datetime(2026, 11, 5))
 
+    def test_shifted_period_targets(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "this week": datetime(2026, 11, 9),
+            "next week": datetime(2026, 11, 16),
+            "last week": datetime(2026, 11, 2),
+            "this month": datetime(2026, 11, 1),
+            "next month": datetime(2026, 12, 1),
+            "last month": datetime(2026, 10, 1),
+            "next quarter": datetime(2027, 1, 1),
+            "last quarter": datetime(2026, 7, 1),
+            "this year": datetime(2026, 1, 1),
+            "next year": datetime(2027, 1, 1),
+            "last year": datetime(2025, 1, 1),
+            "next hour": datetime(2026, 11, 9, 13, 0),
+            "last day": datetime(2026, 11, 8),
+            "start of next month": datetime(2026, 12, 1),
+            "end of next week": datetime(2026, 11, 23),
+            "end of last month": datetime(2026, 11, 1),
+            "the next year": datetime(2027, 1, 1),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_target(text, base), expected)
+
+    def test_shifted_period_targets_honour_week_start(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_target("next week", base, week_start=6), datetime(2026, 11, 15))
+        self.assertEqual(parse_target("last week", base, week_start=6), datetime(2026, 11, 1))
+
     def test_target_phrases_ignore_articles(self):
         base = datetime(2026, 11, 9, 12, 0)
         self.assertEqual(parse_target("the end of the week", base), datetime(2026, 11, 16))
