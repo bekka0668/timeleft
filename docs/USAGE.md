@@ -194,6 +194,7 @@ drift:
 
 ```console
 $ timeleft --at "in 2 months" day
+$ timeleft --at "in a month" day
 $ timeleft --at "1 year 2 months ago" day
 $ timeleft --at "in 1 month" day      # 31 Jan becomes 29 Feb in a leap year
 ```

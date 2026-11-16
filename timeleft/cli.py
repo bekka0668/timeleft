@@ -149,7 +149,9 @@ def parse_natural_offset(text: str) -> Optional[int]:
     return sign * round(total)
 
 
-CALENDAR_TOKEN = re.compile(r"(\d+)\s*(months?|years?)", re.IGNORECASE)
+CALENDAR_TOKEN = re.compile(
+    r"(\d+)\s*(months?|years?)|(an?|one)\s+(months?|years?)", re.IGNORECASE
+)
 
 
 def parse_calendar_offset(text: str) -> Optional[int]:
@@ -171,8 +173,9 @@ def parse_calendar_offset(text: str) -> Optional[int]:
     for match in CALENDAR_TOKEN.finditer(value):
         if not NATURAL_FILLER.match(value[end : match.start()]):
             return None
-        amount = int(match.group(1))
-        months += amount * (1 if match.group(2).lower().startswith("month") else 12)
+        amount = 1 if match.group(1) is None else int(match.group(1))
+        unit = (match.group(2) or match.group(4)).lower()
+        months += amount * (1 if unit.startswith("month") else 12)
         found += 1
         end = match.end()
     if not found or not NATURAL_TAIL.match(value[end:]):
