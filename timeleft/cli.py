@@ -539,15 +539,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     week_start = WEEK_STARTS[args.week_start]
     selected = args.periods or list(PERIODS)
     periods: List[str] = []
-    for name in selected:
-        period = resolve_period(name)
-        if period is None:
-            parser.error(
-                "invalid period %r (choose from %s)"
-                % (name, ", ".join(ALL_PERIODS + tuple(PERIOD_ALIASES)))
-            )
-        if period not in periods:
-            periods.append(period)
+    for group in selected:
+        for name in group.split(","):
+            name = name.strip()
+            period = resolve_period(name) if name else None
+            if period is None:
+                parser.error(
+                    "invalid period %r (choose from %s)"
+                    % (name, ", ".join(ALL_PERIODS + tuple(PERIOD_ALIASES)))
+                )
+            if period not in periods:
+                periods.append(period)
 
     anchor = None
     if args.at:

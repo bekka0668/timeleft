@@ -867,6 +867,27 @@ class MainTest(unittest.TestCase):
             [row["period"] for row in json.loads(out)["periods"]], ["week", "day"]
         )
 
+    def test_comma_separated_periods(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--json", "day,week")
+        self.assertEqual(code, 0)
+        self.assertEqual(
+            [row["period"] for row in json.loads(out)["periods"]], ["day", "week"]
+        )
+
+    def test_comma_separated_periods_allow_spaces_and_dedupe(self):
+        code, out = run_cli(
+            "--at", "2026-11-09T12:00", "--json", "day, week, d"
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(
+            [row["period"] for row in json.loads(out)["periods"]], ["day", "week"]
+        )
+
+    def test_comma_separated_periods_reject_empty_names(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("day,")
+        self.assertEqual(caught.exception.code, 2)
+
     def test_plural_of_unknown_period_fails(self):
         with self.assertRaises(SystemExit) as caught:
             run_cli("fortnights")

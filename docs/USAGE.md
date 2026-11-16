@@ -38,7 +38,8 @@ the flag to evaluate the real current moment.
 | `year`    | `y`   | `years`    | yes                   |
 
 - Case does not matter: `Week`, `WEEK` and `w` are the same period.
-- Repeats are printed once, in the order you first named them.
+- Repeats are printed once, in the order you first named them. Periods can be
+  separated by commas instead of spaces: `timeleft day,week`.
 
 ## Choosing periods
 
@@ -47,6 +48,7 @@ $ timeleft week month               # only these two
 $ timeleft d w y                    # short forms
 $ timeleft days hours               # plurals work too
 $ timeleft hour                     # the current clock hour, opt-in
+$ timeleft day,week                 # commas work as separators too
 ```
 
 ## Output modes
