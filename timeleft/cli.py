@@ -36,6 +36,34 @@ NATURAL_PART = re.compile(
     r"(?:(\d+(?:\.\d+)?)\s*([a-z]+)|(an?|one)\s+([a-z]+))", re.IGNORECASE
 )
 NATURAL_PHRASES = (
+    (
+        re.compile(
+            r"\b(\d+(?:\.\d+)?)\s+and\s+a\s+half\s+(hours?|minutes?|days?|weeks?|fortnights?)\b",
+            re.IGNORECASE,
+        ),
+        r"\1.5 \2",
+    ),
+    (
+        re.compile(
+            r"\b(?:an?|one)\s+and\s+a\s+half\s+(hours?|minutes?|days?|weeks?|fortnights?)\b",
+            re.IGNORECASE,
+        ),
+        r"1.5 \1",
+    ),
+    (
+        re.compile(
+            r"\b(?:an?|one)\s+(hours?|minutes?|days?|weeks?|fortnights?)\s+and\s+a\s+half\b",
+            re.IGNORECASE,
+        ),
+        r"1.5 \1",
+    ),
+    (
+        re.compile(
+            r"\bhalf\s+(?:an?\s+)?(hours?|minutes?|days?|weeks?|fortnights?)\b",
+            re.IGNORECASE,
+        ),
+        r"0.5 \1",
+    ),
     (re.compile(r"\ban hour and a half\b", re.IGNORECASE), "90 minutes"),
     (re.compile(r"\b(?:one|1)\s+hours?\s+and\s+a\s+half\b", re.IGNORECASE), "90 minutes"),
     (re.compile(r"\b(?:one|1)\s+and\s+a\s+half\s+hours?\b", re.IGNORECASE), "90 minutes"),
