@@ -315,6 +315,10 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             second=clock[2],
             microsecond=0,
         )
+    partial = re.fullmatch(r"(\d{4})-(\d{1,2})-(\d{1,2})", value)
+    if partial is not None:
+        year, month, day = (int(part) for part in partial.groups())
+        return datetime(year, month, day)
     partial = re.match(r"^(\d{4})(?:-(\d{1,2}))?$", value)
     if partial is not None:
         year = int(partial.group(1))
