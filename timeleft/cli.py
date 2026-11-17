@@ -64,6 +64,19 @@ NATURAL_PHRASES = (
         ),
         r"0.5 \1",
     ),
+    (
+        re.compile(
+            r"\b(?:a\s+)?couple\s+(?:of\s+)?(hours?|minutes?|days?|weeks?|fortnights?)\b",
+            re.IGNORECASE,
+        ),
+        r"2 \1",
+    ),
+    (
+        re.compile(
+            r"\ba few\s+(hours?|minutes?|days?|weeks?|fortnights?)\b", re.IGNORECASE
+        ),
+        r"3 \1",
+    ),
     (re.compile(r"\ban hour and a half\b", re.IGNORECASE), "90 minutes"),
     (re.compile(r"\b(?:one|1)\s+hours?\s+and\s+a\s+half\b", re.IGNORECASE), "90 minutes"),
     (re.compile(r"\b(?:one|1)\s+and\s+a\s+half\s+hours?\b", re.IGNORECASE), "90 minutes"),

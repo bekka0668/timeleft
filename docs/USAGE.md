@@ -206,6 +206,8 @@ $ timeleft --at "in 1 hour 30 minutes" day
 $ timeleft --at "in a fortnight" day
 $ timeleft --at "in a week and a half" day
 $ timeleft --at "2 and a half weeks ago" day
+$ timeleft --at "in a couple of hours" day
+$ timeleft --at "a few days ago" day
 ```
 
 Parts add up, and `a`/`an`/`one` mean one. A phrase must be a valid offset:
