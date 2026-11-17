@@ -160,6 +160,15 @@ $ timeleft --at noon day
 $ timeleft --at midnight day
 ```
 
+Half and quarter phrases work too, with or without a day anchor:
+
+```console
+$ timeleft --at "half past 3" day
+$ timeleft --at "quarter past 4pm" day
+$ timeleft --at "quarter to 5" day
+$ timeleft --at "tomorrow half past 3" day
+```
+
 ### Offsets from now
 
 A sign followed by one or more number+unit pairs. Units are `s`, `m`, `h`,

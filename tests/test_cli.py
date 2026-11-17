@@ -465,6 +465,49 @@ class ParseMomentTest(unittest.TestCase):
             parse_moment("midnight tomorrow", now=base), datetime(2026, 11, 10)
         )
 
+    def test_half_and_quarter_past_clock_phrases(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "half past 3": datetime(2026, 11, 9, 3, 30),
+            "half past 3pm": datetime(2026, 11, 9, 15, 30),
+            "quarter past 4": datetime(2026, 11, 9, 4, 15),
+            "a quarter past 4pm": datetime(2026, 11, 9, 16, 15),
+            "half past midnight": datetime(2026, 11, 9, 0, 30),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_quarter_to_clock_phrases(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "quarter to 5": datetime(2026, 11, 9, 4, 45),
+            "quarter to 5pm": datetime(2026, 11, 9, 16, 45),
+            "a quarter to 12am": datetime(2026, 11, 9, 23, 45),
+            "quarter to 12pm": datetime(2026, 11, 9, 11, 45),
+            "quarter to noon": datetime(2026, 11, 9, 11, 45),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_clock_phrases_combine_with_day_anchors(self):
+        base = datetime(2026, 11, 11, 12, 0)
+        cases = {
+            "tomorrow half past 3": datetime(2026, 11, 12, 3, 30),
+            "quarter to 5pm friday": datetime(2026, 11, 13, 16, 45),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_clock_phrases_reject_bad_values(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        for text in ("half past 13", "quarter to 0", "half past 3:75"):
+            with self.subTest(text=text):
+                with self.assertRaises(ValueError):
+                    parse_moment(text, now=base)
+
     def test_weekday_means_its_next_occurrence(self):
         base = datetime(2026, 11, 11, 12, 0)
         cases = {

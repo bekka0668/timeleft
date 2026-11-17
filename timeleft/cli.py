@@ -23,6 +23,13 @@ PERIOD_ALIASES = {period[0]: period for period in ALL_PERIODS}
 RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
 TWELVE_HOUR = re.compile(r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*([ap])\.?m\.?$", re.IGNORECASE)
+CLOCK_PHRASE = re.compile(
+    r"^(half|(?:a\s+)?quarter)\s+(past|to)\s+(\d{1,2})(?::(\d{2}))?\s*([ap])?\.?m?\.?$",
+    re.IGNORECASE,
+)
+CLOCK_PHRASE_NAMED = re.compile(
+    r"^(half|(?:a\s+)?quarter)\s+(past|to)\s+(noon|midday|midnight)$", re.IGNORECASE
+)
 RELATIVE_OFFSET = re.compile(r"^([+-])((?:\d+(?:\.\d+)?[smhdw])+)$", re.IGNORECASE)
 RELATIVE_TOKEN = re.compile(r"(\d+(?:\.\d+)?)([smhdw])", re.IGNORECASE)
 NATURAL_PART = re.compile(
@@ -93,10 +100,37 @@ def shift_weekday(base: datetime, name: str, modifier: str) -> int:
     return -(behind or 7)
 
 
+def clock_phrase(text: str) -> Optional[Tuple[int, int, int]]:
+    match = CLOCK_PHRASE.match(text)
+    if match is not None:
+        amount = 30 if match.group(1).lower() == "half" else 15
+        delta = -amount if match.group(2).lower() == "to" else amount
+        hour = int(match.group(3))
+        minute = int(match.group(4) or 0)
+        marker = match.group(5)
+        if not 1 <= hour <= 12 or minute > 59:
+            return None
+        if marker is not None:
+            hour = hour % 12 + (12 if marker.lower() == "p" else 0)
+        total = (hour * 60 + minute + delta) % (24 * 60)
+        return (total // 60, total % 60, 0)
+    match = CLOCK_PHRASE_NAMED.match(text)
+    if match is None:
+        return None
+    amount = 30 if match.group(1).lower() == "half" else 15
+    delta = -amount if match.group(2).lower() == "to" else amount
+    hour, minute, second = NAMED_CLOCKS[match.group(3).lower()]
+    total = (hour * 60 + minute + delta) % (24 * 60)
+    return (total // 60, total % 60, second)
+
+
 def parse_clock_time(text: str) -> Optional[Tuple[int, int, int]]:
     named = NAMED_CLOCKS.get(text.lower())
     if named is not None:
         return named
+    phrase = clock_phrase(text)
+    if phrase is not None:
+        return phrase
     twelve = TWELVE_HOUR.match(text)
     if twelve is not None:
         hour = int(twelve.group(1))
