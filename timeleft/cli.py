@@ -53,6 +53,7 @@ NATURAL_UNITS = {
     "h": 3600, "hr": 3600, "hrs": 3600, "hour": 3600, "hours": 3600,
     "d": 86400, "day": 86400, "days": 86400,
     "w": 604800, "week": 604800, "weeks": 604800,
+    "fortnight": 1209600, "fortnights": 1209600,
 }
 DAY_KEYWORDS = {"today": 0, "tomorrow": 1, "yesterday": -1}
 DAY_PHRASES = {

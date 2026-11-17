@@ -277,7 +277,18 @@ class ParseMomentTest(unittest.TestCase):
 
     def test_natural_offset_with_unknown_unit_raises(self):
         with self.assertRaises(ValueError):
-            parse_moment("in 2 fortnights", now=datetime(2026, 11, 9, 12, 0))
+            parse_moment("in 2 moons", now=datetime(2026, 11, 9, 12, 0))
+
+    def test_natural_offsets_accept_fortnights(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "in a fortnight": datetime(2026, 11, 23, 12, 0),
+            "2 fortnights ago": datetime(2026, 10, 12, 12, 0),
+            "in one fortnight": datetime(2026, 11, 23, 12, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
 
     def test_clock_time_uses_today(self):
         base = datetime(2026, 11, 9, 12, 0)
