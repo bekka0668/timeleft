@@ -564,6 +564,13 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def parse_reason(error: ValueError, fallback: str) -> str:
+    reason = str(error).strip()
+    if not reason or reason.startswith("Invalid isoformat string"):
+        return fallback
+    return reason
+
+
 def emit_report(
     args: argparse.Namespace,
     periods: List[str],
@@ -574,10 +581,13 @@ def emit_report(
     if args.since:
         try:
             target = parse_target(args.since, now, week_start)
-        except ValueError:
+        except ValueError as exc:
             parser.error(
-                "--since could not parse %r (it accepts the same formats as --at)"
-                % args.since
+                "--since could not parse %r: %s"
+                % (
+                    args.since,
+                    parse_reason(exc, "expected the same formats as --at"),
+                )
             )
         elapsed = max(0.0, (now - target).total_seconds())
         if args.json:
@@ -599,10 +609,13 @@ def emit_report(
     if args.until:
         try:
             target = parse_target(args.until, now, week_start)
-        except ValueError:
+        except ValueError as exc:
             parser.error(
-                "--until could not parse %r (it accepts the same formats as --at)"
-                % args.until
+                "--until could not parse %r: %s"
+                % (
+                    args.until,
+                    parse_reason(exc, "expected the same formats as --at"),
+                )
             )
         remaining = max(0.0, (target - now).total_seconds())
         if args.json:
@@ -689,10 +702,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if args.at:
         try:
             anchor = parse_target(args.at, datetime.now(), week_start)
-        except ValueError:
+        except ValueError as exc:
             parser.error(
-                "--at could not parse %r (expected an ISO timestamp, a clock "
-                "time, a day name, or an offset like +90m)" % args.at
+                "--at could not parse %r: %s"
+                % (
+                    args.at,
+                    parse_reason(
+                        exc,
+                        "expected an ISO timestamp, a clock time, a day name, "
+                        "or an offset like +90m",
+                    ),
+                )
             )
 
     def current_moment() -> datetime:

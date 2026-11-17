@@ -1125,6 +1125,24 @@ class MainTest(unittest.TestCase):
             run_cli("--at", "not-a-date", "day")
         self.assertIn("not-a-date", stderr.getvalue())
 
+    def test_bad_at_error_explains_the_reason(self):
+        stderr = io.StringIO()
+        with redirect_stderr(stderr), self.assertRaises(SystemExit):
+            run_cli("--at", "2026-13", "day")
+        self.assertIn("month must be between 1 and 12", stderr.getvalue())
+
+    def test_bad_at_error_names_the_day_anchor(self):
+        stderr = io.StringIO()
+        with redirect_stderr(stderr), self.assertRaises(SystemExit):
+            run_cli("--at", "tomorrow 25:00", "day")
+        self.assertIn("tomorrow", stderr.getvalue())
+
+    def test_bad_until_error_explains_the_reason(self):
+        stderr = io.StringIO()
+        with redirect_stderr(stderr), self.assertRaises(SystemExit):
+            run_cli("--until", "tomorrow 25:00")
+        self.assertIn("expected a clock time", stderr.getvalue())
+
     def test_bad_until_error_names_the_value(self):
         stderr = io.StringIO()
         with redirect_stderr(stderr), self.assertRaises(SystemExit):
