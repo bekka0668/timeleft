@@ -59,7 +59,7 @@ NATURAL_PHRASES = (
     ),
     (
         re.compile(
-            r"\bhalf\s+(?:an?\s+)?(hours?|minutes?|days?|weeks?|fortnights?)\b",
+            r"\b(?:an?\s+)?half\s+(?:an?\s+)?(hours?|minutes?|days?|weeks?|fortnights?)\b",
             re.IGNORECASE,
         ),
         r"0.5 \1",
