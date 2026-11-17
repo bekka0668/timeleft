@@ -60,14 +60,15 @@ $ timeleft day,week                 # commas work as separators too
 | ASCII bar      | `-a`, `--ascii`   | bar drawn with `#` and `-`                 |
 | Countdown      | `-c`, `--countdown` | remaining time only, one line per period |
 | Percentage     | `--percent`       | elapsed percentage only                    |
+| Left percent   | `--percent-left`  | percentage still ahead only                |
 | Elapsed        | `-e`, `--elapsed` | time already spent only                    |
 | Until          | `--until WHEN`    | one line: time left until `WHEN`           |
 | Since          | `--since WHEN`    | one line: time elapsed since `WHEN`        |
 | Total          | `--total`         | total length of each period, one per line  |
 | JSON           | `-j`, `--json`    | structured output                          |
 
-`--countdown`, `--percent`, `--elapsed`, `--total`, `--until` and `--since`
-are mutually exclusive.
+`--countdown`, `--percent`, `--percent-left`, `--elapsed`, `--total`,
+`--until` and `--since` are mutually exclusive.
 `--json` takes over the formatting whenever it is present.
 
 ```console
@@ -85,6 +86,10 @@ $ timeleft --at 2026-11-09T12:00 --percent day week
 50.0%
 7.1%
 
+$ timeleft --at 2026-11-09T12:00 --percent-left day week
+50.0%
+92.9%
+
 $ timeleft --at 2026-11-09T12:00 --elapsed day week
 12h 00m
 12h 00m
@@ -99,6 +104,7 @@ prompts, e.g. `$(timeleft --countdown day)`.
 
 Percentages show one decimal place by default. `--precision N` sets the number
 of decimals (0 to 6) for the table, `--percent` and the `percent` field in JSON.
+`--percent-left` reports the complement of the same percentage.
 
 ```console
 $ timeleft --at 2026-11-09T14:30 --precision 2 --plain day

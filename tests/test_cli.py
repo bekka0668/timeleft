@@ -768,6 +768,16 @@ class MainTest(unittest.TestCase):
         self.assertTrue(lines[1].endswith("%"))
         self.assertNotIn("left", out)
 
+    def test_percent_left_prints_the_share_still_ahead(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--percent-left", "day", "week")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "50.0%\n92.9%\n")
+
+    def test_percent_left_is_mutually_exclusive_with_percent(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--percent", "--percent-left", "day")
+        self.assertEqual(caught.exception.code, 2)
+
     def test_elapsed_prints_only_time_spent(self):
         code, out = run_cli("--at", "2026-11-09T12:00", "--elapsed", "day")
         self.assertEqual(code, 0)
