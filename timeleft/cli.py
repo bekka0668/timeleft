@@ -344,6 +344,10 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             second=clock[2],
             microsecond=0,
         )
+    week_date = re.fullmatch(r"(\d{4})-W(\d{1,2})(?:-(\d))?", value, re.IGNORECASE)
+    if week_date is not None:
+        year, week, weekday = week_date.groups()
+        return datetime.fromisocalendar(int(year), int(week), int(weekday or 1))
     partial = re.fullmatch(r"(\d{4})-(\d{1,2})-(\d{1,2})", value)
     if partial is not None:
         year, month, day = (int(part) for part in partial.groups())

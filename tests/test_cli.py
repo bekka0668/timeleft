@@ -28,6 +28,17 @@ class ParseMomentTest(unittest.TestCase):
     def test_date_only(self):
         self.assertEqual(parse_moment("2026-11-09"), datetime(2026, 11, 9))
 
+    def test_iso_week_dates(self):
+        self.assertEqual(parse_moment("2026-W46-1"), datetime(2026, 11, 9))
+        self.assertEqual(parse_moment("2026-w46-7"), datetime(2026, 11, 15))
+        self.assertEqual(parse_moment("2026-W46"), datetime(2026, 11, 9))
+
+    def test_iso_week_dates_reject_bad_weeks(self):
+        for text in ("2026-W54", "2026-W00", "2026-W46-8"):
+            with self.subTest(text=text):
+                with self.assertRaises(ValueError):
+                    parse_moment(text)
+
     def test_unpadded_iso_dates(self):
         self.assertEqual(parse_moment("2026-1-9"), datetime(2026, 1, 9))
         self.assertEqual(parse_moment("2026-11-9"), datetime(2026, 11, 9))

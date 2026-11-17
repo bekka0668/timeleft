@@ -159,6 +159,7 @@ $ timeleft --at 2026-11-09T12:00+02:00 day # explicit offset, converted to local
 $ timeleft --at 2026-11 day               # first moment of that month
 $ timeleft --at 2026 day                  # first moment of that year
 $ timeleft --at 2026-1-9 day              # leading zeros are optional
+$ timeleft --at 2026-W46-1 day            # ISO week date (week 46, Monday)
 ```
 
 ### A clock time today
