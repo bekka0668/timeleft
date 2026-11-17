@@ -90,6 +90,9 @@ $ timeleft --at 2026-11-09T12:00 --percent-left day week
 50.0%
 92.9%
 
+$ timeleft --at 2026-11-09T14:30 --precision 2 --percent-left day
+39.58%
+
 $ timeleft --at 2026-11-09T12:00 --elapsed day week
 12h 00m
 12h 00m

@@ -637,7 +637,7 @@ def emit_report(
             elif args.percent:
                 print("%.*f%%" % (args.precision, row["percent"]))
             elif args.percent_left:
-                print("%.1f%%" % (100.0 - row["percent"]))
+                print("%.*f%%" % (args.precision, 100.0 - row["percent"]))
             elif args.total:
                 print(row["total"])
             else:

@@ -798,6 +798,13 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(out, "50.0%\n92.9%\n")
 
+    def test_precision_option_controls_percent_left_mode(self):
+        code, out = run_cli(
+            "--at", "2026-11-09T14:30", "--precision", "2", "--percent-left", "day"
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "39.58%\n")
+
     def test_percent_left_is_mutually_exclusive_with_percent(self):
         with self.assertRaises(SystemExit) as caught:
             run_cli("--percent", "--percent-left", "day")
