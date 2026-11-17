@@ -27,6 +27,9 @@ CLOCK_PHRASE = re.compile(
     r"^(half|(?:a\s+)?quarter)\s+(past|to)\s+(\d{1,2})(?::(\d{2}))?\s*([ap])?\.?m?\.?$",
     re.IGNORECASE,
 )
+CLOCK_MINUTES_TO = re.compile(
+    r"^(\d{1,2})\s+to\s+(\d{1,2})(?::(\d{2}))?\s*([ap])?\.?m?\.?$", re.IGNORECASE
+)
 CLOCK_PHRASE_NAMED = re.compile(
     r"^(half|(?:a\s+)?quarter)\s+(past|to)\s+(noon|midday|midnight)$", re.IGNORECASE
 )
@@ -155,6 +158,18 @@ def clock_phrase(text: str) -> Optional[Tuple[int, int, int]]:
         if marker is not None:
             hour = hour % 12 + (12 if marker.lower() == "p" else 0)
         total = (hour * 60 + minute + delta) % (24 * 60)
+        return (total // 60, total % 60, 0)
+    match = CLOCK_MINUTES_TO.match(text)
+    if match is not None:
+        minutes = int(match.group(1))
+        hour = int(match.group(2))
+        extra = int(match.group(3) or 0)
+        marker = match.group(4)
+        if not 1 <= minutes <= 59 or not 1 <= hour <= 12 or extra > 59:
+            return None
+        if marker is not None:
+            hour = hour % 12 + (12 if marker.lower() == "p" else 0)
+        total = (hour * 60 - minutes) % (24 * 60)
         return (total // 60, total % 60, 0)
     match = CLOCK_PHRASE_NAMED.match(text)
     if match is None:

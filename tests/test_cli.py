@@ -561,6 +561,19 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_minutes_to_clock_phrases(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "10 to 5": datetime(2026, 11, 9, 4, 50),
+            "20 to 5pm": datetime(2026, 11, 9, 16, 40),
+            "10 to 12am": datetime(2026, 11, 9, 23, 50),
+            "10 to 12pm": datetime(2026, 11, 9, 11, 50),
+            "tomorrow 10 to 5": datetime(2026, 11, 10, 4, 50),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
     def test_clock_phrases_reject_bad_values(self):
         base = datetime(2026, 11, 9, 12, 0)
         for text in ("half past 13", "quarter to 0", "half past 3:75"):

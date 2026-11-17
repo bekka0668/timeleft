@@ -177,6 +177,7 @@ Half and quarter phrases work too, with or without a day anchor:
 $ timeleft --at "half past 3" day
 $ timeleft --at "quarter past 4pm" day
 $ timeleft --at "quarter to 5" day
+$ timeleft --at "10 to 5" day
 $ timeleft --at "tomorrow half past 3" day
 ```
 
