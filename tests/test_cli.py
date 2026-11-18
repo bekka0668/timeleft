@@ -895,6 +895,28 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(json.loads(out)["periods"][0]["percent"], 60.42)
 
+    def test_json_reports_percent_left(self):
+        code, out = run_cli(
+            "--at", "2026-11-09T14:30", "--json", "--precision", "0", "day"
+        )
+        self.assertEqual(code, 0)
+        row = json.loads(out)["periods"][0]
+        self.assertEqual(row["percent"], 60.0)
+        self.assertEqual(row["percent_left"], 40.0)
+
+    def test_json_percent_left_matches_percent_left_mode(self):
+        code, out = run_cli("--at", "2026-11-09T14:30", "--percent-left", "day", "week")
+        self.assertEqual(code, 0)
+        printed = [line.rstrip("%") for line in out.splitlines()]
+        code, payload = run_cli(
+            "--at", "2026-11-09T14:30", "--json", "day", "week"
+        )
+        self.assertEqual(code, 0)
+        as_json = [
+            "%.1f" % row["percent_left"] for row in json.loads(payload)["periods"]
+        ]
+        self.assertEqual(printed, as_json)
+
     def test_bad_precision_fails(self):
         for value in ("-1", "7"):
             with self.subTest(value=value):

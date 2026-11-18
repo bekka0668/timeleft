@@ -396,6 +396,7 @@ Without `--until`, the report is:
       "total": "1d 00h",
       "fraction": 0.5,
       "percent": 50.0,
+      "percent_left": 50.0,
       "elapsed_seconds": 43200,
       "elapsed": "12h 00m",
       "remaining_seconds": 43200,
@@ -407,6 +408,8 @@ Without `--until`, the report is:
 
 Durations are formatted for humans as up to two parts (`1d 00h`, `12h 00m`,
 `3m 05s`, `45s`); the `*_seconds` fields are exact and best for machines.
+`percent_left` is the complement of `percent`, the value `--percent-left`
+would print, so scripts do not have to subtract it themselves.
 
 ## Short options
 

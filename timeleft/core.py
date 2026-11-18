@@ -118,6 +118,7 @@ def build_report(
                 "total": format_duration(span.total_seconds),
                 "fraction": round(fraction, 6),
                 "percent": percent,
+                "percent_left": round(100.0 - percent, precision),
                 "elapsed_seconds": round(span.elapsed_seconds(now)),
                 "elapsed": format_duration(span.elapsed_seconds(now)),
                 "remaining_seconds": round(span.remaining_seconds(now)),
