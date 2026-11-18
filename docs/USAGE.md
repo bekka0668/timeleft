@@ -227,6 +227,15 @@ $ timeleft --at "in a couple of hours" day
 $ timeleft --at "a few days ago" day
 ```
 
+Numbers can be spelled out as well as written in digits:
+
+```console
+$ timeleft --at "in two hours" day
+$ timeleft --at "three days ago" day
+$ timeleft --at "in twenty five minutes" day
+$ timeleft --at "in one month" day
+```
+
 Parts add up, and `a`/`an`/`one` mean one. A phrase must be a valid offset:
 contradictions such as `in 2 hours ago` and unknown units such as
 `in 2 fortnights` are rejected.

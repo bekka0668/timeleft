@@ -102,7 +102,7 @@ NATURAL_PHRASES = (
     (re.compile(r"\ban hour and a half\b", re.IGNORECASE), "90 minutes"),
     (re.compile(r"\b(?:one|1)\s+hours?\s+and\s+a\s+half\b", re.IGNORECASE), "90 minutes"),
     (re.compile(r"\b(?:one|1)\s+and\s+a\s+half\s+hours?\b", re.IGNORECASE), "90 minutes"),
-    (re.compile(r"\bthree quarters of an hour\b", re.IGNORECASE), "45 minutes"),
+    (re.compile(r"\b(?:three|3) quarters of an hour\b", re.IGNORECASE), "45 minutes"),
     (re.compile(r"\b(?:a )?quarter of an hour\b", re.IGNORECASE), "15 minutes"),
     (re.compile(r"\bhalf an hour\b", re.IGNORECASE), "30 minutes"),
     (re.compile(r"\ba half hour\b", re.IGNORECASE), "30 minutes"),
@@ -237,7 +237,7 @@ def parse_clock_time(text: str) -> Optional[Tuple[int, int, int]]:
 
 
 def parse_natural_offset(text: str) -> Optional[int]:
-    value = text.strip().lower()
+    value = spell_numbers(text.strip().lower())
     sign = 1
     starts_ahead = value.startswith("in ") or value.endswith(" from now")
     if value.startswith("in "):
@@ -276,7 +276,7 @@ CALENDAR_TOKEN = re.compile(
 
 
 def parse_calendar_offset(text: str) -> Optional[int]:
-    value = text.strip().lower()
+    value = spell_numbers(text.strip().lower())
     sign = 1
     starts_ahead = value.startswith("in ") or value.endswith(" from now")
     if value.startswith("in "):

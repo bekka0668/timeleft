@@ -249,6 +249,22 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_natural_offsets_accept_spelled_numbers(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "in two hours": datetime(2026, 11, 9, 14, 0),
+            "three days ago": datetime(2026, 11, 6, 12, 0),
+            "in twenty five minutes": datetime(2026, 11, 9, 12, 25),
+            "in twenty-five minutes": datetime(2026, 11, 9, 12, 25),
+            "two weeks and a half ago": datetime(2026, 10, 23, 0, 0),
+            "in three quarters of an hour": datetime(2026, 11, 9, 12, 45),
+            "in one month": datetime(2026, 12, 9, 12, 0),
+            "in two months": datetime(2027, 1, 9, 12, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
     def test_natural_offsets_accept_couple_and_few(self):
         base = datetime(2026, 11, 9, 12, 0)
         cases = {
