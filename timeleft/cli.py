@@ -62,6 +62,13 @@ NATURAL_PHRASES = (
     ),
     (
         re.compile(
+            r"\b(\d+)\s+(hours?|minutes?|days?|weeks?|fortnights?)\s+and\s+a\s+half\b",
+            re.IGNORECASE,
+        ),
+        r"\1.5 \2",
+    ),
+    (
+        re.compile(
             r"\b(?:an?\s+)?half\s+(?:an?\s+)?(hours?|minutes?|days?|weeks?|fortnights?)\b",
             re.IGNORECASE,
         ),

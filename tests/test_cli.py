@@ -237,6 +237,9 @@ class ParseMomentTest(unittest.TestCase):
         cases = {
             "in a week and a half": datetime(2026, 11, 20, 0, 0),
             "in 2 and a half weeks": datetime(2026, 11, 27, 0, 0),
+            "in 2 days and a half": datetime(2026, 11, 12, 0, 0),
+            "a day and a half ago": datetime(2026, 11, 8, 0, 0),
+            "2 weeks and a half ago": datetime(2026, 10, 23, 0, 0),
             "half a week": datetime(2026, 11, 13, 0, 0),
             "half a day ago": datetime(2026, 11, 9, 0, 0),
             "1.5 days ago": datetime(2026, 11, 8, 0, 0),
