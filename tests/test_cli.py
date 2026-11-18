@@ -541,6 +541,19 @@ class ParseMomentTest(unittest.TestCase):
             parse_target("middle of week", base, week_start=6), datetime(2026, 11, 11, 12, 0)
         )
 
+    def test_boundaries_accept_a_clock_time_after_at(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "end of week at 5pm": datetime(2026, 11, 16, 17, 0),
+            "start of day at 9:30": datetime(2026, 11, 9, 9, 30),
+            "middle of day at 3pm": datetime(2026, 11, 9, 15, 0),
+            "eod at noon": datetime(2026, 11, 10, 12, 0),
+            "tomorrow at 09:00": datetime(2026, 11, 10, 9, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_target(text, base), expected)
+
     def test_at_accepts_middle_of_a_period(self):
         code, out = run_cli("--at", "2026-11-09T00:00", "--until", "middle of day")
         self.assertEqual(code, 0)

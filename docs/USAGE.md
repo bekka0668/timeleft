@@ -278,7 +278,9 @@ $ timeleft --at "tomorrow at 9am" day
 
 ### Period ends and starts
 
-`--at` and `--until` also accept period boundaries:
+`--at` and `--until` also accept period boundaries, and any of them can carry
+a clock time after `at`:
+
 
 | Phrase                                   | Shorthand            |
 | ---------------------------------------- | -------------------- |
@@ -290,6 +292,7 @@ $ timeleft --at "tomorrow at 9am" day
 $ timeleft --at eow day        # evaluate at the end of the current week
 $ timeleft --at "start of month" day
 $ timeleft --until "middle of day"
+$ timeleft --until "end of week at 5pm"
 ```
 
 `middle of` (also `middle of the` / `middle of this`) is the exact halfway point, so `middle of day` is noon and

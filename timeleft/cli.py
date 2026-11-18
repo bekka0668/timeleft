@@ -460,6 +460,12 @@ def shifted_period_target(
 
 
 def parse_target(text: str, now: datetime, week_start: int = 0) -> datetime:
+    parts = re.split(r"\s+at\s+", text.strip(), maxsplit=1, flags=re.IGNORECASE)
+    if len(parts) == 2:
+        clock = parse_clock_time(parts[1].strip())
+        if clock is not None:
+            base = parse_target(parts[0], now, week_start)
+            return base.replace(hour=clock[0], minute=clock[1], second=clock[2])
     phrase = target_phrase(text)
     shifted = shifted_period_target(phrase, now, week_start)
     if shifted is not None:
