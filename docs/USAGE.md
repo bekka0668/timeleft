@@ -292,7 +292,7 @@ $ timeleft --at "start of month" day
 $ timeleft --until "middle of day"
 ```
 
-`middle of` is the exact halfway point, so `middle of day` is noon and
+`middle of` (also `middle of the` / `middle of this`) is the exact halfway point, so `middle of day` is noon and
 `middle of week` lands on Thursday noon for a Monday week start.
 
 ### Next, last and this periods

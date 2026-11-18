@@ -524,6 +524,8 @@ class ParseMomentTest(unittest.TestCase):
             "middle of hour": datetime(2026, 11, 9, 12, 30),
             "middle of day": datetime(2026, 11, 9, 12, 0),
             "middle of the day": datetime(2026, 11, 9, 12, 0),
+            "middle of this day": datetime(2026, 11, 9, 12, 0),
+            "middle of this week": datetime(2026, 11, 12, 12, 0),
             "middle of week": datetime(2026, 11, 12, 12, 0),
             "middle of month": datetime(2026, 11, 16),
             "middle of quarter": datetime(2026, 11, 16),
@@ -540,7 +542,7 @@ class ParseMomentTest(unittest.TestCase):
         )
 
     def test_at_accepts_middle_of_a_period(self):
-        code, out = run_cli("--at", "2026-11-09T12:00", "--until", "middle of day")
+        code, out = run_cli("--at", "2026-11-09T00:00", "--until", "middle of day")
         self.assertEqual(code, 0)
         self.assertEqual(out.strip(), "12h 00m")
 
