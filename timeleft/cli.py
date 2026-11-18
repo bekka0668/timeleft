@@ -27,7 +27,7 @@ OCLOCK = re.compile(r"^(\d{1,2})\s*o\s*'?\s*clock\s*([ap])?\.?m?\.?$", re.IGNORE
 WORD_NUMBER = re.compile(
     r"\b(twenty|thirty|forty|fifty|one|two|three|four|five|six|seven|eight|nine|ten"
     r"|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)"
-    r"(?:-(one|two|three|four|five|six|seven|eight|nine))?\b",
+    r"(?:[\s-]+(one|two|three|four|five|six|seven|eight|nine))?\b",
     re.IGNORECASE,
 )
 WORD_NUMBERS = {

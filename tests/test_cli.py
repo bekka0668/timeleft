@@ -613,6 +613,9 @@ class ParseMomentTest(unittest.TestCase):
             "nine pm": datetime(2026, 11, 9, 21, 0),
             "twenty to noon": datetime(2026, 11, 9, 11, 40),
             "twenty-five to five": datetime(2026, 11, 9, 4, 35),
+            "twenty five to five": datetime(2026, 11, 9, 4, 35),
+            "twenty five past four": datetime(2026, 11, 9, 4, 25),
+            "five past nine": datetime(2026, 11, 9, 9, 5),
             "tomorrow ten to five": datetime(2026, 11, 10, 4, 50),
         }
         for text, expected in cases.items():

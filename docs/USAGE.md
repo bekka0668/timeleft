@@ -189,6 +189,7 @@ Numbers may be spelled out, and `o'clock` works like a bare hour:
 ```console
 $ timeleft --at "ten to five" day
 $ timeleft --at "twenty past four" day
+$ timeleft --at "twenty five to five" day
 $ timeleft --at "a quarter to nine" day
 $ timeleft --at "five o'clock" day
 $ timeleft --at "tomorrow half past seven" day
