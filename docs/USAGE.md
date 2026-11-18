@@ -204,6 +204,7 @@ A sign followed by one or more number+unit pairs. Units are `s`, `m`, `h`,
 $ timeleft --at +90m day
 $ timeleft --at -45m day
 $ timeleft --at +2h30m day
+$ timeleft --at "+2h 30m" day
 $ timeleft --at +1.5h day
 ```
 

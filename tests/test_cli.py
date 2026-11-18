@@ -117,6 +117,9 @@ class ParseMomentTest(unittest.TestCase):
             "+1d12h": datetime(2026, 11, 11, 0, 0),
             "-1w2d": datetime(2026, 10, 31, 12, 0),
             "+1H30M": datetime(2026, 11, 9, 13, 30),
+            "+2h 30m": datetime(2026, 11, 9, 14, 30),
+            "-1w 2d": datetime(2026, 10, 31, 12, 0),
+            "+1d 12h 30m": datetime(2026, 11, 11, 0, 30),
         }
         for text, expected in cases.items():
             with self.subTest(text=text):

@@ -45,7 +45,9 @@ CLOCK_PHRASE_NAMED = re.compile(
     r"^(half|(?:a\s+)?quarter|(\d{1,2}))\s+(past|to)\s+(noon|midday|midnight)$",
     re.IGNORECASE,
 )
-RELATIVE_OFFSET = re.compile(r"^([+-])((?:\d+(?:\.\d+)?[smhdw])+)$", re.IGNORECASE)
+RELATIVE_OFFSET = re.compile(
+    r"^([+-])((?:\d+(?:\.\d+)?[smhdw]\s*)+)$", re.IGNORECASE
+)
 RELATIVE_TOKEN = re.compile(r"(\d+(?:\.\d+)?)([smhdw])", re.IGNORECASE)
 NATURAL_PART = re.compile(
     r"(?:(\d+(?:\.\d+)?)\s*([a-z]+)|(an?|one)\s+([a-z]+))", re.IGNORECASE
