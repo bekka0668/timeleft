@@ -284,11 +284,16 @@ $ timeleft --at "tomorrow at 9am" day
 | ---------------------------------------- | -------------------- |
 | end of hour / day / week / month / quarter / year | `eoh`, `eod`, `eow`, `eom`, `eoq`, `eoy` |
 | start of hour / day / week / month / quarter / year | `soh`, `sod`, `sow`, `som`, `soq`, `soy` |
+| middle of hour / day / week / month / quarter / year | |
 
 ```console
 $ timeleft --at eow day        # evaluate at the end of the current week
 $ timeleft --at "start of month" day
+$ timeleft --until "middle of day"
 ```
+
+`middle of` is the exact halfway point, so `middle of day` is noon and
+`middle of week` lands on Thursday noon for a Monday week start.
 
 ### Next, last and this periods
 

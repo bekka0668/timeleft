@@ -518,6 +518,32 @@ class ParseMomentTest(unittest.TestCase):
         self.assertEqual(parse_target("next week", base, week_start=6), datetime(2026, 11, 15))
         self.assertEqual(parse_target("last week", base, week_start=6), datetime(2026, 11, 1))
 
+    def test_middle_of_period_targets(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "middle of hour": datetime(2026, 11, 9, 12, 30),
+            "middle of day": datetime(2026, 11, 9, 12, 0),
+            "middle of the day": datetime(2026, 11, 9, 12, 0),
+            "middle of week": datetime(2026, 11, 12, 12, 0),
+            "middle of month": datetime(2026, 11, 16),
+            "middle of quarter": datetime(2026, 11, 16),
+            "middle of year": datetime(2026, 7, 2, 12, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_target(text, base), expected)
+
+    def test_middle_of_week_honours_week_start(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(
+            parse_target("middle of week", base, week_start=6), datetime(2026, 11, 11, 12, 0)
+        )
+
+    def test_at_accepts_middle_of_a_period(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--until", "middle of day")
+        self.assertEqual(code, 0)
+        self.assertEqual(out.strip(), "12h 00m")
+
     def test_target_phrases_ignore_articles(self):
         base = datetime(2026, 11, 9, 12, 0)
         self.assertEqual(parse_target("the end of the week", base), datetime(2026, 11, 16))

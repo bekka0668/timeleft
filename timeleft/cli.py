@@ -45,6 +45,7 @@ CLOCK_PHRASE_NAMED = re.compile(
     r"^(half|(?:a\s+)?quarter|(\d{1,2}))\s+(past|to)\s+(noon|midday|midnight)$",
     re.IGNORECASE,
 )
+MIDDLE_PERIOD = re.compile(r"^middle\s+of\s+(?:the\s+)?([a-z]+)$", re.IGNORECASE)
 RELATIVE_OFFSET = re.compile(
     r"^([+-])((?:\d+(?:\.\d+)?[smhdw]\s*)+)$", re.IGNORECASE
 )
@@ -467,6 +468,12 @@ def parse_target(text: str, now: datetime, week_start: int = 0) -> datetime:
     period = START_KEYWORDS.get(phrase)
     if period is not None:
         return span_for(period, now, week_start).start
+    match = MIDDLE_PERIOD.match(phrase)
+    if match is not None:
+        period = resolve_period(match.group(1))
+        if period is not None:
+            span = span_for(period, now, week_start)
+            return span.start + (span.end - span.start) / 2
     return parse_moment(text, now=now)
 
 
