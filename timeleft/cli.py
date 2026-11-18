@@ -317,6 +317,12 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     if value.lower().startswith("at "):
         value = value[3:].strip()
     base = now or datetime.now()
+    parts = re.split(r"\s+at\s+", value, maxsplit=1, flags=re.IGNORECASE)
+    if len(parts) == 2 and parts[0].strip():
+        clock = parse_clock_time(parts[1].strip())
+        if clock is not None:
+            day = parse_moment(parts[0].strip(), now=base)
+            return day.replace(hour=clock[0], minute=clock[1], second=clock[2])
     offset = RELATIVE_OFFSET.match(value)
     if offset:
         seconds = sum(

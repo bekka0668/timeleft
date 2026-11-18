@@ -292,6 +292,17 @@ $ timeleft --at "end of next quarter" day
 $ timeleft --at "this year" day
 ```
 
+### Combining an offset with a clock time
+
+Any moment phrase can be followed by `at` and a clock time, which replaces the
+time of day:
+
+```console
+$ timeleft --at "in 2 days at 09:00" day
+$ timeleft --at "2 days ago at 7pm" day
+$ timeleft --at "in 1 month at noon" day
+```
+
 ## Countdown to a moment: `--until WHEN`
 
 `--until` prints only how long is left until `WHEN`. It accepts every format

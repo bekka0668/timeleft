@@ -586,6 +586,19 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_offsets_combine_with_a_clock_time(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "in 2 days at 09:00": datetime(2026, 11, 11, 9, 0),
+            "in 3 hours at half past four": datetime(2026, 11, 9, 4, 30),
+            "2 days from now at five o'clock": datetime(2026, 11, 11, 5, 0),
+            "2 days ago at 7pm": datetime(2026, 11, 7, 19, 0),
+            "in 1 month at noon": datetime(2026, 12, 9, 12, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
     def test_minutes_to_clock_phrases(self):
         base = datetime(2026, 11, 9, 12, 0)
         cases = {
