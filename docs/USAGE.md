@@ -169,6 +169,8 @@ $ timeleft --at 15:30 day
 $ timeleft --at 6:30pm day
 $ timeleft --at noon day
 $ timeleft --at midnight day
+$ timeleft --at "5 o'clock" day
+$ timeleft --at "5 o'clock pm" day
 ```
 
 Half and quarter phrases work too, with or without a day anchor:

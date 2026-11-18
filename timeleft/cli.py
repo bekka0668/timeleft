@@ -23,6 +23,7 @@ PERIOD_ALIASES = {period[0]: period for period in ALL_PERIODS}
 RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
 TWELVE_HOUR = re.compile(r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*([ap])\.?m\.?$", re.IGNORECASE)
+OCLOCK = re.compile(r"^(\d{1,2})\s*o\s*'?\s*clock\s*([ap])?\.?m?\.?$", re.IGNORECASE)
 CLOCK_PHRASE = re.compile(
     r"^(half|(?:a\s+)?quarter)\s+(past|to)\s+(\d{1,2})(?::(\d{2}))?\s*([ap])?\.?m?\.?$",
     re.IGNORECASE,
@@ -192,6 +193,15 @@ def parse_clock_time(text: str) -> Optional[Tuple[int, int, int]]:
     named = NAMED_CLOCKS.get(text.lower())
     if named is not None:
         return named
+    oclock = OCLOCK.match(text)
+    if oclock is not None:
+        hour = int(oclock.group(1))
+        if not 1 <= hour <= 12:
+            return None
+        marker = oclock.group(2)
+        if marker is not None:
+            hour = hour % 12 + (12 if marker.lower() == "p" else 0)
+        return (hour, 0, 0)
     phrase = clock_phrase(text)
     if phrase is not None:
         return phrase

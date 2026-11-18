@@ -357,6 +357,28 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_oclock_clock_times(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "5 o'clock": datetime(2026, 11, 9, 5, 0),
+            "5 oclock": datetime(2026, 11, 9, 5, 0),
+            "5 o clock": datetime(2026, 11, 9, 5, 0),
+            "5 o'clock pm": datetime(2026, 11, 9, 17, 0),
+            "12 o'clock": datetime(2026, 11, 9, 12, 0),
+            "12 o'clock am": datetime(2026, 11, 9, 0, 0),
+            "tomorrow 9 o'clock": datetime(2026, 11, 10, 9, 0),
+            "at 7 o'clock": datetime(2026, 11, 9, 7, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_oclock_rejects_bad_hours(self):
+        for text in ("0 o'clock", "13 o'clock", "5 o'clock pm am"):
+            with self.subTest(text=text):
+                with self.assertRaises(ValueError):
+                    parse_moment(text, now=datetime(2026, 11, 9, 12, 0))
+
     def test_twelve_hour_clock_time_with_day_anchor(self):
         base = datetime(2026, 11, 11, 12, 0)
         self.assertEqual(parse_moment("tomorrow 9am", now=base), datetime(2026, 11, 12, 9, 0))
