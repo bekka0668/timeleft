@@ -24,15 +24,26 @@ RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
 TWELVE_HOUR = re.compile(r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*([ap])\.?m\.?$", re.IGNORECASE)
 OCLOCK = re.compile(r"^(\d{1,2})\s*o\s*'?\s*clock\s*([ap])?\.?m?\.?$", re.IGNORECASE)
-CLOCK_PHRASE = re.compile(
-    r"^(half|(?:a\s+)?quarter)\s+(past|to)\s+(\d{1,2})(?::(\d{2}))?\s*([ap])?\.?m?\.?$",
+WORD_NUMBER = re.compile(
+    r"\b(twenty|thirty|forty|fifty|one|two|three|four|five|six|seven|eight|nine|ten"
+    r"|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)"
+    r"(?:-(one|two|three|four|five|six|seven|eight|nine))?\b",
     re.IGNORECASE,
 )
-CLOCK_MINUTES_TO = re.compile(
-    r"^(\d{1,2})\s+to\s+(\d{1,2})(?::(\d{2}))?\s*([ap])?\.?m?\.?$", re.IGNORECASE
+WORD_NUMBERS = {
+    "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+    "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11,
+    "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15,
+    "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19,
+    "twenty": 20, "thirty": 30, "forty": 40, "fifty": 50,
+}
+CLOCK_PHRASE = re.compile(
+    r"^(half|(?:a\s+)?quarter|(\d{1,2}))\s+(past|to)\s+(\d{1,2})(?::(\d{2}))?\s*([ap])?\.?m?\.?$",
+    re.IGNORECASE,
 )
 CLOCK_PHRASE_NAMED = re.compile(
-    r"^(half|(?:a\s+)?quarter)\s+(past|to)\s+(noon|midday|midnight)$", re.IGNORECASE
+    r"^(half|(?:a\s+)?quarter|(\d{1,2}))\s+(past|to)\s+(noon|midday|midnight)$",
+    re.IGNORECASE,
 )
 RELATIVE_OFFSET = re.compile(r"^([+-])((?:\d+(?:\.\d+)?[smhdw])+)$", re.IGNORECASE)
 RELATIVE_TOKEN = re.compile(r"(\d+(?:\.\d+)?)([smhdw])", re.IGNORECASE)
@@ -156,43 +167,45 @@ def shift_weekday(base: datetime, name: str, modifier: str) -> int:
 def clock_phrase(text: str) -> Optional[Tuple[int, int, int]]:
     match = CLOCK_PHRASE.match(text)
     if match is not None:
-        amount = 30 if match.group(1).lower() == "half" else 15
-        delta = -amount if match.group(2).lower() == "to" else amount
-        hour = int(match.group(3))
-        minute = int(match.group(4) or 0)
-        marker = match.group(5)
-        if not 1 <= hour <= 12 or minute > 59:
+        word = match.group(1).lower()
+        amount = 30 if word == "half" else int(match.group(2) or 15)
+        delta = -amount if match.group(3).lower() == "to" else amount
+        hour = int(match.group(4))
+        minute = int(match.group(5) or 0)
+        marker = match.group(6)
+        if not 1 <= hour <= 12 or minute > 59 or not 1 <= amount <= 59:
             return None
         if marker is not None:
             hour = hour % 12 + (12 if marker.lower() == "p" else 0)
         total = (hour * 60 + minute + delta) % (24 * 60)
         return (total // 60, total % 60, 0)
-    match = CLOCK_MINUTES_TO.match(text)
-    if match is not None:
-        minutes = int(match.group(1))
-        hour = int(match.group(2))
-        extra = int(match.group(3) or 0)
-        marker = match.group(4)
-        if not 1 <= minutes <= 59 or not 1 <= hour <= 12 or extra > 59:
-            return None
-        if marker is not None:
-            hour = hour % 12 + (12 if marker.lower() == "p" else 0)
-        total = (hour * 60 - minutes) % (24 * 60)
-        return (total // 60, total % 60, 0)
     match = CLOCK_PHRASE_NAMED.match(text)
     if match is None:
         return None
-    amount = 30 if match.group(1).lower() == "half" else 15
-    delta = -amount if match.group(2).lower() == "to" else amount
-    hour, minute, second = NAMED_CLOCKS[match.group(3).lower()]
+    word = match.group(1).lower()
+    amount = 30 if word == "half" else int(match.group(2) or 15)
+    delta = -amount if match.group(3).lower() == "to" else amount
+    hour, minute, second = NAMED_CLOCKS[match.group(4).lower()]
     total = (hour * 60 + minute + delta) % (24 * 60)
     return (total // 60, total % 60, second)
+
+
+def spell_numbers(text: str) -> str:
+    def replace(match: "re.Match[str]") -> str:
+        tens = WORD_NUMBERS[match.group(1).lower()]
+        ones = match.group(2)
+        if ones is not None:
+            return str(tens + WORD_NUMBERS[ones.lower()])
+        return str(tens)
+
+    return WORD_NUMBER.sub(replace, text)
 
 
 def parse_clock_time(text: str) -> Optional[Tuple[int, int, int]]:
     named = NAMED_CLOCKS.get(text.lower())
     if named is not None:
         return named
+    text = spell_numbers(text)
     oclock = OCLOCK.match(text)
     if oclock is not None:
         hour = int(oclock.group(1))
