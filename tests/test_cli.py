@@ -599,6 +599,26 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_spelled_out_clock_phrases(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "ten to five": datetime(2026, 11, 9, 4, 50),
+            "ten to midnight": datetime(2026, 11, 9, 23, 50),
+            "twenty past four": datetime(2026, 11, 9, 4, 20),
+            "quarter past nine": datetime(2026, 11, 9, 9, 15),
+            "a quarter to nine": datetime(2026, 11, 9, 8, 45),
+            "half past seven": datetime(2026, 11, 9, 7, 30),
+            "seven o'clock pm": datetime(2026, 11, 9, 19, 0),
+            "eleven am": datetime(2026, 11, 9, 11, 0),
+            "nine pm": datetime(2026, 11, 9, 21, 0),
+            "twenty to noon": datetime(2026, 11, 9, 11, 40),
+            "twenty-five to five": datetime(2026, 11, 9, 4, 35),
+            "tomorrow ten to five": datetime(2026, 11, 10, 4, 50),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
     def test_clock_phrases_reject_bad_values(self):
         base = datetime(2026, 11, 9, 12, 0)
         for text in ("half past 13", "quarter to 0", "half past 3:75"):

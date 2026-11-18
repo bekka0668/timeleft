@@ -180,7 +180,18 @@ $ timeleft --at "half past 3" day
 $ timeleft --at "quarter past 4pm" day
 $ timeleft --at "quarter to 5" day
 $ timeleft --at "10 to 5" day
+$ timeleft --at "20 past 4" day
 $ timeleft --at "tomorrow half past 3" day
+```
+
+Numbers may be spelled out, and `o'clock` works like a bare hour:
+
+```console
+$ timeleft --at "ten to five" day
+$ timeleft --at "twenty past four" day
+$ timeleft --at "a quarter to nine" day
+$ timeleft --at "five o'clock" day
+$ timeleft --at "tomorrow half past seven" day
 ```
 
 ### Offsets from now
