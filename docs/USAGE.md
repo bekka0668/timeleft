@@ -103,7 +103,14 @@ $ timeleft --at 2026-11-09T12:00 --total day year
 ```
 
 The value-only modes are meant to be pasted into status bars, scripts or shell
-prompts, e.g. `$(timeleft --countdown day)`.
+prompts, e.g. `$(timeleft --countdown day)`. Add `--labels` to keep the period
+name on each line, which helps when a widget shows more than one period:
+
+```console
+$ timeleft --at 2026-11-09T12:00 --countdown --labels day week
+day 12h 00m
+week 6d 12h
+```
 
 Percentages show one decimal place by default. `--precision N` sets the number
 of decimals (0 to 6) for the table, `--percent` and the `percent` field in JSON.

@@ -623,6 +623,11 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--labels",
+        action="store_true",
+        help="prefix each value-only line with its period name",
+    )
+    parser.add_argument(
         "--precision",
         type=int,
         default=1,
@@ -742,15 +747,16 @@ def emit_report(
     if args.countdown or args.percent or args.percent_left or args.elapsed or args.total:
         for row in rows:
             if args.countdown:
-                print(row["remaining"])
+                value = row["remaining"]
             elif args.percent:
-                print("%.*f%%" % (args.precision, row["percent"]))
+                value = "%.*f%%" % (args.precision, row["percent"])
             elif args.percent_left:
-                print("%.*f%%" % (args.precision, 100.0 - row["percent"]))
+                value = "%.*f%%" % (args.precision, 100.0 - row["percent"])
             elif args.total:
-                print(row["total"])
+                value = row["total"]
             else:
-                print(row["elapsed"])
+                value = row["elapsed"]
+            print("%s %s" % (row["period"], value) if args.labels else value)
         return 0
 
     bar_style = "ascii" if args.ascii or not supports_block_glyphs(sys.stdout) else "unicode"

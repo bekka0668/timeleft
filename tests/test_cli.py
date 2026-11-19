@@ -1036,6 +1036,28 @@ class MainTest(unittest.TestCase):
             run_cli("--percent", "--percent-left", "day")
         self.assertEqual(caught.exception.code, 2)
 
+    def test_labels_prefixes_value_only_lines_with_the_period(self):
+        code, out = run_cli(
+            "--at", "2026-11-09T12:00", "--countdown", "--labels", "day", "week"
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "day 12h 00m\nweek 6d 12h\n")
+
+    def test_labels_work_with_percent_and_total_modes(self):
+        code, out = run_cli(
+            "--at", "2026-11-09T12:00", "--percent", "--labels", "day"
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "day 50.0%\n")
+        code, out = run_cli("--at", "2026-11-09T12:00", "--total", "--labels", "year")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "year 365d 00h\n")
+
+    def test_labels_do_not_change_the_table(self):
+        unflagged = run_cli("--at", "2026-11-09T12:00", "--plain", "day")
+        flagged = run_cli("--at", "2026-11-09T12:00", "--plain", "--labels", "day")
+        self.assertEqual(flagged, unflagged)
+
     def test_elapsed_prints_only_time_spent(self):
         code, out = run_cli("--at", "2026-11-09T12:00", "--elapsed", "day")
         self.assertEqual(code, 0)
