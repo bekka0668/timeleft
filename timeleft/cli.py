@@ -19,7 +19,7 @@ MAX_WATCH_SECONDS = 86400
 WEEKDAY_NAMES = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
 WEEK_STARTS = {name: index for index, name in enumerate(WEEKDAY_NAMES)}
 WEEK_STARTS.update({name[:3]: index for index, name in enumerate(WEEKDAY_NAMES)})
-WEEK_STARTS.update({"tues": 1, "weds": 3, "thur": 4, "thurs": 4})
+WEEK_STARTS.update({"tues": 1, "weds": 2, "thur": 3, "thurs": 3})
 PERIOD_ALIASES = {period[0]: period for period in ALL_PERIODS}
 RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
