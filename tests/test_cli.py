@@ -856,6 +856,23 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("[\u2588\u2591\u2591]", out)
 
+    def test_partial_option_draws_a_smoother_bar_edge(self):
+        code, out = run_cli(
+            "--at", "2026-11-09T12:30", "--width", "10", "--partial", "day"
+        )
+        self.assertEqual(code, 0)
+        self.assertIn("[\u2588\u2588\u2588\u2588\u2588\u258e" + "\u2591" * 4 + "]", out)
+
+    def test_partial_option_is_rejected_with_ascii(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--partial", "--ascii", "day")
+        self.assertEqual(caught.exception.code, 2)
+
+    def test_partial_option_is_ignored_in_plain_mode(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--partial", "--plain", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "day      50.0%  12h 00m left\n")
+
     def test_ascii_option_replaces_block_glyphs(self):
         code, out = run_cli("--at", "2026-11-09T12:00", "--width", "3", "--ascii", "day")
         self.assertEqual(code, 0)

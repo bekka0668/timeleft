@@ -173,6 +173,22 @@ class RenderBarTest(unittest.TestCase):
         self.assertEqual(render_bar(0.0, 3, "ascii"), "---")
         self.assertEqual(render_bar(1.0, 3, "ascii"), "###")
 
+    def test_partial_bar_uses_an_eighth_block_for_the_edge(self):
+        self.assertEqual(render_bar(0.55, 10, partial=True), "\u2588" * 5 + "\u258c" + "\u2591" * 4)
+        self.assertEqual(render_bar(0.51, 10, partial=True), "\u2588" * 5 + "\u258f" + "\u2591" * 4)
+
+    def test_partial_bar_width_is_respected(self):
+        for fraction in (0.0, 0.13, 0.5, 0.99, 1.0):
+            with self.subTest(fraction=fraction):
+                self.assertEqual(len(render_bar(fraction, 10, partial=True)), 10)
+
+    def test_partial_bar_full_and_empty_are_whole_cells(self):
+        self.assertEqual(render_bar(0.0, 4, partial=True), "\u2591" * 4)
+        self.assertEqual(render_bar(1.0, 4, partial=True), "\u2588" * 4)
+
+    def test_partial_bar_leaves_ascii_alone(self):
+        self.assertEqual(render_bar(0.5, 4, "ascii", partial=True), "##--")
+
     def test_unknown_style(self):
         with self.assertRaises(ValueError):
             render_bar(0.5, 4, "braille")

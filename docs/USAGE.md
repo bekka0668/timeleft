@@ -130,6 +130,15 @@ Bars use `█`/`░` by default. `--ascii` switches to `#`/`-`, and the bar fall
 back to ASCII automatically when the output encoding cannot represent the block
 characters.
 
+`--partial` fills the leading empty cell with an eighth block, so the bar moves
+in smaller steps instead of jumping a whole character. It needs the Unicode bar
+and cannot be combined with `--ascii`.
+
+```console
+$ timeleft --at 2026-11-09T14:45 --width 10 --partial day
+day     [██████▏░░░]  61.5%  9h 15m left
+```
+
 ## Weeks
 
 Weeks start on Monday by default. `--week-start DAY` accepts any weekday name,

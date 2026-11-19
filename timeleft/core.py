@@ -12,6 +12,17 @@ BAR_STYLES = {
     "ascii": ("#", "-"),
 }
 
+PARTIAL_STEPS = (
+    "",
+    "\u258f",
+    "\u258e",
+    "\u258d",
+    "\u258c",
+    "\u258b",
+    "\u258a",
+    "\u2589",
+)
+
 
 def _add_months(reference: date, months: int) -> datetime:
     index = reference.month - 1 + months
@@ -87,7 +98,9 @@ def format_duration(seconds: float) -> str:
     return "%ds" % secs
 
 
-def render_bar(fraction: float, width: int = 25, style: str = "unicode") -> str:
+def render_bar(
+    fraction: float, width: int = 25, style: str = "unicode", partial: bool = False
+) -> str:
     if width < 1:
         raise ValueError("bar width must be at least 1")
     try:
@@ -95,7 +108,15 @@ def render_bar(fraction: float, width: int = 25, style: str = "unicode") -> str:
     except KeyError:
         raise ValueError("unknown bar style %r" % (style,)) from None
     clamped = min(max(fraction, 0.0), 1.0)
-    filled = int(clamped * width)
+    scaled = clamped * width
+    filled = int(scaled)
+    if filled >= width:
+        return fill * width
+    if partial and style == "unicode":
+        step = PARTIAL_STEPS[int(round((scaled - filled) * 8))]
+        if not step:
+            return fill * filled + empty * (width - filled)
+        return fill * filled + step + empty * (width - filled - 1)
     return fill * filled + empty * (width - filled)
 
 
