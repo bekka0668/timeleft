@@ -28,16 +28,18 @@ the flag to evaluate the real current moment.
 
 ## Periods
 
-| Period    | Short | Plural     | In the default report |
-| --------- | ----- | ---------- | --------------------- |
-| `hour`    | `h`   | `hours`    | no - opt in           |
-| `day`     | `d`   | `days`     | yes                   |
-| `week`    | `w`   | `weeks`    | yes                   |
-| `month`   | `m`   | `months`   | yes                   |
-| `quarter` | `q`   | `quarters` | yes                   |
-| `year`    | `y`   | `years`    | yes                   |
+| Period    | Short        | Plural     | In the default report |
+| --------- | ------------ | ---------- | --------------------- |
+| `hour`    | `h`, `hr`    | `hours`    | no - opt in           |
+| `day`     | `d`          | `days`     | yes                   |
+| `week`    | `w`, `wk`    | `weeks`    | yes                   |
+| `month`   | `m`, `mo`    | `months`   | yes                   |
+| `quarter` | `q`, `qtr`   | `quarters` | yes                   |
+| `year`    | `y`, `yr`    | `years`    | yes                   |
 
 - Case does not matter: `Week`, `WEEK` and `w` are the same period.
+- The longer abbreviations also take a plural `s`: `hrs`, `wks`, `mos`, `qtrs`,
+  `yrs`.
 - Repeats are printed once, in the order you first named them. Periods can be
   separated by commas instead of spaces: `timeleft day,week`.
 

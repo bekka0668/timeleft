@@ -1244,6 +1244,20 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(out, "6d 12h\n")
 
+    def test_period_unit_abbreviations(self):
+        cases = {
+            "hr": "hour", "hrs": "hour",
+            "wk": "week", "wks": "week",
+            "mo": "month", "mos": "month",
+            "qtr": "quarter", "qtrs": "quarter",
+            "yr": "year", "yrs": "year",
+        }
+        for name, expected in cases.items():
+            with self.subTest(name=name):
+                code, out = run_cli("--at", "2026-11-09T12:00", "--json", name)
+                self.assertEqual(code, 0)
+                self.assertEqual(json.loads(out)["periods"][0]["period"], expected)
+
     def test_period_names_accept_plurals(self):
         code, out = run_cli("--at", "2026-11-09T12:00", "--json", "days", "Weeks")
         self.assertEqual(code, 0)
