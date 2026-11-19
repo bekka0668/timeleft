@@ -132,9 +132,9 @@ characters.
 
 ## Weeks
 
-Weeks start on Monday by default. `--week-start DAY` accepts any weekday name
-(or its first three letters) and applies to the current week and to week targets
-used by `--at` and `--until`.
+Weeks start on Monday by default. `--week-start DAY` accepts any weekday name,
+its first three letters or a longer abbreviation such as `tues` or `thurs`, and
+applies to the current week and to week targets used by `--at` and `--until`.
 
 ```console
 $ timeleft --at 2026-11-09T12:00 week
@@ -264,9 +264,10 @@ $ timeleft --at "day before yesterday" day
 
 ### Weekdays
 
-A weekday name means the next occurrence of that day, counting today. Add
-`this`, `next` or `last` to move it, and a clock time to pick a moment on that
-day (`at` is optional):
+A weekday name means the next occurrence of that day, counting today. Short
+forms such as `tues`, `weds` and `thurs` work too. Add `this`, `next` or `last`
+to move the day, and a clock time to pick a moment on that day (`at` is
+optional):
 
 ```console
 $ timeleft --at friday day

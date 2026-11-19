@@ -737,6 +737,18 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_long_weekday_abbreviations(self):
+        base = datetime(2026, 11, 11, 12, 0)
+        cases = {
+            "tues": datetime(2026, 11, 17),
+            "thur": datetime(2026, 11, 13),
+            "thurs 9am": datetime(2026, 11, 13, 9, 0),
+            "next tues": datetime(2026, 11, 17),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
     def test_this_weekday(self):
         base = datetime(2026, 11, 11, 12, 0)
         cases = {
@@ -888,6 +900,13 @@ class MainTest(unittest.TestCase):
         )
         self.assertEqual(code, 0)
         self.assertEqual(json.loads(out)["periods"][0]["start"], "2026-11-07T00:00:00")
+
+    def test_week_start_accepts_long_abbreviations(self):
+        code, out = run_cli(
+            "--at", "2026-11-11T12:00", "--json", "--week-start", "tues", "week"
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["periods"][0]["start"], "2026-11-10T00:00:00")
 
     def test_week_start_is_case_insensitive(self):
         for name, expected in (("Sunday", "2026-11-08"), ("SAT", "2026-11-07")):
