@@ -314,8 +314,15 @@ $ timeleft --until "middle of day"
 $ timeleft --until "end of week at 5pm"
 ```
 
-`middle of` (also `middle of the` / `middle of this`) is the exact halfway point, so `middle of day` is noon and
-`middle of week` lands on Thursday noon for a Monday week start.
+`middle of` (also `middle of the` / `middle of this`) is the exact halfway
+point, so `middle of day` is noon and `middle of week` lands on Thursday noon
+for a Monday week start. `next` and `last` shift the period first, so
+`middle of next week` is the halfway point of the following week:
+
+```console
+$ timeleft --until "middle of next week"
+$ timeleft --at "middle of last month" day
+```
 
 ### Next, last and this periods
 

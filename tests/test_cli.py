@@ -541,6 +541,20 @@ class ParseMomentTest(unittest.TestCase):
             parse_target("middle of week", base, week_start=6), datetime(2026, 11, 11, 12, 0)
         )
 
+    def test_middle_of_next_and_last_periods(self):
+        base = datetime(2026, 11, 11, 12, 0)
+        cases = {
+            "middle of next week": datetime(2026, 11, 19, 12, 0),
+            "middle of last week": datetime(2026, 11, 5, 12, 0),
+            "middle of next month": datetime(2026, 12, 16, 12, 0),
+            "middle of last year": datetime(2025, 7, 2, 12, 0),
+            "middle of this day": datetime(2026, 11, 11, 12, 0),
+            "middle of the next quarter": datetime(2027, 2, 15, 0, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_target(text, base), expected)
+
     def test_boundaries_accept_a_clock_time_after_at(self):
         base = datetime(2026, 11, 9, 12, 0)
         cases = {
