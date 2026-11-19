@@ -186,6 +186,11 @@ class RenderBarTest(unittest.TestCase):
         self.assertEqual(render_bar(0.0, 4, partial=True), "\u2591" * 4)
         self.assertEqual(render_bar(1.0, 4, partial=True), "\u2588" * 4)
 
+    def test_partial_bar_stays_inside_its_width_near_the_end(self):
+        bar = render_bar(0.9999, 10, partial=True)
+        self.assertEqual(len(bar), 10)
+        self.assertEqual(bar, "\u2588" * 9 + "\u2589")
+
     def test_partial_bar_leaves_ascii_alone(self):
         self.assertEqual(render_bar(0.5, 4, "ascii", partial=True), "##--")
 

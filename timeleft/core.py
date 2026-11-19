@@ -113,7 +113,7 @@ def render_bar(
     if filled >= width:
         return fill * width
     if partial and style == "unicode":
-        step = PARTIAL_STEPS[int(round((scaled - filled) * 8))]
+        step = PARTIAL_STEPS[min(7, int(round((scaled - filled) * 8)))]
         if not step:
             return fill * filled + empty * (width - filled)
         return fill * filled + step + empty * (width - filled - 1)
