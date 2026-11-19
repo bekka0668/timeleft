@@ -507,7 +507,12 @@ def resolve_period(name: str) -> Optional[str]:
 
 
 def format_row(
-    row: dict, width: int, plain: bool, bar_style: str = "unicode", precision: int = 1
+    row: dict,
+    width: int,
+    plain: bool,
+    bar_style: str = "unicode",
+    precision: int = 1,
+    partial: bool = False,
 ) -> str:
     percent = "%.*f%%" % (precision, row["percent"])
     if plain:
@@ -517,7 +522,7 @@ def format_row(
             percent,
             row["remaining"],
         )
-    bar = render_bar(row["fraction"], width, bar_style)
+    bar = render_bar(row["fraction"], width, bar_style, partial)
     return "%-7s [%s] %*s  %s left" % (
         row["period"],
         bar,
@@ -567,6 +572,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--ascii",
         action="store_true",
         help="draw the bar with ASCII characters (# and -)",
+    )
+    parser.add_argument(
+        "--partial",
+        action="store_true",
+        help="draw the last bar cell as a partial block for a smoother bar",
     )
     value_output = parser.add_mutually_exclusive_group()
     value_output.add_argument(
@@ -747,7 +757,12 @@ def emit_report(
     for row in rows:
         print(
             format_row(
-                row, args.width, args.plain, bar_style, precision=args.precision
+                row,
+                args.width,
+                args.plain,
+                bar_style,
+                precision=args.precision,
+                partial=args.partial,
             )
         )
     return 0
@@ -768,6 +783,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             parser.error("--watch must be at most %d seconds" % MAX_WATCH_SECONDS)
     if args.watch is not None and args.json:
         parser.error("--watch cannot be combined with --json")
+    if args.partial and args.ascii:
+        parser.error("--partial cannot be combined with --ascii")
 
     week_start = WEEK_STARTS[args.week_start]
     selected = args.periods or list(PERIODS)
