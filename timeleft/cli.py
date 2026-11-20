@@ -567,7 +567,7 @@ def parse_target(text: str, now: datetime, week_start: int = 0) -> datetime:
             if modifier == "end":
                 return span.end
             return span.start + (span.end - span.start) / 2
-    return parse_moment(text, now=now)
+    return parse_moment(phrase, now=now)
 
 
 def supports_block_glyphs(stream) -> bool:

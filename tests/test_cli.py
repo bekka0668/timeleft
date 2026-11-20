@@ -675,6 +675,11 @@ class ParseMomentTest(unittest.TestCase):
             parse_target("end of today at 5pm", base), datetime(2026, 11, 10, 17, 0)
         )
 
+    def test_articles_are_ignored_in_month_name_dates(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_target("the 25th of december", base), datetime(2026, 12, 25))
+        self.assertEqual(parse_target("the 1st of january 2027", base), datetime(2027, 1, 1))
+
     def test_at_accepts_middle_of_a_period(self):
         code, out = run_cli("--at", "2026-11-09T00:00", "--until", "middle of day")
         self.assertEqual(code, 0)
