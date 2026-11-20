@@ -451,7 +451,7 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             if month_day.group(5) is not None:
                 return datetime(int(month_day.group(5)), month, day)
             moment = datetime(base.year, month, day)
-            if moment.date() <= base.date():
+            if moment.date() < base.date():
                 moment = datetime(base.year + 1, month, day)
             return moment
     unit = value[-1:].lower()

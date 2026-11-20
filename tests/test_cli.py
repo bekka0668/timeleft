@@ -132,6 +132,11 @@ class ParseMomentTest(unittest.TestCase):
         self.assertEqual(parse_moment("jan 5", now=base), datetime(2027, 1, 5))
         self.assertEqual(parse_moment("nov 10", now=base), datetime(2026, 11, 10))
 
+    def test_month_name_date_that_is_today_stays_today(self):
+        base = datetime(2026, 12, 25, 8, 0)
+        self.assertEqual(parse_moment("dec 25", now=base), datetime(2026, 12, 25))
+        self.assertEqual(parse_moment("december 25 at 9am", now=base), datetime(2026, 12, 25, 9, 0))
+
     def test_month_name_dates_take_a_clock_time(self):
         base = datetime(2026, 11, 9, 12, 0)
         self.assertEqual(
