@@ -158,6 +158,24 @@ SHIFTED_PERIOD = re.compile(
 ISO_DATE_SPACE = re.compile(r"^(\d{4}-\d{2}-\d{2}) (\d{2})")
 BASIC_ISO = re.compile(r"^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})?(\d{2})?)?([Zz])?$")
 BASIC_ISO_MONTH = re.compile(r"^(\d{4})(\d{2})$")
+MONTH_NAMES = {
+    name: index
+    for index, name in enumerate(
+        (
+            "january", "february", "march", "april", "may", "june",
+            "july", "august", "september", "october", "november", "december",
+        ),
+        start=1,
+    )
+}
+MONTH_NAMES.update({name[:3]: index for name, index in list(MONTH_NAMES.items())})
+MONTH_NAMES["sept"] = 9
+MONTH_DAY = re.compile(
+    r"^(?:(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?([a-z]+)"
+    r"|(?:the\s+)?([a-z]+)\s+(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)?)"
+    r"(?:\s+(\d{4}))?$",
+    re.IGNORECASE,
+)
 ISO_SHORT_OFFSET = re.compile(
     r"^(.+T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?)([+-])(\d{2})(\d{2})?$"
 )
@@ -423,6 +441,19 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             if clock is None:
                 return day
             return day.replace(hour=clock[0], minute=clock[1], second=clock[2])
+    month_day = MONTH_DAY.match(value)
+    if month_day is not None:
+        day_text = month_day.group(1) or month_day.group(4)
+        month_text = (month_day.group(2) or month_day.group(3)).lower()
+        month = MONTH_NAMES.get(month_text)
+        if month is not None:
+            day = int(day_text)
+            if month_day.group(5) is not None:
+                return datetime(int(month_day.group(5)), month, day)
+            moment = datetime(base.year, month, day)
+            if moment.date() <= base.date():
+                moment = datetime(base.year + 1, month, day)
+            return moment
     unit = value[-1:].lower()
     if len(value) > 2 and value[0] in "+-" and unit in RELATIVE_UNITS:
         raise ValueError("relative offset needs a number directly followed by a unit, e.g. +90m")
