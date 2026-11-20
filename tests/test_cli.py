@@ -1195,6 +1195,21 @@ class MainTest(unittest.TestCase):
             run_cli("--until", "not-a-date")
         self.assertEqual(caught.exception.code, 2)
 
+    def test_empty_at_is_a_usage_error(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--at", "", "day")
+        self.assertEqual(caught.exception.code, 2)
+
+    def test_empty_until_is_a_usage_error(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--until", "")
+        self.assertEqual(caught.exception.code, 2)
+
+    def test_empty_since_is_a_usage_error(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--since", "")
+        self.assertEqual(caught.exception.code, 2)
+
     def test_until_and_countdown_are_mutually_exclusive(self):
         with self.assertRaises(SystemExit) as caught:
             run_cli("--until", "tomorrow", "--countdown")

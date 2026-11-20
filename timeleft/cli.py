@@ -693,7 +693,7 @@ def emit_report(
     now: datetime,
     parser: argparse.ArgumentParser,
 ) -> int:
-    if args.since:
+    if args.since is not None:
         try:
             target = parse_target(args.since, now, week_start)
         except ValueError as exc:
@@ -721,7 +721,7 @@ def emit_report(
         print(format_duration(elapsed))
         return 0
 
-    if args.until:
+    if args.until is not None:
         try:
             target = parse_target(args.until, now, week_start)
         except ValueError as exc:
@@ -822,7 +822,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 periods.append(period)
 
     anchor = None
-    if args.at:
+    if args.at is not None:
         try:
             anchor = parse_target(args.at, datetime.now(), week_start)
         except ValueError as exc:
