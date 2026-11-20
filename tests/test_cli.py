@@ -113,6 +113,35 @@ class ParseMomentTest(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     parse_moment(text)
 
+    def test_month_name_dates(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "dec 25": datetime(2026, 12, 25),
+            "25 december": datetime(2026, 12, 25),
+            "december the 25th": datetime(2026, 12, 25),
+            "25th of Dec 2027": datetime(2027, 12, 25),
+            "december 25 2027": datetime(2027, 12, 25),
+            "1 may": datetime(2027, 5, 1),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_month_name_dates_roll_into_the_next_year(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_moment("jan 5", now=base), datetime(2027, 1, 5))
+        self.assertEqual(parse_moment("nov 10", now=base), datetime(2026, 11, 10))
+
+    def test_month_name_dates_take_a_clock_time(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(
+            parse_moment("dec 25 at 9am", now=base), datetime(2026, 12, 25, 9, 0)
+        )
+
+    def test_month_name_dates_reject_a_missing_day(self):
+        with self.assertRaises(ValueError):
+            parse_moment("feb 30", now=datetime(2026, 11, 9, 12, 0))
+
     def test_iso_offset_without_a_colon(self):
         self.assertEqual(
             parse_moment("2026-11-09T12:00+0200"),

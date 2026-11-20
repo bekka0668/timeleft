@@ -283,6 +283,18 @@ $ timeleft --at "day after tomorrow" day
 $ timeleft --at "day before yesterday" day
 ```
 
+### Month and day names
+
+A month name with a day number names that date. Without a year it means the
+next such date, so a countdown to Christmas keeps working in January; write
+the year out to pin it. A clock time can follow as usual.
+
+```console
+$ timeleft --until "dec 25"
+$ timeleft --until "25 december at noon"
+$ timeleft --at "december 25 2027" day
+```
+
 ### Weekdays
 
 A weekday name means the next occurrence of that day, counting today. Short
