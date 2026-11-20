@@ -78,6 +78,19 @@ class ParseMomentTest(unittest.TestCase):
             parse_moment("2026-11-09T12:00:00Z"),
         )
 
+    def test_iso_accepts_a_space_between_date_and_time(self):
+        self.assertEqual(parse_moment("2026-11-09 12:00"), datetime(2026, 11, 9, 12, 0))
+        self.assertEqual(
+            parse_moment("2026-11-09 12:00:30"), datetime(2026, 11, 9, 12, 0, 30)
+        )
+
+    def test_iso_space_form_also_converts_utc(self):
+        self.assertIsNone(parse_moment("2026-11-09 12:00:00Z").tzinfo)
+        self.assertEqual(
+            parse_moment("2026-11-09 12:00:00Z"),
+            parse_moment("2026-11-09T12:00:00Z"),
+        )
+
     def test_offset_is_converted(self):
         moment = parse_moment("2026-11-09T12:00:00+02:00")
         self.assertIsNone(moment.tzinfo)

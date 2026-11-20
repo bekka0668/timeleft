@@ -155,6 +155,7 @@ START_KEYWORDS.update({"so%s" % period[0]: period for period in ALL_PERIODS})
 SHIFTED_PERIOD = re.compile(
     r"^(?:(start|end) of )?(next|last|this) (hour|day|week|month|quarter|year)$"
 )
+ISO_DATE_SPACE = re.compile(r"^(\d{4}-\d{2}-\d{2}) (\d{2})")
 
 
 def midnight_of(base: datetime, days: int = 0) -> datetime:
@@ -438,10 +439,11 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
         if not 1 <= month <= 12:
             raise ValueError("month must be between 1 and 12")
         return datetime(year, month, 1)
-    if value.endswith(("Z", "z")):
-        moment = datetime.fromisoformat(value[:-1]).replace(tzinfo=timezone.utc)
+    iso = ISO_DATE_SPACE.sub(r"\1T\2", value)
+    if iso.endswith(("Z", "z")):
+        moment = datetime.fromisoformat(iso[:-1]).replace(tzinfo=timezone.utc)
         return moment.astimezone().replace(tzinfo=None)
-    moment = datetime.fromisoformat(value)
+    moment = datetime.fromisoformat(iso)
     if moment.tzinfo is not None:
         moment = moment.astimezone().replace(tzinfo=None)
     return moment
