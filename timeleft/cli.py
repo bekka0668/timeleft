@@ -55,6 +55,7 @@ CLOCK_PHRASE_NAMED = re.compile(
     r"^(half|(?:a\s+)?quarter|(\d{1,2}))\s+(past|to)\s+(noon|midday|midnight)$",
     re.IGNORECASE,
 )
+DAY_BOUNDARY = re.compile(r"^(start|end|middle)\s+of\s+(.+)$", re.IGNORECASE)
 MIDDLE_PERIOD = re.compile(
     r"^middle\s+of\s+(?:(the|this|next|last)\s+)?([a-z]+)$", re.IGNORECASE
 )
@@ -554,6 +555,17 @@ def parse_target(text: str, now: datetime, week_start: int = 0) -> datetime:
                 span = span_for(period, span.end, week_start)
             elif modifier == "last":
                 span = span_for(period, span.start - timedelta(seconds=1), week_start)
+            return span.start + (span.end - span.start) / 2
+    match = DAY_BOUNDARY.match(phrase)
+    if match is not None:
+        modifier, name = match.groups()
+        offset = DAY_KEYWORDS.get(name, DAY_PHRASES.get(name))
+        if offset is not None:
+            span = span_for("day", midnight_of(now, offset), week_start)
+            if modifier == "start":
+                return span.start
+            if modifier == "end":
+                return span.end
             return span.start + (span.end - span.start) / 2
     return parse_moment(text, now=now)
 

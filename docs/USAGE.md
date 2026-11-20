@@ -329,6 +329,15 @@ $ timeleft --until "middle of day"
 $ timeleft --until "end of week at 5pm"
 ```
 
+Boundaries also accept a day-relative anchor, so a time string can be given
+without a fixed date:
+
+```console
+$ timeleft --until "end of today"
+$ timeleft --at "start of tomorrow" day
+$ timeleft --until "middle of today"
+```
+
 `middle of` (also `middle of the` / `middle of this`) is the exact halfway
 point, so `middle of day` is noon and `middle of week` lands on Thursday noon
 for a Monday week start. `next` and `last` shift the period first, so
