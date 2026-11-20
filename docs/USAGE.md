@@ -178,6 +178,8 @@ $ timeleft --at 2026-11 day               # first moment of that month
 $ timeleft --at 2026 day                  # first moment of that year
 $ timeleft --at 2026-1-9 day              # leading zeros are optional
 $ timeleft --at 2026-W46-1 day            # ISO week date (week 46, Monday)
+$ timeleft --at 20261109T1200 day         # compact form, same moment
+$ timeleft --at "2026-11-09 12:00" day    # a space between date and time
 ```
 
 ### A clock time today

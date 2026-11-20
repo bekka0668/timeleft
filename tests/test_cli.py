@@ -91,6 +91,28 @@ class ParseMomentTest(unittest.TestCase):
             parse_moment("2026-11-09T12:00:00Z"),
         )
 
+    def test_compact_iso_dates(self):
+        self.assertEqual(parse_moment("20261109"), datetime(2026, 11, 9))
+        self.assertEqual(parse_moment("202611"), datetime(2026, 11, 1))
+
+    def test_compact_iso_datetimes(self):
+        self.assertEqual(parse_moment("20261109T12"), datetime(2026, 11, 9, 12, 0))
+        self.assertEqual(parse_moment("20261109T1200"), datetime(2026, 11, 9, 12, 0))
+        self.assertEqual(
+            parse_moment("20261109T120030"), datetime(2026, 11, 9, 12, 0, 30)
+        )
+
+    def test_compact_iso_utc_converts_like_the_extended_form(self):
+        self.assertEqual(
+            parse_moment("20261109T120000Z"), parse_moment("2026-11-09T12:00:00Z")
+        )
+
+    def test_compact_iso_rejects_impossible_fields(self):
+        for text in ("20261309", "20260230", "20261109T2500"):
+            with self.subTest(text=text):
+                with self.assertRaises(ValueError):
+                    parse_moment(text)
+
     def test_offset_is_converted(self):
         moment = parse_moment("2026-11-09T12:00:00+02:00")
         self.assertIsNone(moment.tzinfo)
