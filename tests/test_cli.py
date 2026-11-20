@@ -113,6 +113,22 @@ class ParseMomentTest(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     parse_moment(text)
 
+    def test_iso_offset_without_a_colon(self):
+        self.assertEqual(
+            parse_moment("2026-11-09T12:00+0200"),
+            parse_moment("2026-11-09T12:00+02:00"),
+        )
+        self.assertEqual(
+            parse_moment("2026-11-09T12:00:30-0530"),
+            parse_moment("2026-11-09T12:00:30-05:30"),
+        )
+
+    def test_iso_offset_with_hours_only(self):
+        self.assertEqual(
+            parse_moment("2026-11-09T12:00-05"),
+            parse_moment("2026-11-09T12:00-05:00"),
+        )
+
     def test_offset_is_converted(self):
         moment = parse_moment("2026-11-09T12:00:00+02:00")
         self.assertIsNone(moment.tzinfo)

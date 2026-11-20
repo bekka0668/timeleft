@@ -180,6 +180,7 @@ $ timeleft --at 2026-1-9 day              # leading zeros are optional
 $ timeleft --at 2026-W46-1 day            # ISO week date (week 46, Monday)
 $ timeleft --at 20261109T1200 day         # compact form, same moment
 $ timeleft --at "2026-11-09 12:00" day    # a space between date and time
+$ timeleft --at 2026-11-09T12:00+0200 day # the offset colon is optional too
 ```
 
 ### A clock time today
