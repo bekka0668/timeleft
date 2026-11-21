@@ -443,6 +443,17 @@ class ParseMomentTest(unittest.TestCase):
             parse_moment("15:30:45", now=base), datetime(2026, 11, 9, 15, 30, 45)
         )
 
+    def test_bare_hour_clock_times(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_moment("9", now=base), datetime(2026, 11, 9, 9, 0))
+        self.assertEqual(parse_moment("23", now=base), datetime(2026, 11, 9, 23, 0))
+        self.assertEqual(
+            parse_moment("tomorrow at 9", now=base), datetime(2026, 11, 10, 9, 0)
+        )
+        self.assertEqual(parse_moment("friday 17", now=base), datetime(2026, 11, 13, 17, 0))
+        with self.assertRaises(ValueError):
+            parse_moment("24", now=base)
+
     def test_clock_time_rejects_out_of_range(self):
         with self.assertRaises(ValueError):
             parse_moment("25:00", now=datetime(2026, 11, 9, 12, 0))

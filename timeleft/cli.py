@@ -34,6 +34,7 @@ RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
 TWELVE_HOUR = re.compile(r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*([ap])\.?m\.?$", re.IGNORECASE)
 OCLOCK = re.compile(r"^(\d{1,2})\s*o\s*'?\s*clock\s*([ap])?\.?m?\.?$", re.IGNORECASE)
+BARE_HOUR = re.compile(r"^(\d{1,2})$")
 WORD_NUMBER = re.compile(
     r"\b(twenty|thirty|forty|fifty|one|two|three|four|five|six|seven|eight|nine|ten"
     r"|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)"
@@ -263,6 +264,12 @@ def parse_clock_time(text: str) -> Optional[Tuple[int, int, int]]:
     phrase = clock_phrase(text)
     if phrase is not None:
         return phrase
+    bare = BARE_HOUR.match(text)
+    if bare is not None:
+        hour = int(bare.group(1))
+        if not 1 <= hour <= 23:
+            return None
+        return (hour, 0, 0)
     twelve = TWELVE_HOUR.match(text)
     if twelve is not None:
         hour = int(twelve.group(1))
