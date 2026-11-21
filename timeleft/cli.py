@@ -267,7 +267,7 @@ def parse_clock_time(text: str) -> Optional[Tuple[int, int, int]]:
     bare = BARE_HOUR.match(text)
     if bare is not None:
         hour = int(bare.group(1))
-        if not 1 <= hour <= 23:
+        if not 0 <= hour <= 23:
             return None
         return (hour, 0, 0)
     twelve = TWELVE_HOUR.match(text)

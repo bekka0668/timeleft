@@ -192,7 +192,7 @@ $ timeleft --at noon day
 $ timeleft --at midnight day
 $ timeleft --at "5 o'clock" day
 $ timeleft --at "5 o'clock pm" day
-$ timeleft --at 9 day                  # a bare hour from 1 to 23
+$ timeleft --at 9 day                  # a bare hour from 0 to 23
 $ timeleft --at "tomorrow at 9" day
 ```
 
