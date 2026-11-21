@@ -180,6 +180,7 @@ MONTH_DAY = re.compile(
     r"(?:\s+(\d{4}))?$",
     re.IGNORECASE,
 )
+ORDINAL_DAY = re.compile(r"^(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)$", re.IGNORECASE)
 ISO_SHORT_OFFSET = re.compile(
     r"^(.+T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?)([+-])(\d{2})(\d{2})?$"
 )
@@ -464,6 +465,19 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             if moment.date() < base.date():
                 moment = datetime(base.year + 1, month, day)
             return moment
+    ordinal = ORDINAL_DAY.match(value)
+    if ordinal is not None:
+        day = int(ordinal.group(1))
+        year, month = base.year, base.month
+        for _ in range(13):
+            if day <= calendar.monthrange(year, month)[1]:
+                moment = datetime(year, month, day)
+                if moment.date() >= base.date():
+                    return moment
+            month += 1
+            if month > 12:
+                month, year = 1, year + 1
+        raise ValueError("day %d does not exist" % day)
     unit = value[-1:].lower()
     if len(value) > 2 and value[0] in "+-" and unit in RELATIVE_UNITS:
         raise ValueError("relative offset needs a number directly followed by a unit, e.g. +90m")

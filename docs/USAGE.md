@@ -298,6 +298,17 @@ $ timeleft --until "25 december at noon"
 $ timeleft --at "december 25 2027" day
 ```
 
+### Day of the month
+
+An ordinal day number names that day in the current month. If it has already
+passed, or the month is too short for it, the next month where the day exists
+is used.
+
+```console
+$ timeleft --until "the 25th"
+$ timeleft --at "1st" day
+```
+
 ### Weekdays
 
 A weekday name means the next occurrence of that day, counting today. Short
