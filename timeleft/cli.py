@@ -161,7 +161,7 @@ START_KEYWORDS.update({"first day of %s" % period: period for period in PERIODS}
 SHIFTED_PERIOD = re.compile(
     r"^(?:(start|end) of )?(next|last|this) (hour|day|week|month|quarter|year)$"
 )
-ISO_DATE_SPACE = re.compile(r"^(\d{4}-\d{2}-\d{2}) (\d{2})")
+ISO_DATE_SPACE = re.compile(r"^(\d{4}-\d{2}-\d{2}) (\d{1,2})(?=:|$)")
 BASIC_ISO = re.compile(r"^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})?(\d{2})?)?([Zz])?$")
 BASIC_ISO_MONTH = re.compile(r"^(\d{4})(\d{2})$")
 MONTH_NAMES = {
@@ -195,6 +195,10 @@ ISO_SHORT_OFFSET = re.compile(
 def extend_iso_offset(match: "re.Match[str]") -> str:
     base, sign, hours, minutes = match.groups()
     return "%s%s%s:%s" % (base, sign, hours, minutes or "00")
+
+
+def join_iso_date_time(match: "re.Match[str]") -> str:
+    return "%sT%02d" % (match.group(1), int(match.group(2)))
 
 
 def midnight_of(base: datetime, days: int = 0) -> datetime:
@@ -535,7 +539,7 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     if basic is not None:
         return datetime(int(basic.group(1)), int(basic.group(2)), 1)
     iso = ISO_SHORT_OFFSET.sub(
-        extend_iso_offset, ISO_DATE_SPACE.sub(r"\1T\2", value)
+        extend_iso_offset, ISO_DATE_SPACE.sub(join_iso_date_time, value)
     )
     if iso.endswith(("Z", "z")):
         moment = datetime.fromisoformat(iso[:-1]).replace(tzinfo=timezone.utc)

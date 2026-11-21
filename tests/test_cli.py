@@ -83,6 +83,8 @@ class ParseMomentTest(unittest.TestCase):
         self.assertEqual(
             parse_moment("2026-11-09 12:00:30"), datetime(2026, 11, 9, 12, 0, 30)
         )
+        self.assertEqual(parse_moment("2026-11-09 9:30"), datetime(2026, 11, 9, 9, 30))
+        self.assertEqual(parse_moment("2026-11-09 9"), datetime(2026, 11, 9, 9, 0))
 
     def test_iso_space_form_also_converts_utc(self):
         self.assertIsNone(parse_moment("2026-11-09 12:00:00Z").tzinfo)
