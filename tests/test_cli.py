@@ -492,6 +492,14 @@ class ParseMomentTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_moment("25:00", now=datetime(2026, 11, 9, 12, 0))
 
+    def test_dotted_clock_times(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_moment("18.30", now=base), datetime(2026, 11, 9, 18, 30))
+        self.assertEqual(parse_moment("6.30pm", now=base), datetime(2026, 11, 9, 18, 30))
+        self.assertEqual(
+            parse_moment("tomorrow 8.45", now=base), datetime(2026, 11, 10, 8, 45)
+        )
+
     def test_twelve_hour_clock_times(self):
         base = datetime(2026, 11, 9, 12, 0)
         cases = {

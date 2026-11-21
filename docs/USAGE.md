@@ -189,6 +189,8 @@ $ timeleft --at 2026-11-09T12:00+0200 day # the offset colon is optional too
 $ timeleft --at 15:30 day
 $ timeleft --at 6:30pm day
 $ timeleft --at 9:30p day                # the m in am/pm is optional
+$ timeleft --at 18.30 day                # a dot also separates hours and minutes
+$ timeleft --at 6.30pm day
 $ timeleft --at noon day
 $ timeleft --at midnight day
 $ timeleft --at "5 o'clock" day
