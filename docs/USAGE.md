@@ -335,12 +335,14 @@ a clock time after `at`:
 | end of hour / day / week / month / quarter / year | `eoh`, `eod`, `eow`, `eom`, `eoq`, `eoy` |
 | start of hour / day / week / month / quarter / year | `soh`, `sod`, `sow`, `som`, `soq`, `soy` |
 | middle of hour / day / week / month / quarter / year | |
+| last day of day / week / month / quarter / year | |
+| first day of day / week / month / quarter / year | |
 
 ```console
 $ timeleft --at eow day        # evaluate at the end of the current week
 $ timeleft --at "start of month" day
-$ timeleft --until "middle of day"
-$ timeleft --until "end of week at 5pm"
+$ timeleft --until "last day of the month"
+$ timeleft --at "first day of the week" day
 ```
 
 Boundaries also accept a day-relative anchor, so a time string can be given

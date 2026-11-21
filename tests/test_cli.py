@@ -584,6 +584,15 @@ class ParseMomentTest(unittest.TestCase):
         self.assertEqual(parse_target("end of week", base, week_start=6), datetime(2026, 11, 15))
         self.assertEqual(parse_target("eow", base, week_start=0), datetime(2026, 11, 16))
 
+    def test_first_and_last_day_phrases(self):
+        base = datetime(2026, 11, 21, 12, 0)
+        self.assertEqual(parse_target("last day of the month", base), datetime(2026, 12, 1))
+        self.assertEqual(parse_target("first day of the month", base), datetime(2026, 11, 1))
+        self.assertEqual(parse_target("last day of the week", base), datetime(2026, 11, 23))
+        self.assertEqual(
+            parse_target("first day of the week", base, week_start=6), datetime(2026, 11, 15)
+        )
+
     def test_start_of_period_targets(self):
         base = datetime(2026, 11, 9, 12, 0)
         cases = {

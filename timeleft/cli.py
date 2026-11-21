@@ -156,6 +156,8 @@ END_KEYWORDS = {
 }
 START_KEYWORDS = {"start of %s" % period: period for period in ALL_PERIODS}
 START_KEYWORDS.update({"so%s" % period[0]: period for period in ALL_PERIODS})
+END_KEYWORDS.update({"last day of %s" % period: period for period in PERIODS})
+START_KEYWORDS.update({"first day of %s" % period: period for period in PERIODS})
 SHIFTED_PERIOD = re.compile(
     r"^(?:(start|end) of )?(next|last|this) (hour|day|week|month|quarter|year)$"
 )
