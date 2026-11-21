@@ -469,6 +469,9 @@ class ParseMomentTest(unittest.TestCase):
             "12:15PM": datetime(2026, 11, 9, 12, 15),
             "6:30 pm": datetime(2026, 11, 9, 18, 30),
             "11:59:30 a.m.": datetime(2026, 11, 9, 11, 59, 30),
+            "9:30p": datetime(2026, 11, 9, 21, 30),
+            "5a": datetime(2026, 11, 9, 5, 0),
+            "12:05a": datetime(2026, 11, 9, 0, 5),
         }
         for text, expected in cases.items():
             with self.subTest(text=text):
@@ -500,6 +503,7 @@ class ParseMomentTest(unittest.TestCase):
         base = datetime(2026, 11, 11, 12, 0)
         self.assertEqual(parse_moment("tomorrow 9am", now=base), datetime(2026, 11, 12, 9, 0))
         self.assertEqual(parse_moment("9pm friday", now=base), datetime(2026, 11, 13, 21, 0))
+        self.assertEqual(parse_moment("tomorrow 9:30p", now=base), datetime(2026, 11, 12, 21, 30))
 
     def test_twelve_hour_clock_time_rejects_bad_values(self):
         base = datetime(2026, 11, 9, 12, 0)

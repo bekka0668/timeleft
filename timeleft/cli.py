@@ -32,7 +32,9 @@ PERIOD_ALIASES.update(
 )
 RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 CLOCK_FORMATS = ("%H:%M:%S", "%H:%M")
-TWELVE_HOUR = re.compile(r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*([ap])\.?m\.?$", re.IGNORECASE)
+TWELVE_HOUR = re.compile(
+    r"^(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*([ap])(?:\.?m\.?)?$", re.IGNORECASE
+)
 OCLOCK = re.compile(r"^(\d{1,2})\s*o\s*'?\s*clock\s*([ap])?\.?m?\.?$", re.IGNORECASE)
 BARE_HOUR = re.compile(r"^(\d{1,2})$")
 WORD_NUMBER = re.compile(
