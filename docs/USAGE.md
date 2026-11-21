@@ -302,11 +302,14 @@ $ timeleft --at "december 25 2027" day
 
 An ordinal day number names that day in the current month. If it has already
 passed, or the month is too short for it, the next month where the day exists
-is used.
+is used. `of next month`, `of last month` and `of this month` pick a different
+month, and a day that does not fit there is an error.
 
 ```console
 $ timeleft --until "the 25th"
 $ timeleft --at "1st" day
+$ timeleft --until "25th of next month"
+$ timeleft --at "1st of last month" day
 ```
 
 ### Weekdays

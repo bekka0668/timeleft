@@ -183,6 +183,10 @@ MONTH_DAY = re.compile(
     re.IGNORECASE,
 )
 ORDINAL_DAY = re.compile(r"^(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)$", re.IGNORECASE)
+ORDINAL_SHIFT_MONTH = re.compile(
+    r"^(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)\s+of\s+(next|last|this)\s+month$",
+    re.IGNORECASE,
+)
 ISO_SHORT_OFFSET = re.compile(
     r"^(.+T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?)([+-])(\d{2})(\d{2})?$"
 )
@@ -467,6 +471,17 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             if moment.date() < base.date():
                 moment = datetime(base.year + 1, month, day)
             return moment
+    shift_match = ORDINAL_SHIFT_MONTH.match(value)
+    if shift_match is not None:
+        day = int(shift_match.group(1))
+        shift = {"next": 1, "last": -1, "this": 0}[shift_match.group(2).lower()]
+        moment = shift_months(midnight_of(base), shift)
+        last = calendar.monthrange(moment.year, moment.month)[1]
+        if day > last:
+            raise ValueError(
+                "day %d does not exist in %s %d" % (day, moment.strftime("%B"), moment.year)
+            )
+        return datetime(moment.year, moment.month, day)
     ordinal = ORDINAL_DAY.match(value)
     if ordinal is not None:
         day = int(ordinal.group(1))

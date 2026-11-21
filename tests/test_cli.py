@@ -164,6 +164,21 @@ class ParseMomentTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_moment("32nd", now=datetime(2026, 11, 21, 12, 0))
 
+    def test_ordinal_day_of_a_shifted_month(self):
+        base = datetime(2026, 11, 21, 12, 0)
+        cases = {
+            "the 25th of next month": datetime(2026, 12, 25),
+            "1st of last month": datetime(2026, 10, 1),
+            "the 21st of this month": datetime(2026, 11, 21),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_ordinal_day_of_a_shifted_month_rejects_short_months(self):
+        with self.assertRaises(ValueError):
+            parse_moment("31st of next month", now=datetime(2026, 1, 21, 12, 0))
+
     def test_iso_offset_without_a_colon(self):
         self.assertEqual(
             parse_moment("2026-11-09T12:00+0200"),
