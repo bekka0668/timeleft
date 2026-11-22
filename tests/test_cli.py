@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import re
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime, timedelta, timezone
@@ -1225,7 +1226,7 @@ class AutoWidthTest(unittest.TestCase):
         ), redirect_stdout(out):
             code = main(["--at", "2026-11-09T12:00", "--width", "auto", "day"])
         self.assertEqual(code, 0)
-        line = out.getvalue().strip()
+        line = re.sub(r"\033\[[0-9;]*m", "", out.getvalue().strip())
         self.assertLessEqual(len(line), 60)
         bar = line.split("[", 1)[1].split("]", 1)[0]
         self.assertEqual(len(bar), 28)

@@ -775,11 +775,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--at",
         metavar="WHEN",
         help=(
-            "ISO 8601 moment, a clock time such as 15:30, an offset such as "
-            "+2h30m, one of now, today, tomorrow, yesterday, noon, midnight, "
-            "a weekday name such as friday, a period end such as \"end of "
-            "week\", or one of those followed by a clock time such as "
-            "\"tomorrow 09:00\""
+            "ISO 8601 moment, a clock time such as 15:30, a day part such as "
+            "\"tomorrow morning\", an offset such as +2h30m or +2mo, one of "
+            "now, today, tomorrow, yesterday, noon, midnight, a weekday name "
+            "such as friday, a period boundary such as \"end of week\" or "
+            "\"first day of next month\", or any of those followed by a clock "
+            "time such as \"tomorrow 09:00\""
         ),
     )
     parser.add_argument(
