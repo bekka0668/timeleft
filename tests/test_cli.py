@@ -1,11 +1,13 @@
 import io
 import json
+import os
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime, timedelta, timezone
 from unittest import mock
 
 from timeleft.cli import (
+    auto_width,
     format_row,
     main,
     parse_moment,
@@ -1055,6 +1057,40 @@ class FormatRowTest(unittest.TestCase):
     def test_ascii_bar_row(self):
         line = format_row(self.ROW, 10, plain=False, bar_style="ascii")
         self.assertIn("[#####-----]", line)
+
+
+class AutoWidthTest(unittest.TestCase):
+    def test_auto_width_reserves_columns_for_the_row(self):
+        self.assertEqual(auto_width(80, 1), 48)
+        self.assertEqual(auto_width(80, 6), 43)
+        self.assertEqual(auto_width(20, 1), 1)
+
+    def test_width_auto_falls_back_to_the_default_without_a_terminal(self):
+        plain, plain_out = run_cli("--at", "2026-11-09T12:00", "day")
+        auto, auto_out = run_cli("--at", "2026-11-09T12:00", "--width", "auto", "day")
+        self.assertEqual((auto, auto_out), (plain, plain_out))
+
+    def test_width_auto_uses_the_terminal_width(self):
+        class Tty(io.StringIO):
+            def isatty(self):
+                return True
+
+        out = Tty()
+        with mock.patch(
+            "timeleft.cli.shutil.get_terminal_size",
+            return_value=os.terminal_size((60, 24)),
+        ), redirect_stdout(out):
+            code = main(["--at", "2026-11-09T12:00", "--width", "auto", "day"])
+        self.assertEqual(code, 0)
+        line = out.getvalue().strip()
+        self.assertLessEqual(len(line), 60)
+        bar = line.split("[", 1)[1].split("]", 1)[0]
+        self.assertEqual(len(bar), 28)
+
+    def test_non_numeric_width_fails(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--width", "wide", "day")
+        self.assertEqual(caught.exception.code, 2)
 
 
 class MainTest(unittest.TestCase):

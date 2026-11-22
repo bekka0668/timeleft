@@ -129,6 +129,8 @@ $ timeleft --at 2026-11-09T14:30 --precision 0 --percent day
 ## Progress bar
 
 `-w`, `--width N` sets the bar width in characters (default `25`, minimum `1`).
+`--width auto` sizes the bar to the terminal so the whole row fits on one line;
+when the output is not a terminal it falls back to the default width.
 
 ```console
 $ timeleft --at 2026-11-09T12:00 --width 10 day

@@ -6,6 +6,7 @@ import json
 import math
 import os
 import re
+import shutil
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -15,6 +16,7 @@ from . import __version__
 from .core import ALL_PERIODS, PERIODS, build_report, format_duration, render_bar, span_for
 
 DEFAULT_WIDTH = 25
+ROW_FIXED_WIDTH = 31
 MAX_WATCH_SECONDS = 86400
 WEEKDAY_NAMES = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
 WEEK_STARTS = {name: index for index, name in enumerate(WEEKDAY_NAMES)}
@@ -793,10 +795,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-w",
         "--width",
-        type=int,
+        type=parse_width,
         default=DEFAULT_WIDTH,
-        metavar="N",
-        help="bar width in characters (default: %d)" % DEFAULT_WIDTH,
+        metavar="N|auto",
+        help="bar width in characters or auto for the terminal width (default: %d)"
+        % DEFAULT_WIDTH,
     )
     parser.add_argument(
         "--week-start",
@@ -819,6 +822,30 @@ def build_parser() -> argparse.ArgumentParser:
         version="timeleft %s" % __version__,
     )
     return parser
+
+
+def parse_width(value: str):
+    if value.strip().lower() == "auto":
+        return "auto"
+    try:
+        return int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            "expected a whole number of characters or 'auto'"
+        ) from None
+
+
+def auto_width(columns: int, precision: int) -> int:
+    return max(1, columns - ROW_FIXED_WIDTH - precision)
+
+
+def resolve_width(value, precision: int) -> int:
+    if value != "auto":
+        return value
+    if not sys.stdout.isatty():
+        return DEFAULT_WIDTH
+    columns = shutil.get_terminal_size((DEFAULT_WIDTH, 24)).columns
+    return auto_width(columns, precision)
 
 
 def parse_reason(error: ValueError, fallback: str) -> str:
@@ -934,6 +961,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
+    args.width = resolve_width(args.width, args.precision)
     if args.width < 1:
         parser.error("--width must be at least 1")
     if not 0 <= args.precision <= 6:
