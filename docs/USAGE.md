@@ -150,6 +150,19 @@ $ timeleft --at 2026-11-09T14:45 --width 10 --partial day
 day     [██████▏░░░]  61.5%  9h 15m left
 ```
 
+## Colors
+
+`--color {auto,always,never}` colors the bar and the percentage by how much of
+the period has gone: green below 50%, yellow from 50% to 80%, red above that.
+`auto` (the default) colors only when writing to a terminal, and stays plain
+when `NO_COLOR` is set or `TERM` is `dumb`. `always` and `never` force the
+choice. Colors need a terminal that understands ANSI escapes; `--watch` keeps
+them on every redraw.
+
+```console
+$ timeleft --color always --at 2026-11-09T12:00 day
+```
+
 ## Weeks
 
 Weeks start on Monday by default. `--week-start DAY` accepts any weekday name,
