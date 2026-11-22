@@ -39,6 +39,7 @@ PERIOD_ALIASES.update(
 RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 CALENDAR_UNITS = {
     "mo": 1, "mon": 1, "month": 1, "months": 1,
+    "q": 3, "qtr": 3, "qtrs": 3, "quarter": 3, "quarters": 3,
     "y": 12, "yr": 12, "year": 12, "years": 12,
 }
 CLOCK_FORMATS = ("%H:%M:%S", "%H:%M", "%H.%M")
@@ -354,7 +355,8 @@ def parse_natural_offset(text: str) -> Optional[int]:
 
 
 CALENDAR_TOKEN = re.compile(
-    r"(\d+)\s*(months?|years?)|(an?|one)\s+(months?|years?)", re.IGNORECASE
+    r"(\d+)\s*(months?|quarters?|years?)|(an?|one)\s+(months?|quarters?|years?)",
+    re.IGNORECASE,
 )
 
 
@@ -379,7 +381,12 @@ def parse_calendar_offset(text: str) -> Optional[int]:
             return None
         amount = 1 if match.group(1) is None else int(match.group(1))
         unit = (match.group(2) or match.group(4)).lower()
-        months += amount * (1 if unit.startswith("month") else 12)
+        if unit.startswith("month"):
+            months += amount
+        elif unit.startswith("quarter"):
+            months += amount * 3
+        else:
+            months += amount * 12
         found += 1
         end = match.end()
     if not found or not NATURAL_TAIL.match(value[end:]):
@@ -397,7 +404,10 @@ def shift_months(moment: datetime, months: int) -> datetime:
 
 def parse_signed_offset(text: str, base: datetime) -> Optional[datetime]:
     compact = re.sub(
-        r"(\d)\s+(?=(?:months?|mon|mo|years?|yr|y)\b)", r"\1", text, flags=re.IGNORECASE
+        r"(\d)\s+(?=(?:months?|mon|mo|quarters?|qtrs?|years?|yr|y)\b)",
+        r"\1",
+        text,
+        flags=re.IGNORECASE,
     )
     match = SIGNED_OFFSET.match(compact)
     if match is None:

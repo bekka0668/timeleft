@@ -339,6 +339,31 @@ class ParseMomentTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(parse_moment(text, now=base), expected)
 
+    def test_calendar_offsets_understand_quarters(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "in a quarter": datetime(2027, 2, 9, 12, 0),
+            "in 2 quarters": datetime(2027, 5, 9, 12, 0),
+            "a quarter ago": datetime(2026, 8, 9, 12, 0),
+            "two quarters from now": datetime(2027, 5, 9, 12, 0),
+            "1 year 2 quarters": datetime(2028, 5, 9, 12, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_signed_calendar_offsets_understand_quarters(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "+1 quarter": datetime(2027, 2, 9, 12, 0),
+            "-1q": datetime(2026, 8, 9, 12, 0),
+            "+1qtr": datetime(2027, 2, 9, 12, 0),
+            "+1y 2 quarters": datetime(2028, 5, 9, 12, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
     def test_calendar_offsets_clamp_the_day(self):
         base = datetime(2024, 1, 31, 9, 0)
         self.assertEqual(parse_moment("in 1 month", now=base), datetime(2024, 2, 29, 9, 0))
