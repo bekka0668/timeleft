@@ -303,6 +303,21 @@ $ timeleft --at "day after tomorrow" day
 $ timeleft --at "day before yesterday" day
 ```
 
+### Parts of the day
+
+`morning`, `afternoon`, `evening`, `night` and `tonight` stand for fixed clock
+times: 09:00, 15:00, 19:00, 22:00 and 21:00. They work on their own or after a
+day keyword, `this` or a weekday, and a plain clock time after one overrides
+the fixed hour:
+
+```console
+$ timeleft --at morning day
+$ timeleft --at "tomorrow morning" day
+$ timeleft --at "yesterday evening" day
+$ timeleft --at "friday night" day
+$ timeleft --at "tomorrow morning at 7" day
+```
+
 ### Month and day names
 
 A month name with a day number names that date. Without a year it means the

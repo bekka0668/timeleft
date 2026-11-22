@@ -589,6 +589,40 @@ class ParseMomentTest(unittest.TestCase):
         self.assertEqual(parse_moment("Tomorrow", now=base), datetime(2026, 11, 10))
         self.assertEqual(parse_moment("yesterday", now=base), datetime(2026, 11, 8))
 
+    def test_day_parts_default_to_a_fixed_clock_time(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "morning": datetime(2026, 11, 9, 9, 0),
+            "this morning": datetime(2026, 11, 9, 9, 0),
+            "afternoon": datetime(2026, 11, 9, 15, 0),
+            "evening": datetime(2026, 11, 9, 19, 0),
+            "night": datetime(2026, 11, 9, 22, 0),
+            "tonight": datetime(2026, 11, 9, 21, 0),
+            "tomorrow morning": datetime(2026, 11, 10, 9, 0),
+            "tomorrow afternoon": datetime(2026, 11, 10, 15, 0),
+            "yesterday evening": datetime(2026, 11, 8, 19, 0),
+            "friday night": datetime(2026, 11, 13, 22, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_day_parts_take_precedence_over_a_following_clock(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(
+            parse_moment("tomorrow morning at 7", now=base),
+            datetime(2026, 11, 10, 7, 0),
+        )
+        self.assertEqual(
+            parse_moment("morning at 6:30", now=base),
+            datetime(2026, 11, 9, 6, 30),
+        )
+
+    def test_day_parts_reject_a_second_clock(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        with self.assertRaises(ValueError):
+            parse_moment("tomorrow morning noon", now=base)
+
     def test_day_keyword_with_clock_time(self):
         base = datetime(2026, 11, 9, 12, 0)
         cases = {

@@ -151,6 +151,13 @@ DAY_PHRASES = {
     "the day before yesterday": -2,
 }
 NAMED_CLOCKS = {"noon": (12, 0, 0), "midday": (12, 0, 0), "midnight": (0, 0, 0)}
+DAYPART_CLOCKS = {
+    "morning": (9, 0, 0),
+    "afternoon": (15, 0, 0),
+    "evening": (19, 0, 0),
+    "night": (22, 0, 0),
+    "tonight": (21, 0, 0),
+}
 WEEKDAY_MODIFIERS = {"next", "last", "this"}
 END_KEYWORDS = {
     "end of day": "day", "eod": "day",
@@ -453,6 +460,15 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             minute=NAMED_CLOCKS[keyword][1],
             second=NAMED_CLOCKS[keyword][2],
         )
+    if keyword in DAYPART_CLOCKS:
+        return midnight_of(base).replace(
+            hour=DAYPART_CLOCKS[keyword][0],
+            minute=DAYPART_CLOCKS[keyword][1],
+            second=DAYPART_CLOCKS[keyword][2],
+        )
+    if keyword.startswith("this ") and keyword[5:] in DAYPART_CLOCKS:
+        hour, minute, second = DAYPART_CLOCKS[keyword[5:]]
+        return midnight_of(base).replace(hour=hour, minute=minute, second=second)
     ahead = weekday_offset(base, keyword)
     if ahead is not None:
         return midnight_of(base, ahead)
@@ -477,8 +493,27 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
                 if word.lower() not in (lowered, "at")
                 and word.lower() not in WEEKDAY_MODIFIERS
             ]
-            clock = parse_clock_time(" ".join(clock_words)) if clock_words else None
-            if clock_words and clock is None:
+            daypart = next(
+                (
+                    DAYPART_CLOCKS[word.lower()]
+                    for word in clock_words
+                    if word.lower() in DAYPART_CLOCKS
+                ),
+                None,
+            )
+            plain_clock_words = [
+                word for word in clock_words if word.lower() not in DAYPART_CLOCKS
+            ]
+            if daypart is not None and plain_clock_words:
+                raise ValueError("expected one clock time next to %r" % anchor_word)
+            clock = daypart
+            if clock is None:
+                clock = (
+                    parse_clock_time(" ".join(plain_clock_words))
+                    if plain_clock_words
+                    else None
+                )
+            if plain_clock_words and clock is None:
                 raise ValueError("expected a clock time next to %r" % anchor_word)
             if lowered in DAY_KEYWORDS:
                 days = DAY_KEYWORDS[lowered]
