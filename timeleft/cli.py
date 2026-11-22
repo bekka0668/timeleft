@@ -36,6 +36,14 @@ PERIOD_ALIASES.update(
         "yr": "year", "yrs": "year",
     }
 )
+PERIOD_CHOICES = ", ".join(
+    "%s (%s)"
+    % (
+        period,
+        ", ".join(alias for alias, target in PERIOD_ALIASES.items() if target == period),
+    )
+    for period in ALL_PERIODS
+)
 RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 CALENDAR_UNITS = {
     "mo": 1, "mon": 1, "month": 1, "months": 1,
@@ -1059,8 +1067,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             period = resolve_period(name) if name else None
             if period is None:
                 parser.error(
-                    "invalid period %r (choose from %s)"
-                    % (name, ", ".join(ALL_PERIODS + tuple(PERIOD_ALIASES)))
+                    "invalid period %r (choose from %s)" % (name, PERIOD_CHOICES)
                 )
             if period not in periods:
                 periods.append(period)

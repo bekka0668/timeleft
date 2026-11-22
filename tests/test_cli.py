@@ -1190,6 +1190,18 @@ class ColorTest(unittest.TestCase):
         self.assertEqual(caught.exception.code, 2)
 
 
+class InvalidPeriodTest(unittest.TestCase):
+    def test_error_lists_aliases_next_to_their_period(self):
+        err = io.StringIO()
+        with self.assertRaises(SystemExit), redirect_stdout(io.StringIO()), redirect_stderr(err):
+            main(["frog"])
+        message = err.getvalue()
+        self.assertIn("hour (h, hr, hrs)", message)
+        self.assertIn("day (d)", message)
+        self.assertIn("month (m, mo, mos)", message)
+        self.assertIn("year (y, yr, yrs)", message)
+
+
 class AutoWidthTest(unittest.TestCase):
     def test_auto_width_reserves_columns_for_the_row(self):
         self.assertEqual(auto_width(80, 1), 48)
