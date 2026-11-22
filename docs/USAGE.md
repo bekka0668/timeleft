@@ -234,6 +234,19 @@ $ timeleft --at "+2h 30m" day
 $ timeleft --at +1.5h day
 ```
 
+Calendar units `mo`/`mon`/`month`/`months` and `y`/`yr`/`year`/`years` move
+whole months, so month lengths and leap years are respected. They may be
+combined with the shorter units and with each other:
+
+```console
+$ timeleft --at +2mo day
+$ timeleft --at -1y day
+$ timeleft --at "+1y 2mo" day
+$ timeleft --at "+1mo 90m" day
+```
+
+A fractional calendar amount such as `+1.5mo` is rejected.
+
 ### Natural language offsets
 
 ```console

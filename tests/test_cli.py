@@ -263,6 +263,32 @@ class ParseMomentTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_moment("+90x", now=datetime(2026, 11, 9, 12, 0))
 
+    def test_signed_calendar_offsets(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "+2mo": datetime(2027, 1, 9, 12, 0),
+            "-1y": datetime(2025, 11, 9, 12, 0),
+            "+1month": datetime(2026, 12, 9, 12, 0),
+            "+1month 2mo": datetime(2027, 2, 9, 12, 0),
+            "-2 months": datetime(2026, 9, 9, 12, 0),
+            "+1y 2mo 3d": datetime(2028, 1, 12, 12, 0),
+            "+1mo 90m": datetime(2026, 12, 9, 13, 30),
+            "+0mo": datetime(2026, 11, 9, 12, 0),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_moment(text, now=base), expected)
+
+    def test_signed_calendar_offsets_clamp_the_day(self):
+        base = datetime(2026, 1, 31, 12, 0)
+        self.assertEqual(parse_moment("+1mo", now=base), datetime(2026, 2, 28, 12, 0))
+        leap = datetime(2024, 1, 31, 12, 0)
+        self.assertEqual(parse_moment("+1mo", now=leap), datetime(2024, 2, 29, 12, 0))
+
+    def test_signed_calendar_offsets_reject_fractions(self):
+        with self.assertRaises(ValueError):
+            parse_moment("+1.5mo", now=datetime(2026, 11, 9, 12, 0))
+
     def test_natural_offsets(self):
         base = datetime(2026, 11, 9, 12, 0)
         cases = {

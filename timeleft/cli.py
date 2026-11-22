@@ -31,6 +31,10 @@ PERIOD_ALIASES.update(
     }
 )
 RELATIVE_UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
+CALENDAR_UNITS = {
+    "mo": 1, "mon": 1, "month": 1, "months": 1,
+    "y": 12, "yr": 12, "year": 12, "years": 12,
+}
 CLOCK_FORMATS = ("%H:%M:%S", "%H:%M", "%H.%M")
 TWELVE_HOUR = re.compile(
     r"^(\d{1,2})(?:[.:](\d{2}))?(?:[.:](\d{2}))?\s*([ap])(?:\.?m\.?)?$", re.IGNORECASE
@@ -62,10 +66,10 @@ DAY_BOUNDARY = re.compile(r"^(start|end|middle)\s+of\s+(.+)$", re.IGNORECASE)
 MIDDLE_PERIOD = re.compile(
     r"^middle\s+of\s+(?:(the|this|next|last)\s+)?([a-z]+)$", re.IGNORECASE
 )
-RELATIVE_OFFSET = re.compile(
-    r"^([+-])((?:\d+(?:\.\d+)?[smhdw]\s*)+)$", re.IGNORECASE
+SIGNED_OFFSET = re.compile(
+    r"^([+-])((?:\d+(?:\.\d+)?[a-z]+\s*)+)$", re.IGNORECASE
 )
-RELATIVE_TOKEN = re.compile(r"(\d+(?:\.\d+)?)([smhdw])", re.IGNORECASE)
+SIGNED_TOKEN = re.compile(r"(\d+(?:\.\d+)?)([a-z]+)", re.IGNORECASE)
 NATURAL_PART = re.compile(
     r"(?:(\d+(?:\.\d+)?)\s*([a-z]+)|(an?|one)\s+([a-z]+))", re.IGNORECASE
 )
@@ -377,6 +381,32 @@ def shift_months(moment: datetime, months: int) -> datetime:
     return moment.replace(year=year, month=month, day=day)
 
 
+def parse_signed_offset(text: str, base: datetime) -> Optional[datetime]:
+    compact = re.sub(
+        r"(\d)\s+(?=(?:months?|mon|mo|years?|yr|y)\b)", r"\1", text, flags=re.IGNORECASE
+    )
+    match = SIGNED_OFFSET.match(compact)
+    if match is None:
+        return None
+    sign = 1 if match.group(1) == "+" else -1
+    seconds = 0.0
+    months = 0
+    for amount_text, unit in SIGNED_TOKEN.findall(match.group(2)):
+        unit = unit.lower()
+        factor = CALENDAR_UNITS.get(unit)
+        if factor is not None:
+            if "." in amount_text:
+                raise ValueError("calendar offsets need whole months or years")
+            months += sign * int(amount_text) * factor
+            continue
+        factor = RELATIVE_UNITS.get(unit)
+        if factor is None:
+            return None
+        seconds += sign * float(amount_text) * factor
+    moment = shift_months(base, months) if months else base
+    return (moment + timedelta(seconds=seconds)).replace(microsecond=0)
+
+
 def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     value = text.strip()
     if value.lower().startswith("at "):
@@ -388,14 +418,9 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
         if clock is not None:
             day = parse_moment(parts[0].strip(), now=base)
             return day.replace(hour=clock[0], minute=clock[1], second=clock[2])
-    offset = RELATIVE_OFFSET.match(value)
-    if offset:
-        seconds = sum(
-            float(amount) * RELATIVE_UNITS[unit.lower()]
-            for amount, unit in RELATIVE_TOKEN.findall(offset.group(2))
-        )
-        moment = base + timedelta(seconds=seconds if offset.group(1) == "+" else -seconds)
-        return moment.replace(microsecond=0)
+    signed = parse_signed_offset(value, base)
+    if signed is not None:
+        return signed
     natural = parse_natural_offset(value)
     if natural is not None:
         return (base + timedelta(seconds=natural)).replace(microsecond=0)
