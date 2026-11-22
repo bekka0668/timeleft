@@ -17,6 +17,10 @@ from .core import ALL_PERIODS, PERIODS, build_report, format_duration, render_ba
 
 DEFAULT_WIDTH = 25
 ROW_FIXED_WIDTH = 31
+ANSI_GREEN = "\033[32m"
+ANSI_YELLOW = "\033[33m"
+ANSI_RED = "\033[31m"
+ANSI_RESET = "\033[0m"
 MAX_WATCH_SECONDS = 86400
 WEEKDAY_NAMES = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
 WEEK_STARTS = {name: index for index, name in enumerate(WEEKDAY_NAMES)}
@@ -699,6 +703,14 @@ def resolve_period(name: str) -> Optional[str]:
     return None
 
 
+def color_code(percent: float) -> str:
+    if percent >= 80.0:
+        return ANSI_RED
+    if percent >= 50.0:
+        return ANSI_YELLOW
+    return ANSI_GREEN
+
+
 def format_row(
     row: dict,
     width: int,
@@ -706,21 +718,25 @@ def format_row(
     bar_style: str = "unicode",
     precision: int = 1,
     partial: bool = False,
+    color: bool = False,
 ) -> str:
     percent = "%.*f%%" % (precision, row["percent"])
+    percent_field = "%*s" % (precision + 5, percent)
+    if color:
+        percent_field = color_code(row["percent"]) + percent_field + ANSI_RESET
     if plain:
-        return "%-7s %*s  %s left" % (
+        return "%-7s %s  %s left" % (
             row["period"],
-            precision + 5,
-            percent,
+            percent_field,
             row["remaining"],
         )
     bar = render_bar(row["fraction"], width, bar_style, partial)
-    return "%-7s [%s] %*s  %s left" % (
+    if color:
+        bar = color_code(row["percent"]) + bar + ANSI_RESET
+    return "%-7s [%s] %s  %s left" % (
         row["period"],
         bar,
-        precision + 5,
-        percent,
+        percent_field,
         row["remaining"],
     )
 
@@ -819,6 +835,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--labels",
         action="store_true",
         help="prefix each value-only line with its period name",
+    )
+    parser.add_argument(
+        "--color",
+        choices=("auto", "always", "never"),
+        default="auto",
+        help="color the bar and percentage by elapsed share (default: auto)",
     )
     parser.add_argument(
         "--precision",
@@ -978,6 +1000,12 @@ def emit_report(
         return 0
 
     bar_style = "ascii" if args.ascii or not supports_block_glyphs(sys.stdout) else "unicode"
+    color = args.color == "always" or (
+        args.color == "auto"
+        and sys.stdout.isatty()
+        and os.environ.get("TERM") != "dumb"
+        and not os.environ.get("NO_COLOR")
+    )
     for row in rows:
         print(
             format_row(
@@ -987,6 +1015,7 @@ def emit_report(
                 bar_style,
                 precision=args.precision,
                 partial=args.partial,
+                color=color,
             )
         )
     return 0

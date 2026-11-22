@@ -7,7 +7,11 @@ from datetime import datetime, timedelta, timezone
 from unittest import mock
 
 from timeleft.cli import (
+    ANSI_GREEN,
+    ANSI_RED,
+    ANSI_YELLOW,
     auto_width,
+    color_code,
     format_row,
     main,
     parse_moment,
@@ -1091,6 +1095,74 @@ class FormatRowTest(unittest.TestCase):
     def test_ascii_bar_row(self):
         line = format_row(self.ROW, 10, plain=False, bar_style="ascii")
         self.assertIn("[#####-----]", line)
+
+
+class ColorTest(unittest.TestCase):
+    ROW = {
+        "period": "day",
+        "fraction": 0.5,
+        "percent": 50.0,
+        "remaining": "12h 00m",
+    }
+
+    def test_color_codes_follow_the_elapsed_share(self):
+        self.assertEqual(color_code(0.0), ANSI_GREEN)
+        self.assertEqual(color_code(49.9), ANSI_GREEN)
+        self.assertEqual(color_code(50.0), ANSI_YELLOW)
+        self.assertEqual(color_code(79.9), ANSI_YELLOW)
+        self.assertEqual(color_code(80.0), ANSI_RED)
+        self.assertEqual(color_code(100.0), ANSI_RED)
+
+    def test_row_colors_the_bar_and_the_percentage(self):
+        line = format_row(self.ROW, 4, plain=False, color=True)
+        self.assertEqual(
+            line,
+            "day     [\033[33m\u2588\u2588\u2591\u2591\033[0m] "
+            "\033[33m 50.0%\033[0m  12h 00m left",
+        )
+
+    def test_plain_row_colors_only_the_percentage(self):
+        line = format_row(self.ROW, 25, plain=True, color=True)
+        self.assertEqual(
+            line, "day     \033[33m 50.0%\033[0m  12h 00m left"
+        )
+
+    def test_color_always_emits_escapes_off_a_terminal(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--color", "always", "day")
+        self.assertEqual(code, 0)
+        self.assertIn("\033[", out)
+
+    def test_color_never_stays_plain(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--color", "never", "day")
+        self.assertEqual(code, 0)
+        self.assertNotIn("\033[", out)
+
+    def test_color_auto_is_off_off_a_terminal(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--color", "auto", "day")
+        self.assertEqual(code, 0)
+        self.assertNotIn("\033[", out)
+
+    def test_color_auto_honours_no_color_and_dumb_terminals(self):
+        class Tty(io.StringIO):
+            def isatty(self):
+                return True
+
+        def run_with(env):
+            stream = Tty()
+            with mock.patch.dict(os.environ, env, clear=True), redirect_stdout(stream):
+                code = main(["--at", "2026-11-09T12:00", "day"])
+            return code, stream.getvalue()
+
+        code, output = run_with({"TERM": "xterm"})
+        self.assertEqual(code, 0)
+        self.assertIn("\033[", output)
+        self.assertNotIn("\033[", run_with({"TERM": "dumb"})[1])
+        self.assertNotIn("\033[", run_with({"TERM": "xterm", "NO_COLOR": "1"})[1])
+
+    def test_bad_color_choice_fails(self):
+        with self.assertRaises(SystemExit) as caught:
+            run_cli("--color", "sometimes", "day")
+        self.assertEqual(caught.exception.code, 2)
 
 
 class AutoWidthTest(unittest.TestCase):
