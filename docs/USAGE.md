@@ -355,6 +355,8 @@ a clock time after `at`:
 | middle of hour / day / week / month / quarter / year | |
 | last day of day / week / month / quarter / year | |
 | first day of day / week / month / quarter / year | |
+| last day of next / last / this day / week / month / quarter / year | |
+| first day of next / last / this day / week / month / quarter / year | |
 
 ```console
 $ timeleft --at eow day        # evaluate at the end of the current week
@@ -392,6 +394,14 @@ $ timeleft --at "last week" day
 $ timeleft --until "start of next month"
 $ timeleft --at "end of next quarter" day
 $ timeleft --at "this year" day
+
+`first day of` and `last day of` take the same shift, so they pick the start or
+the end of the neighbouring period:
+
+```console
+$ timeleft --until "first day of next month"
+$ timeleft --until "last day of next month"
+$ timeleft --at "first day of last week" day
 ```
 
 ### Combining an offset with a clock time

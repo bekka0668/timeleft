@@ -163,7 +163,8 @@ START_KEYWORDS.update({"so%s" % period[0]: period for period in ALL_PERIODS})
 END_KEYWORDS.update({"last day of %s" % period: period for period in PERIODS})
 START_KEYWORDS.update({"first day of %s" % period: period for period in PERIODS})
 SHIFTED_PERIOD = re.compile(
-    r"^(?:(start|end) of )?(next|last|this) (hour|day|week|month|quarter|year)$"
+    r"^(?:(start|end) of |(first|last) day of )?"
+    r"(next|last|this) (hour|day|week|month|quarter|year)$"
 )
 ISO_DATE_SPACE = re.compile(r"^(\d{4}-\d{2}-\d{2}) (\d{1,2})(?=:|$)")
 BASIC_ISO = re.compile(r"^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})?(\d{2})?)?([Zz])?$")
@@ -588,13 +589,15 @@ def shifted_period_target(
     match = SHIFTED_PERIOD.match(phrase)
     if match is None:
         return None
-    boundary, modifier, period = match.groups()
+    boundary, day_boundary, modifier, period = match.groups()
     span = span_for(period, now, week_start)
     if modifier == "next":
         span = span_for(period, span.end, week_start)
     elif modifier == "last":
         span = span_for(period, span.start - timedelta(seconds=1), week_start)
-    return span.end if boundary == "end" else span.start
+    if boundary == "end" or day_boundary == "last":
+        return span.end
+    return span.start
 
 
 def parse_target(text: str, now: datetime, week_start: int = 0) -> datetime:

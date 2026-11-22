@@ -667,6 +667,29 @@ class ParseMomentTest(unittest.TestCase):
         self.assertEqual(parse_target("start of week", base, week_start=6), datetime(2026, 11, 8))
         self.assertEqual(parse_target("sow", base, week_start=3), datetime(2026, 11, 5))
 
+    def test_first_and_last_day_of_shifted_periods(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        cases = {
+            "first day of next month": datetime(2026, 12, 1),
+            "last day of next month": datetime(2027, 1, 1),
+            "first day of last week": datetime(2026, 11, 2),
+            "last day of last week": datetime(2026, 11, 9),
+            "first day of this quarter": datetime(2026, 10, 1),
+            "last day of next year": datetime(2028, 1, 1),
+            "first day of next hour": datetime(2026, 11, 9, 13, 0),
+            "the first day of the next month": datetime(2026, 12, 1),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(parse_target(text, base), expected)
+
+    def test_first_and_last_day_of_shifted_periods_accepts_a_clock(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(
+            parse_target("first day of next month at 9am", base),
+            datetime(2026, 12, 1, 9, 0),
+        )
+
     def test_shifted_period_targets(self):
         base = datetime(2026, 11, 9, 12, 0)
         cases = {
