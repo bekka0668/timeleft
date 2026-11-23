@@ -913,6 +913,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="prefix each value-only line with its period name",
     )
     parser.add_argument(
+        "--no-color",
+        action="store_true",
+        help="never color the output (same as --color never)",
+    )
+    parser.add_argument(
         "--color",
         choices=("auto", "always", "never"),
         default="auto",
@@ -1093,8 +1098,8 @@ def emit_report(
     bar_style = args.bar_style or (
         "ascii" if args.ascii or not supports_block_glyphs(sys.stdout) else "unicode"
     )
-    color = args.color == "always" or (
-        args.color == "auto"
+    color = (args.color == "always" and not args.no_color) or (
+        args.color == "auto" and not args.no_color
         and sys.stdout.isatty()
         and os.environ.get("TERM") != "dumb"
         and not os.environ.get("NO_COLOR")

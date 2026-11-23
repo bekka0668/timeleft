@@ -2080,3 +2080,10 @@ class BarStyleOptionTest(unittest.TestCase):
         with redirect_stderr(io.StringIO()):
             with self.assertRaises(SystemExit):
                 main(["--bar-style", "dot", "--ascii", "day"])
+
+
+class NoColorOptionTest(unittest.TestCase):
+    def test_no_color_disables_forced_color(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--color", "always", "--no-color", "day")
+        self.assertEqual(code, 0)
+        self.assertNotIn("\033", out)
