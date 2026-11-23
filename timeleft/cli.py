@@ -629,6 +629,13 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     basic = BASIC_ISO_MONTH.match(value)
     if basic is not None:
         return datetime(int(basic.group(1)), int(basic.group(2)), 1)
+    dated_clock = re.match(r"^(\d{4}-\d{2}-\d{2}) (.+)$", value)
+    if dated_clock is not None:
+        clock = parse_clock_time(dated_clock.group(2))
+        if clock is not None:
+            return datetime.fromisoformat(dated_clock.group(1)).replace(
+                hour=clock[0], minute=clock[1], second=clock[2]
+            )
     iso = ISO_SHORT_OFFSET.sub(
         extend_iso_offset, ISO_DATE_SPACE.sub(join_iso_date_time, value)
     )

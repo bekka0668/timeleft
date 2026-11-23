@@ -2018,3 +2018,14 @@ class FractionModeTest(unittest.TestCase):
         code, out = run_cli("--at", "2026-11-09T12:00", "--fraction", "--labels", "day")
         self.assertEqual(code, 0)
         self.assertEqual(out, "day 0.500000\n")
+
+
+class DateThenClockTest(unittest.TestCase):
+    def test_iso_date_can_be_followed_by_a_clock_without_at(self):
+        self.assertEqual(parse_moment("2026-11-09 5pm"), datetime(2026, 11, 9, 17, 0))
+        self.assertEqual(parse_moment("2026-11-09 09:30"), datetime(2026, 11, 9, 9, 30))
+        self.assertEqual(parse_moment("2026-11-09 12:00:30"), datetime(2026, 11, 9, 12, 0, 30))
+
+    def test_unparseable_text_after_a_date_still_fails(self):
+        with self.assertRaises(ValueError):
+            parse_moment("2026-11-09 not-a-clock")
