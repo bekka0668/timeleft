@@ -639,6 +639,8 @@ def target_phrase(text: str) -> str:
     phrase = text.strip().lower()
     if phrase.startswith("the "):
         phrase = phrase[4:]
+    if phrase.startswith("beginning of "):
+        phrase = "start of " + phrase[len("beginning of ") :]
     return re.sub(r"\bof the\b", "of", phrase)
 
 

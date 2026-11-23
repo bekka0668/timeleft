@@ -1959,3 +1959,16 @@ class BrokenPipeTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BeginningOfTest(unittest.TestCase):
+    def test_beginning_of_matches_start_of(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_target("beginning of week", base), datetime(2026, 11, 9))
+        self.assertEqual(
+            parse_target("the beginning of the week", base), datetime(2026, 11, 9)
+        )
+        self.assertEqual(
+            parse_target("beginning of next month", base), datetime(2026, 12, 1)
+        )
+        self.assertEqual(parse_target("beginning of tomorrow", base), datetime(2026, 11, 10))
