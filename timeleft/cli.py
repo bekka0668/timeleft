@@ -509,6 +509,8 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
         return midnight_of(base, (5 - base.weekday()) % 7)
     if keyword == "next weekend":
         return midnight_of(base, (5 - base.weekday()) % 7 + 7)
+    if keyword == "last weekend":
+        return midnight_of(base, (5 - base.weekday()) % 7 - 7)
     ahead = weekday_offset(base, keyword)
     if ahead is not None:
         return midnight_of(base, ahead)

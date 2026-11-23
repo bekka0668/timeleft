@@ -2087,3 +2087,9 @@ class NoColorOptionTest(unittest.TestCase):
         code, out = run_cli("--at", "2026-11-09T12:00", "--color", "always", "--no-color", "day")
         self.assertEqual(code, 0)
         self.assertNotIn("\033", out)
+
+
+class LastWeekendMomentTest(unittest.TestCase):
+    def test_last_weekend_is_the_previous_saturday(self):
+        monday = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_moment("last weekend", monday), datetime(2026, 11, 7))

@@ -377,7 +377,8 @@ $ timeleft --at "1st of last month" day
 ### Weekends
 
 `weekend` and `this weekend` mean the coming Saturday at midnight (today if it
-is Saturday). `next weekend` is the Saturday after that, one week later.
+is Saturday). `next weekend` is the Saturday after that, one week later, and
+`last weekend` is the Saturday one week before.
 
 ```console
 $ timeleft --at "this weekend" day
