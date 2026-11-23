@@ -2029,3 +2029,15 @@ class DateThenClockTest(unittest.TestCase):
     def test_unparseable_text_after_a_date_still_fails(self):
         with self.assertRaises(ValueError):
             parse_moment("2026-11-09 not-a-clock")
+
+
+class EpochMomentTest(unittest.TestCase):
+    def test_at_epoch_seconds(self):
+        self.assertEqual(
+            parse_moment("@1700000000"),
+            datetime.fromtimestamp(1700000000).replace(microsecond=0),
+        )
+
+    def test_at_epoch_milliseconds(self):
+        expected = datetime.fromtimestamp(1700000000).replace(microsecond=0)
+        self.assertEqual(parse_moment("@1700000000000"), expected)

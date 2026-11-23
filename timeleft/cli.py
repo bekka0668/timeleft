@@ -441,6 +441,12 @@ def parse_signed_offset(text: str, base: datetime) -> Optional[datetime]:
 
 def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     value = text.strip()
+    epoch = re.fullmatch(r"@(-?\d+(?:\.\d+)?)", value)
+    if epoch is not None:
+        seconds = float(epoch.group(1))
+        if abs(seconds) >= 1e11:
+            seconds /= 1000.0
+        return datetime.fromtimestamp(seconds).replace(microsecond=0)
     if value.lower().startswith("at "):
         value = value[3:].strip()
     base = now or datetime.now()

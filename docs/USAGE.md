@@ -201,6 +201,15 @@ $ timeleft --at "2026-11-09 12:00" day    # a space between date and time
 $ timeleft --at 2026-11-09T12:00+0200 day # the offset colon is optional too
 ```
 
+### An epoch timestamp
+
+A leading `@` reads a Unix timestamp, in seconds or milliseconds, in local time:
+
+```console
+$ timeleft --at @1700000000 day
+$ timeleft --until @1700000000000
+```
+
 ### A clock time today
 
 ```console
