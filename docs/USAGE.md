@@ -67,10 +67,12 @@ $ timeleft day,week                 # commas work as separators too
 | Until          | `--until WHEN`    | one line: time left until `WHEN`           |
 | Since          | `--since WHEN`    | one line: time elapsed since `WHEN`        |
 | Total          | `--total`         | total length of each period, one per line  |
+| Start          | `--start`         | start timestamp of each period, one per line |
+| End            | `--end`           | end timestamp of each period, one per line |
 | JSON           | `-j`, `--json`    | structured output                          |
 
 `--countdown`, `--percent`, `--percent-left`, `--elapsed`, `--total`,
-`--until` and `--since` are mutually exclusive.
+`--start`, `--end`, `--until` and `--since` are mutually exclusive.
 `--json` takes over the formatting whenever it is present.
 
 ```console

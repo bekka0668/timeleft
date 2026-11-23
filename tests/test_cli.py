@@ -1984,3 +1984,25 @@ class BareMonthNameTest(unittest.TestCase):
     def test_bare_month_rolls_to_next_year_when_past(self):
         base = datetime(2026, 12, 20, 12, 0)
         self.assertEqual(parse_moment("january", base), datetime(2027, 1, 1))
+
+
+class StartEndModesTest(unittest.TestCase):
+    def test_start_prints_period_start(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--start", "day", "month")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "2026-11-09T00:00:00\n2026-11-01T00:00:00\n")
+
+    def test_end_prints_period_end(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--end", "day", "month")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "2026-11-10T00:00:00\n2026-12-01T00:00:00\n")
+
+    def test_start_and_end_respect_labels(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--start", "--labels", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "day 2026-11-09T00:00:00\n")
+
+    def test_start_and_end_are_exclusive_with_other_value_modes(self):
+        with redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                main(["--start", "--countdown", "day"])

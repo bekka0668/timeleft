@@ -843,6 +843,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="print only the total length of each period, one period per line",
     )
     value_output.add_argument(
+        "--start",
+        action="store_true",
+        help="print only the moment each period starts, one period per line",
+    )
+    value_output.add_argument(
+        "--end",
+        action="store_true",
+        help="print only the moment each period ends, one period per line",
+    )
+    value_output.add_argument(
         "--until",
         metavar="WHEN",
         help=(
@@ -1011,7 +1021,15 @@ def emit_report(
         sys.stdout.write("\n")
         return 0
 
-    if args.countdown or args.percent or args.percent_left or args.elapsed or args.total:
+    if (
+        args.countdown
+        or args.percent
+        or args.percent_left
+        or args.elapsed
+        or args.total
+        or args.start
+        or args.end
+    ):
         for row in rows:
             if args.countdown:
                 value = row["remaining"]
@@ -1021,6 +1039,10 @@ def emit_report(
                 value = "%.*f%%" % (args.precision, 100.0 - row["percent"])
             elif args.total:
                 value = row["total"]
+            elif args.start:
+                value = row["start"]
+            elif args.end:
+                value = row["end"]
             else:
                 value = row["elapsed"]
             print("%s %s" % (row["period"], value) if args.labels else value)
