@@ -229,3 +229,15 @@ class BuildReportTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class MoreBarStylesTest(unittest.TestCase):
+    def test_dot_style(self):
+        self.assertEqual(render_bar(0.5, 10, "dot"), "●●●●●○○○○○")
+
+    def test_line_style(self):
+        self.assertEqual(render_bar(0.25, 8, "line"), "━━──────")
+
+    def test_unknown_style_is_rejected(self):
+        with self.assertRaises(ValueError):
+            render_bar(0.5, 10, "stars")

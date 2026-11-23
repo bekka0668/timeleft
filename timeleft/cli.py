@@ -13,7 +13,15 @@ from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Sequence, Tuple
 
 from . import __version__
-from .core import ALL_PERIODS, PERIODS, build_report, format_duration, render_bar, span_for
+from .core import (
+    ALL_PERIODS,
+    BAR_STYLES,
+    PERIODS,
+    build_report,
+    format_duration,
+    render_bar,
+    span_for,
+)
 
 DEFAULT_WIDTH = 25
 ROW_FIXED_WIDTH = 31
@@ -831,6 +839,13 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="draw the last bar cell as a partial block for a smoother bar",
     )
+    parser.add_argument(
+        "--bar-style",
+        choices=tuple(BAR_STYLES),
+        default=None,
+        metavar="STYLE",
+        help="bar characters: unicode, ascii, dot or line (default: unicode)",
+    )
     value_output = parser.add_mutually_exclusive_group()
     value_output.add_argument(
         "-c",
@@ -1075,7 +1090,9 @@ def emit_report(
             print("%s %s" % (row["period"], value) if args.labels else value)
         return 0
 
-    bar_style = "ascii" if args.ascii or not supports_block_glyphs(sys.stdout) else "unicode"
+    bar_style = args.bar_style or (
+        "ascii" if args.ascii or not supports_block_glyphs(sys.stdout) else "unicode"
+    )
     color = args.color == "always" or (
         args.color == "auto"
         and sys.stdout.isatty()
@@ -1113,8 +1130,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             parser.error("--watch must be at most %d seconds" % MAX_WATCH_SECONDS)
     if args.watch is not None and args.json:
         parser.error("--watch cannot be combined with --json")
+    if args.bar_style is not None and args.ascii:
+        parser.error("--bar-style cannot be combined with --ascii")
     if args.partial and args.ascii:
         parser.error("--partial cannot be combined with --ascii")
+    if args.partial and args.bar_style not in (None, "unicode"):
+        parser.error("--partial needs the unicode bar")
 
     week_start = WEEK_STARTS[args.week_start]
     selected = args.periods or list(PERIODS)

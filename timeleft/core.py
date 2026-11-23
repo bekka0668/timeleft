@@ -10,6 +10,8 @@ ALL_PERIODS = ("hour",) + PERIODS
 BAR_STYLES = {
     "unicode": ("\u2588", "\u2591"),
     "ascii": ("#", "-"),
+    "dot": ("\u25cf", "\u25cb"),
+    "line": ("\u2501", "\u2500"),
 }
 
 PARTIAL_STEPS = (

@@ -2068,3 +2068,15 @@ class WeekendMomentTest(unittest.TestCase):
     def test_next_weekend_is_a_week_later(self):
         monday = datetime(2026, 11, 9, 12, 0)
         self.assertEqual(parse_moment("next weekend", monday), datetime(2026, 11, 21))
+
+
+class BarStyleOptionTest(unittest.TestCase):
+    def test_bar_style_selects_characters(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--width", "10", "--bar-style", "line", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "day     [━━━━━─────]  50.0%  12h 00m left\n")
+
+    def test_bar_style_conflicts_with_ascii(self):
+        with redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                main(["--bar-style", "dot", "--ascii", "day"])
