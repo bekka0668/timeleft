@@ -374,6 +374,16 @@ $ timeleft --until "25th of next month"
 $ timeleft --at "1st of last month" day
 ```
 
+### Weekends
+
+`weekend` and `this weekend` mean the coming Saturday at midnight (today if it
+is Saturday). `next weekend` is the Saturday after that, one week later.
+
+```console
+$ timeleft --at "this weekend" day
+$ timeleft --until "next weekend"
+```
+
 ### Weekdays
 
 A weekday name means the next occurrence of that day, counting today. Short

@@ -497,6 +497,10 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
     if keyword.startswith("this ") and keyword[5:] in DAYPART_CLOCKS:
         hour, minute, second = DAYPART_CLOCKS[keyword[5:]]
         return midnight_of(base).replace(hour=hour, minute=minute, second=second)
+    if keyword in ("weekend", "this weekend"):
+        return midnight_of(base, (5 - base.weekday()) % 7)
+    if keyword == "next weekend":
+        return midnight_of(base, (5 - base.weekday()) % 7 + 7)
     ahead = weekday_offset(base, keyword)
     if ahead is not None:
         return midnight_of(base, ahead)

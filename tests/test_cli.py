@@ -2053,3 +2053,18 @@ class MoreShortOptionsTest(unittest.TestCase):
         code, out = run_cli("--at", "2026-11-09T12:00", "-t", "day")
         self.assertEqual(code, 0)
         self.assertEqual(out, "1d 00h\n")
+
+
+class WeekendMomentTest(unittest.TestCase):
+    def test_weekend_is_the_coming_saturday(self):
+        monday = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_moment("weekend", monday), datetime(2026, 11, 14))
+        self.assertEqual(parse_moment("this weekend", monday), datetime(2026, 11, 14))
+
+    def test_weekend_today_stays_today(self):
+        saturday = datetime(2026, 11, 14, 12, 0)
+        self.assertEqual(parse_moment("weekend", saturday), datetime(2026, 11, 14))
+
+    def test_next_weekend_is_a_week_later(self):
+        monday = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_moment("next weekend", monday), datetime(2026, 11, 21))
