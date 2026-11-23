@@ -1972,3 +1972,15 @@ class BeginningOfTest(unittest.TestCase):
             parse_target("beginning of next month", base), datetime(2026, 12, 1)
         )
         self.assertEqual(parse_target("beginning of tomorrow", base), datetime(2026, 11, 10))
+
+
+class BareMonthNameTest(unittest.TestCase):
+    def test_bare_month_is_the_first_of_that_month(self):
+        base = datetime(2026, 11, 9, 12, 0)
+        self.assertEqual(parse_moment("december", base), datetime(2026, 12, 1))
+        self.assertEqual(parse_moment("dec", base), datetime(2026, 12, 1))
+        self.assertEqual(parse_moment("nov", base), datetime(2027, 11, 1))
+
+    def test_bare_month_rolls_to_next_year_when_past(self):
+        base = datetime(2026, 12, 20, 12, 0)
+        self.assertEqual(parse_moment("january", base), datetime(2027, 1, 1))

@@ -560,6 +560,12 @@ def parse_moment(text: str, now: Optional[datetime] = None) -> datetime:
             if moment.date() < base.date():
                 moment = datetime(base.year + 1, month, day)
             return moment
+    month = MONTH_NAMES.get(keyword)
+    if month is not None:
+        moment = datetime(base.year, month, 1)
+        if moment.date() < base.date():
+            moment = datetime(base.year + 1, month, 1)
+        return moment
     shift_match = ORDINAL_SHIFT_MONTH.match(value)
     if shift_match is not None:
         day = int(shift_match.group(1))
