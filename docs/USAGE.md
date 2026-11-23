@@ -569,12 +569,14 @@ would print, so scripts do not have to subtract it themselves.
 | `-a`  | `--ascii`     |
 | `-c`  | `--countdown` |
 | `-e`  | `--elapsed`   |
+| `-t`  | `--total`     |
+| `-l`  | `--labels`    |
 | `-w`  | `--width`     |
 | `-V`  | `--version`   |
 | `-h`  | `--help`      |
 
-`--at`, `--until`, `--since`, `--percent`, `--total`, `--precision`,
-`--week-start` and `--watch` have no short form.
+`--at`, `--until`, `--since`, `--percent`, `--percent-left`,
+`--precision`, `--week-start` and `--watch` have no short form.
 
 ## Errors and exit codes
 

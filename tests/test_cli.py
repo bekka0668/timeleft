@@ -2041,3 +2041,15 @@ class EpochMomentTest(unittest.TestCase):
     def test_at_epoch_milliseconds(self):
         expected = datetime.fromtimestamp(1700000000).replace(microsecond=0)
         self.assertEqual(parse_moment("@1700000000000"), expected)
+
+
+class MoreShortOptionsTest(unittest.TestCase):
+    def test_labels_short_option(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "-l", "-c", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "day 12h 00m\n")
+
+    def test_total_short_option(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "-t", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "1d 00h\n")

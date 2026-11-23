@@ -856,6 +856,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="print only the time already spent, one period per line",
     )
     value_output.add_argument(
+        "-t",
         "--total",
         action="store_true",
         help="print only the total length of each period, one period per line",
@@ -887,6 +888,7 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "-l",
         "--labels",
         action="store_true",
         help="prefix each value-only line with its period name",
