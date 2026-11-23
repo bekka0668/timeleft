@@ -63,6 +63,7 @@ $ timeleft day,week                 # commas work as separators too
 | Countdown      | `-c`, `--countdown` | remaining time only, one line per period |
 | Percentage     | `--percent`       | elapsed percentage only                    |
 | Left percent   | `--percent-left`  | percentage still ahead only                |
+| Fraction       | `--fraction`      | elapsed share from 0 to 1, one per line    |
 | Elapsed        | `-e`, `--elapsed` | time already spent only                    |
 | Until          | `--until WHEN`    | one line: time left until `WHEN`           |
 | Since          | `--since WHEN`    | one line: time elapsed since `WHEN`        |
@@ -71,8 +72,8 @@ $ timeleft day,week                 # commas work as separators too
 | End            | `--end`           | end timestamp of each period, one per line |
 | JSON           | `-j`, `--json`    | structured output                          |
 
-`--countdown`, `--percent`, `--percent-left`, `--elapsed`, `--total`,
-`--start`, `--end`, `--until` and `--since` are mutually exclusive.
+`--countdown`, `--percent`, `--percent-left`, `--fraction`, `--elapsed`,
+`--total`, `--start`, `--end`, `--until` and `--since` are mutually exclusive.
 `--json` takes over the formatting whenever it is present.
 
 ```console

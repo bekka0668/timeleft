@@ -2006,3 +2006,15 @@ class StartEndModesTest(unittest.TestCase):
         with redirect_stderr(io.StringIO()):
             with self.assertRaises(SystemExit):
                 main(["--start", "--countdown", "day"])
+
+
+class FractionModeTest(unittest.TestCase):
+    def test_fraction_prints_elapsed_share(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--fraction", "day", "year")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "0.500000\n0.856164\n")
+
+    def test_fraction_honours_labels(self):
+        code, out = run_cli("--at", "2026-11-09T12:00", "--fraction", "--labels", "day")
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "day 0.500000\n")

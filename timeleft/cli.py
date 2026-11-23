@@ -832,6 +832,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="print only the percentage still ahead, one period per line",
     )
     value_output.add_argument(
+        "--fraction",
+        action="store_true",
+        help="print only the elapsed share from 0 to 1, one period per line",
+    )
+    value_output.add_argument(
         "-e",
         "--elapsed",
         action="store_true",
@@ -1025,6 +1030,7 @@ def emit_report(
         args.countdown
         or args.percent
         or args.percent_left
+        or args.fraction
         or args.elapsed
         or args.total
         or args.start
@@ -1037,6 +1043,8 @@ def emit_report(
                 value = "%.*f%%" % (args.precision, row["percent"])
             elif args.percent_left:
                 value = "%.*f%%" % (args.precision, 100.0 - row["percent"])
+            elif args.fraction:
+                value = "%.6f" % row["fraction"]
             elif args.total:
                 value = row["total"]
             elif args.start:
